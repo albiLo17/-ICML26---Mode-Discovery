@@ -1,11 +1,12 @@
 
 % Packages
-\usepackage[dvipsnames]{xcolor}
-\usepackage{todonotes}
-\usepackage{bm}
+% \usepackage[dvipsnames]{xcolor}
+% \usepackage[usenames,dvipsnames]{xcolor} % Do not reload xcolor to avoid option clash
+% \usepackage{bm}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{dsfont}
+\usepackage{todonotes} % Load after xcolor to prevent option clash
+% \usepackage{dsfont}  % Commented out - package not found, not used in document
 \usepackage{appendix}
 \usepackage{multirow}
 \usepackage[font=small,labelfont=bf]{caption}
@@ -26,7 +27,7 @@
 \usepackage{wrapfig}
 
 %%%%%%%%%%% COLORS AND CUSTOM COMMENTS
-\usepackage{xcolor,colortbl}
+\usepackage{colortbl}  % xcolor already loaded above with dvipsnames option
 \definecolor{lavender}{rgb}{0.9, 0.9, 0.98}
 \definecolor{red}{RGB}{255, 0, 0}
 \definecolor{orange}{RGB}{252, 130, 62}
