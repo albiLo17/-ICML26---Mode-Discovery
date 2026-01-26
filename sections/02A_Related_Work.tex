@@ -1,0 +1,39 @@
+\section{Related Work}
+\label{sec:rw}
+\label{sec:fine-tuning_tech}
+
+We briefly review two areas closely connected to our central idea and contributions. For a more comprehensive discussion on related work, see Appendix~\ref{appendix:rw}.
+% Robotic manipulation often admits multiple distinct solutions arising from kinematic redundancies, multimodal goals, or heterogeneous demonstrations~\citep{li2025train}.
+% We review related work on handling such multimodality in the action distribution from three perspectives: (i) general approaches to learning multimodal behaviors, (ii) fine-tuning of generative policies, where we identify three categories of RL-based techniques schematically illustrated in Figure~\ref{fig:related_work_categories}, and (iii) the skill discovery literature, which closely connects to our central idea of unsupervised mode discovery. %A more comprehensive discussion is provided in Appendix~\ref{appendix:rw} \al{is it even needed a more extensive related work? Seems big and hard to shrink even more}.
+
+% \paragraph{Multimodal Behavior Learning.}
+%  Standard RL policies parameterized by unimodal Gaussians typically collapse to a single behavior~\citep{huang2023reparameterized}. To address this, prior work introduced latent-conditioned policies to encourage exploration of distinct modes~\citep{huang2023reparameterized}, or inferred discrete behaviors from demonstrations via clustering or divergence penalties~\citep{hausman2017multi, chen2022latent}. More recently,
+%  Expressive policies based on diffusion or flow models have been shown to capture richer distributions, with methods such as DDiffPG~\citep{li2024learning} discovering multiple strategies from scratch through mode-specific value learning. Our approach also builds on a latent-variable perspective, but differs from prior work in two important respects. First, rather than learning multimodal behaviors from scratch, we leverage a pre-trained generative policy that already encodes diverse demonstrations. Second, we address the challenge of reinforcement learning fine-tuning, focusing on explicitly preserving multimodality in the action distribution through intrinsic regularization.
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=0.99\linewidth]{figures/02_RW/related_work_long.pdf}
+%     \caption{ \textbf{\ac{rl} Fine-tuning Categories.} Comparison of fine-tuning strategies for pre-trained generative policies. Each plot illustrates the learned action-value function $Q(s_t,\cdot)$ as the underlying reward landscape. Direct fine-tuning (left) adapts the pre-trained policy weights to optimize task performance, directly shifting the action distribution toward higher-value regions. Residual policies (center) learn an additive correction $\Delta a_t$ to the pre-trained action $a_t^{\mathcal{D}}$, combining them into a fine-tuned action $a_t^*$. Steering policies (right) learn a policy over the input latent noise of the generative model, biasing sampling toward regions of the noise space whose denoised actions have high-reward behaviors. \al{The yellow is hard to see, adjust.} } 
+
+%     \label{fig:related_work_categories}
+% \end{figure}
+
+\paragraph{Fine-tuning of Pre-trained Generative Policies.}
+\label{sec:fine-tuning_tech}
+
+Diffusion- and flow-based models provide expressive policy parameterizations for multimodal action distributions, but fine-tuning them with \ac{rl} is challenging due to sequential sampling and the cost of backpropagating through the generative process. Recent work addresses these issues through three main strategies: direct fine-tuning, residual policies, and steering policies. 
+\emph{Direct fine-tuning} approaches adapt the network weights either by distilling the model into a one-step sampler for easier backpropagation~\citep{park2025flow, chen2024diffusion}, by casting the denoising process as a sequential decision problem~\citep{ren2024diffusion}, or by using differentiable approximations that allow offline Q-learning without backpropagating through all denoising steps~\citep{kang2023efficient}. %Despite their promise, such approaches often collapse to a single reward-maximizing mode. 
+% adapt generative models to RL by directly biasing action samples toward high-value regions of the learned $Q$-function by either distilling the action sampling to enable one-step sampling which is more amenable for backpropagarion~\citep{park2025flow,chen2024diffusion}, reframing the diffusion as a decision-making problem~\cite{ren2024diffusion}, or thorugh differentiable approximations to the sampling process, enabling policy optimization via offline Q-learning while avoiding full gradient flow through the denoising trajectory~\cite{kang2023efficient}. These methods, however, often suffer from mode collapse.
+\emph{Residual policy} learning methods instead freeze a pre-trained generative policy and learn a small corrective controller via \ac{rl} to address execution errors \citep{ankile2024imitation,yuan2024policy}. These techniques can yield substantial performance gains over pure \ac{il}, and potentially preserve the diversity learned from demonstrations.
+\emph{Steering policy} methods instead bias the sampling process toward high-value actions without modifying the generative model itself~\cite{wagenmaker2025steering,yang2023policy,wang2022diffusion}.
+% Some methods directly adjust training data or sampled actions using Q-values, either by nudging demonstration actions toward higher values~\citep{yang2023policy} or by combining diffusion with Q-learning to bias samples while staying close to the demonstration manifold~\citep{wang2022diffusion}.
+% For example, ~\cite{wagenmaker2025steering} proposed to learn to control the latent noise of generative models, guiding the sampling process toward regions of the noise space whose denoised actions yield higher reward.
+A common limitation of the aforementioned approaches is that they lack explicit mechanisms to preserve multimodality, and often converge to a single reward-maximizing solution. Our work extends the steering-policy framework of~\cite{wagenmaker2025steering}, by introducing mode discovery to discover and control latent modalities while biasing all behaviors towards higher rewards.
+
+\paragraph{Skill Discovery.}
+Multimodal behavior learning has also been studied through unsupervised skill discovery, which aims to acquire diverse and distinguishable behaviors without external rewards. A common approach is to maximize mutual information between a latent skill variable and visited states or trajectories~\citep{gregor2016variational, eysenbach2018diversity}. Most existing methods train policies from scratch in reward-free settings, but diversity alone often leads to skills that may be ill suited for downstream tasks. To address this, prior work has incorporated language guidance~\citep{LGSD}, extrinsic rewards~\citep{SLIM}, or state-space regularization~\citep{CSD}. Our approach differs by leveraging a pre-trained generative model to uncover useful behaviors already encoded in demonstrations. To our knowledge, we are the first to study skill discovery in this context, treating skills as modes in the latent noise space of a pre-trained generative policy.
+
+
+
+
+

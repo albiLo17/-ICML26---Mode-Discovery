@@ -1,0 +1,120 @@
+
+%%%%%%%%%%%%%% ICLR VERSION %%%%%%%%%%%%%%%%%%
+
+% \begin{algorithm}[t!]
+% \small
+% \caption{Mode Discovery and Fine-Tuning of Generative Policies}
+% \label{alg:mode_finetuning}
+% \begin{algorithmic}[1]
+% \State \textbf{Inputs:} pre-trained diffusion policy $\pi_{\theta}(a\mid s,w)$; steering policy ${\pi^{\mathcal{W}}_{\psi}(w\mid s,z)}$; inference model $q_{\phi}(z\mid s,a)$; critic $V_{\omega}(s,z)$; latent prior $p(z)$, epochs $E$, episodes $N$, warm-up epochs $E_{\text{wp}}$; horizon scheduler $H_{\text{schedule}}(e)$  %; discriminator noise std $\sigma_{\text{reg}}$
+
+% \State \textbf{Init:} $\psi,\phi,\omega$; set $\lambda \ge 0$
+
+
+% \Statex
+% % \State \textbf{Stage 2: Fine-tuning with intrinsic reward}
+% \For{$e = 1$ \textbf{to} $E$} \Comment{epochs}
+%   \For{$n = 1$ \textbf{to} $N$} \Comment{episodes per epoch}
+%     \State $H \gets H_{\text{schedule}}(e)$ \Comment{curriculum horizon}
+%     \State Sample $z \sim p(z)$ and rollout the policy:
+%     \State \quad $w_t \sim \pi^{\mathcal{W}}_{\psi}(w\mid s_t,z)$,\quad $a_t \sim \pi_{\theta}(a\mid s_t,w_t)$,\quad $s_{t+1}\sim p(\cdot\mid s_t,a_t)$
+%     \State Intrinsic reward: $\textcolor{orange}{r^{\text{int}}_t \gets \lambda\big(\log q_{\phi}(z\mid s_{t+1}) - \log p(z)\big)}$
+%   \If{$e < E_{\text{wp}}$}
+%     \State Policy reward:
+%     $ 
+%       r^{\text{tot}}_t \gets 
+%         \textcolor{orange}{r^{\text{int}}_t}
+%     $ \Comment{Mode Discovery}
+% \Else
+%     \State Policy reward:
+%     $ 
+%       r^{\text{tot}}_t \gets 
+%         r_{\text{env}}(s_t,a_t)\;+\;
+%         \textcolor{orange}{r^{\text{int}}_t}
+%     $ \Comment{Policy Fine-tuning}
+% \EndIf
+%   \EndFor
+%   \State Update steering policy and critic using $r_t^{tot}$ (PPO): \quad
+%   $ 
+%     \min_{\psi,\omega}\; L_{\pi}^{\text{PPO}}(\psi)\;+\;c_V\,L_V(\omega)\;+\;c_{\mathcal{H}}\,L_{\mathcal{H}}(\psi)
+%   $ 
+%   \State Update inference model:\quad 
+%     $ 
+%     \min_{\phi}\; L_q(\phi)\;=\;-\mathbb{E}\big[\log q_{\phi}(z\mid s)\big]
+%   $ 
+% \EndFor
+% \end{algorithmic}
+% \end{algorithm}
+
+
+%%%%%%%%%%%%%%%% ICML VERSION %%%%%%%%%%%%%%%%
+
+\begin{algorithm}[tb]
+\small
+\caption{Mode Discovery and Fine-Tuning of Generative Policies}
+\label{alg:mode_finetuning}
+\begin{algorithmic}
+\STATE {\bfseries Input:} pre-trained diffusion policy $\pi_{\theta}(a\mid s,w)$;
+steering policy $\pi^{\mathcal{W}}_{\psi}(w\mid s,z)$;
+inference model $q_{\phi}(z\mid s,a)$;
+critic $V_{\omega}(s,z)$;
+latent prior $p(z)$;
+epochs $E$, episodes $N$, warm-up epochs $E_{\text{wp}}$;
+horizon scheduler $H_{\text{schedule}}(e)$
+
+\STATE {\bfseries Init:} $\psi,\phi,\omega$; set $\lambda \ge 0$
+
+\FOR{$e = 1$ {\bfseries to} $E$}
+  \FOR{$n = 1$ {\bfseries to} $N$}
+    \STATE $H \gets H_{\text{schedule}}(e)$
+    \STATE Sample $z \sim p(z)$ and rollout the policy:
+    \STATE $w_t \sim \pi^{\mathcal{W}}_{\psi}(w\mid s_t,z)$
+    \STATE $a_t \sim \pi_{\theta}(a\mid s_t,w_t)$
+    \STATE $s_{t+1}\sim p(\cdot\mid s_t,a_t)$
+    \STATE Intrinsic reward:
+    \STATE $r^{\text{int}}_t \gets \lambda(\log q_{\phi}(z\mid s_{t+1}) - \log p(z))$
+    \IF{$e < E_{\text{wp}}$}
+      \STATE $r^{\text{tot}}_t \gets r^{\text{int}}_t$
+    \ELSE
+      \STATE $r^{\text{tot}}_t \gets r_{\text{env}}(s_t,a_t) + r^{\text{int}}_t$
+    \ENDIF
+  \ENDFOR
+  \STATE Update steering policy and critic using $r^{\text{tot}}_t$ (PPO):
+  \STATE $\min_{\psi,\omega} L_{\pi}^{\text{PPO}}(\psi) + c_V L_V(\omega) + c_{\mathcal{H}} L_{\mathcal{H}}(\psi)$
+  \STATE Update inference model:
+  \STATE $\min_{\phi} L_q(\phi) = -\mathbb{E}[\log q_{\phi}(z\mid s)]$
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+% \begin{algorithm}[t!]
+% \small
+% \caption{Mode Discovery and Fine-Tuning of Generative Policies with Horizon Curriculum}
+% \label{alg:mode_finetuning_curriculum}
+% \begin{algorithmic}[1]
+% \State \textbf{Inputs:} pre-trained diffusion policy $\pi_{\theta}(a\mid s,w)$; steering policy $\pi^{\mathcal{W}}_{\psi}(w\mid s,z)$; inference model $q_{\phi}(z\mid s,a)$; critic $V_{\omega}(s,z)$; latent prior $p(z)$; epochs $E$; episodes $N$; warm-up epochs $E_{\mathrm{wp}}$; max horizon $T$; initial horizon $H_0$; horizon scheduler $H(e)\in[H_0,T]$
+% \State \textbf{Init:} $\psi,\phi,\omega$; set $\lambda \ge 0$
+% \For{$e = 1$ \textbf{to} $E$} \Comment{epochs}
+%   \State $H \gets H(e)$ \Comment{curriculum horizon (e.g., linear: $H(e)=\min\{T,\,H_0+\lfloor\frac{(e-1)(T-H_0)}{E-1}\rfloor\}$)}
+%   \For{$n = 1$ \textbf{to} $N$} \Comment{episodes per epoch}
+%     \State Reset env, sample $z \sim p(z)$
+%     \For{$t=1$ \textbf{to} $H$} \Comment{truncate rollout to horizon $H$}
+%       \State $w_t \sim \pi^{\mathcal{W}}_{\psi}(w\mid s_t,z)$,\quad $a_t \sim \pi_{\theta}(a\mid s_t,w_t)$,\quad $s_{t+1}\sim p(\cdot\mid s_t,a_t)$
+%       \State Intrinsic reward: $r^{\text{int}}_t \gets \lambda\big(\log q_{\phi}(z\mid s_{t+1},a_t)-\log p(z)\big)$
+%       \If{$e < E_{\mathrm{wp}}$} \Comment{Mode discovery phase}
+%         \State $r^{\text{tot}}_t \gets r^{\text{int}}_t$
+%       \Else \Comment{Fine-tuning phase}
+%         \State $r^{\text{tot}}_t \gets r_{\text{env}}(s_t,a_t)+r^{\text{int}}_t$
+%       \EndIf
+%     \EndFor
+%     \State \textbf{Bootstrap for truncation:}\; if episode not terminal at $t{=}H$, set $V$-target at $s_{H{+}1}$ using $V_{\omega}(s_{H{+}1},z)$ for GAE/returns
+%   \EndFor
+%   \State Update actor/critic with PPO on collected truncated rollouts:
+%   \[
+%     \min_{\psi,\omega}\; L_{\pi}^{\text{PPO}}(\psi)\;+\;c_V\,L_V(\omega)\;+\;c_{\mathcal{H}}\,L_{\mathcal{H}}(\psi)
+%   \]
+%   \State Update inference model:\quad 
+%   $\min_{\phi}\; L_q(\phi)\;=\;-\mathbb{E}\big[\log q_{\phi}(z\mid s,a)\big]$
+% \EndFor
+% \end{algorithmic}
+% \end{algorithm}

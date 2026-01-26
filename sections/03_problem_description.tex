@@ -1,0 +1,44 @@
+\section{Problem Formulation}
+\label{sec:problem_formulation}
+
+Formally, we study the problem of fine-tuning a pre-trained diffusion policy using reinforcement learning to maximize expected return, while explicitly preserving the multimodality of the action distribution induced by demonstrations. Specifically, we consider multimodality that may arise either from heterogeneity in task goals or from the existence of multiple feasible trajectories leading to the same goal. We model the environment as a Markov Decision Process (MDP)  described as a tuple $(\mathcal{S}, \mathcal{A}, r, p, \gamma)$,  with state space $\mathcal{S}$, action space $\mathcal{A}$, reward function $r$, transition dynamics $p$, and discount factor $\gamma \in [0,1)$. The objective of \ac{rl} is to learn a policy $\pi_\theta(a \mid s)$ maximizing the expected discounted return
+\[
+    J(\pi) = \mathbb{E}_{\pi}\!\left[ \sum_{t=0}^\infty \gamma^t r(s_t,a_t)\right],\]
+
+where $s_t$ and $a_t$ are distributed according to the transition dynamics $p$ and the policy $\pi$.
+
+% In our setting, multimodality arises within a single task: the policy’s trajectory distribution may place mass on multiple distinct solutions, where each mode corresponds to a self-consistent behavioral strategy that successfully accomplishes the objective. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OLD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{Pre-trained Multimodal Action Distirbutions.} %\al{Here we discuss mode in the trajectories but not in the action distribution.}
+% We assume access to an offline \new{}dataset of state-action pairs 
+% ${\mathcal{D} = \{(s_t, a_t)\}_{i=1}^N}$  collected by diverse behavioral policies (e.g.\, human demonstrations), which is used to pre-train a generative policy $\pi_\theta(a \mid s)$ via imitation learning.  We define a mode of the policy $\pi_\theta$ as a latent variable $z \in \mathcal{Z}$, implicitly encoded in the pre-trained multimodal policy, which induces the trajectory distribution ${ p^\pi(\tau \mid z) = p(s_0)\prod_{t=0}^{T-1} \pi(a_t \mid s_t, z)\, p(s_{t+1}\mid s_t,a_t)}$, so that different values of $z$ correspond to distinct self-consistent strategies that solve the task, i.e., different modes. We assume the original modes $z\in\mathcal{Z}$ contained in the datasets are unknown. When relevant, we make explicit the dependence of the generative policy on its input noise variable  $w \in \mathcal{W}$ by denoting it as $\pi_\theta(a \mid s, w)$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\paragraph{Pre-Trained Multimodal \reb{Generative Policies.}}%Action Distirbutions.} %\al{Here we discuss mode in the trajectories but not in the action distribution.}
+We assume access to an offline \reb{demonstration} dataset \reb{${\mathcal{D}
+= \{\tau^{(i)}\}_{i=1}^N, \tau^{(i)} = (s^{(i)}_0,a^{(i)}_0,\dots,s^{(i)}_{T_i},a^{(i)}_{T_i})}$,}  collected from diverse behavioral policies (e.g.\, human demonstrations).  We pre-train a generative policy $\pi_\theta$ on $\mathcal{D}$ via imitation learning, \reb{and we assume that the trajectory-level diversity in the dataset induces multimodality in the action distribution, similarly to~\cite{chi2023diffusion}}. When relevant, we make explicit the dependence of the generative policy on its input noise variable  $w \in \mathcal{W}$ by denoting it as $\pi_\theta(a \mid s, w)$. \reb{We model the modes of the policy $\pi_\theta$  using a discrete} latent variable $z \in \mathcal{Z}$. \reb{Each value $z$ selects a particular instantiation of the policy} inducing the trajectory distribution ${ p^\pi(\tau \mid z) = p(s_0)\prod_{t=0}^{T-1} \pi(a_t \mid s_t, z)\, p(s_{t+1}\mid s_t,a_t)}$. Different values of $z$ therefore correspond to distinct self-consistent strategies \reb{present in the dataset}, i.e., different \reb{behavioral} modes. We assume the original modes $z\in\mathcal{Z}$ contained in the datasets are unknown \reb{but implicitly encoded in the pre-trained multimodal policy}. 
+
+
+
+%Following~\citep{wagenmaker2025steering}, we assume the pre-trained policy is \emph{steerable} through a latent input noise variable $w \in \mathcal{W}$. %$w \in \mathcal{W} := \mathbb{R}^d$. 
+% Specifically, given $w$, a diffusion or flow-based policy can be rewritten by making explicit the dependence of the action on the input noise as $\pi_{\theta}(a \mid s, w)$. 
+
+\paragraph{Steerability Assumption.} We assume that the pre-trained generative policy $\pi_\theta(a \mid s, w)$ is \emph{steerable}, in the sense that its behavior can be systematically influenced through the choice of the latent noise input $w \in \mathcal{W}$. A \emph{steering policy} $\pi_\psi^{\mathcal{W}}(w \mid s)$, parameterized by $\psi$, selects which point $w$ in the latent-noise space to denoise, %acts in the latent space $\mathcal{W}$ and  
+biasing the generative model toward different behavioral modes~\citep{wagenmaker2025steering}. %By choosing which point in the latent-noise space to denoise, the steering policy can bias the generative model toward different behavioral modes.
+
+
+%selects noise variables conditioned on the current state, thereby indirectly shaping the action distribution of $\pi_\theta$. selecting which point in the latent-noise space to denoise, we can steer the action produced by $\pi_\theta$ to a desired mode.  %Steerability also requires that the generative process preserves dependencies between the input noise and the generated actions~\citep{domingo2024adjoint}. %; in particular, the noise schedule must not be memoryless.
+%We assume that the pre-trained policy is \emph{steerable} through its latent input noise variable $w \in \mathcal{W}$. A \emph{steering policy} $\pi_\psi^{\mathcal{W}}(w \mid s)$  parameterized by $\psi$ is a policy that selects latent noise variables, thereby indirectly controlling the behavior of $\pi_\theta$. While we do not assume that the pretrained policy has to be deterministic to be steerable, the noise schedule must not be memoryless~\citep{domingo2024adjoint}, meaning that the dependency between noise variables and the generated samples is preserved throughout the generation process.
+
+\paragraph{Fine-tuning Objective.}
+Our goal is to fine-tune the policy $\pi_{\theta}$ in order to (i) maximize expected return and (ii) preserve the multimodality present in the pre-trained policy $\pi_\theta$. 
+We formalize this as the regularized optimization problem
+\[
+    \max_\theta \; J(\pi_{\theta}) + \lambda \, \mathcal{M}(\pi_{\theta}),
+\]
+where $\mathcal{M}$ denotes a multimodality measure of the \reb{generative policy}, %induced action distribution, 
+and $\lambda \ge 0$ balances task performance with diversity preservation. Importantly, we do not assume prior knowledge of the number of modes in $\pi_\theta$. %, nor do we rely on differentiability of the policy to locate local maxima.
+Designing a practical measure for multimodality under these constraints is a central contribution of this work.

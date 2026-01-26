@@ -1,0 +1,20 @@
+\section{Motivation}
+\label{sec:motivation}
+
+\al{This chapter will disappear, but these thoughts are the ones motivating the problem and the method.}
+
+
+We address two high-level questions in this section: (1) Why should multimodality be preserved? and (2) Why is language alone insufficient for learning conditioned policies that retain multimodality?
+
+\paragraph{Why should we preserve multimodality?}
+
+The strength of a multimodal policy lies in its behavioral diversity. By offering qualitatively distinct ways to achieve the same objective, such policies can flexibly adapt to varying environments, interpret heterogeneous user instructions, and remain resilient to perturbations~\citep{black2410pi0}. For instance, a robot tasked with picking up a cup may succeed by grasping it from the left or right, or by pushing it closer before grasping. Preserving such alternatives is crucial: while all strategies solve the nominal task, only some may remain feasible when obstacles, safety constraints, or user preferences change. Diffusion policies can acquire this diversity from demonstrations, but they remain constrained to reproducing the data they were trained on. \ac{rl} fine-tuning allows adaptation to new objectives—such as faster execution or safer motion—but often biases the policy toward a single high-reward behavior. This mode collapse reduces versatility: the policy may still succeed, but only in one way, losing the flexibility needed for robustness and generalization.
+
+
+\paragraph{Why not rely solely on language conditioning?}
+
+A natural alternative is to leverage language-conditioned policies, as in recent \ac{vla} models, where natural language instructions are used to steer the policy toward desired behaviors~\citep{kim2024openvla,team2025gemini,black2410pi0}. While attractive in principle, this approach faces several limitations. First, it requires demonstration datasets to be annotated with a broad and diverse set of instructions that capture not only the demonstrated behaviors but also potential future variations the policy may need to execute. For complex tasks, curating such labeled data is both costly and impractical as descriptions for the behaviors learned with RL might not be available in advance. Second, language is inherently ambiguous and coarse: even with careful choice of abstraction level, it is difficult to precisely describe low-level motor attributes such as magnitude, timing, or precision, making fine-tuning policies around specific instructions often sensitive to out-of-distribution commands and requiring additional adaptation to remain effective~\citep{lee2025molmoact}.
+
+
+\paragraph{Our perspective.}
+We advocate decoupling policy learning from language supervision. Our approach fine-tunes expressive pre-trained policies while preserving their multimodality through an unsupervised latent skill space. Crucially, this space can later be grounded in language, enabling instruction-based control when desired, without requiring language annotations during fine-tuning.

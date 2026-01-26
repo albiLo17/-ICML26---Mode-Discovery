@@ -1,0 +1,1207 @@
+% \section*{Appendix}
+% \al{
+% TODOs:
+% \begin{itemize}
+%     \item Background on diffusion and flow-based policies?
+% \end{itemize}
+
+% }
+
+% \addcontentsline{toc}{section}{Appendix}
+
+% Create appendix-specific ToC
+% \startcontents[appendix]
+% \printcontents[appendix]{l}{1}{\setcounter{tocdepth}{2}}
+
+\section{Extended Related Work}
+\label{appendix:rw}
+
+
+
+Robotic manipulation often admits multiple distinct solutions arising from kinematic redundancies, multimodal goals, or heterogeneous demonstrations~\citep{li2025train}. We review related work on handling such multimodality in the action distribution from three perspectives: (i) general approaches to learning multimodal behaviors, (ii) fine-tuning of generative policies, where we identify three categories of RL-based techniques schematically illustrated in Figure~\ref{fig:related_work_categories}, and (iii) the skill discovery literature, which closely connects to our central idea of unsupervised mode discovery. %A more comprehensive discussion is provided in Appendix~\ref{appendix:rw} \al{is it even needed a more extensive related work? Seems big and hard to shrink even more}.
+
+\subsection{Multimodal Behavior Learning and Action Diversity}
+
+Robotic manipulation often admits multiple distinct solutions, arising from kinematic redundancies, multimodal goals, or heterogeneous demonstrations~\citep{li2025train}. Standard RL policies parameterized by unimodal Gaussians collapse to a single behavior, limiting expressiveness and trapping learning in suboptimal modes~\citep{huang2023reparameterized}. Early work tackled this by introducing a latent‑conditioned policy within the policy gradient framework, casting trajectory generation as a latent‑variable model to encourage exploration of distinct modes and avoid local minima~\cite{huang2023reparameterized}. Imitation learning and offline RL have built on latent representations to infer discrete behaviors directly from data. Hausman et al.\ segment unlabeled demonstrations into “intention” clusters and learn a mode‑conditioned policy for each cluster~\citep{hausman2017multi}, while LAPO refines a multimodal policy via an advantage‑weighted divergence penalty that preserves original modes during offline finetuning~\citep{chen2022latent}. \reb{Closer to our setting, ~\cite{habibunsupervised} learn a mixture of low-entropy behavioral tokens by maximizing the discounted cumulative entropy of the mixture policy while minimizing the entropy of each component; however, unlike our method, its focus it to learn mixture components from scratch rather than preserving pre-existing multimodal structure in a pre-trained generative policy. } Integrating expressive policy representations such as diffusion and flow‑based generative policies further improves upon this by capturing complex, high‑dimensional distributions. Deep Diffusion Policy Gradient (DDiffPG)~\citep{li2024learning} demonstrated an RL agent that discovers and maintains multiple strategies by parameterizing the policy with a diffusion model. They address the tendency of the greedy RL objective to collapse to one mode by clustering experience and doing mode-specific value learning, thereby ensuring improvement of all discovered modes. 
+
+Similar to these approaches, our work builds on a latent-variable model, but we employ it within a steering policy rather than the main policy. Unlike prior approaches that learn multimodal behaviors from scratch, we leverage a pre-trained diffusion model that already encodes diverse demonstrations and focus on fine-tuning it with RL while preserving multimodality in the action distribution.
+
+
+\subsection{Fine-tuning of Pre-trained Generative Policies}
+\label{sec:fine-tuning_tech}
+
+% Diffusion and flow-based models have emerged as powerful alternatives to unimodal policy parameterizations, offering expressive distributions for complex action spaces. While effective for imitation learning, these generative architectures typically focus on mimicking the data distribution and risk of overfitting to suboptimal demonstrations in the absence of explicit reward signals~\citep{yang2023policy}. Fine-tuning these models with \ac{rl} as commonly done for Gaussian policies, however, poses unique challenges due to their sequential sampling and lack of direct reward optimization. Direct integration of RL objectives is hindered by the computational cost and instability of backpropagating through tens or hundreds of integration steps. This incompatibility with standard actor-critic updates has motivated the development of several alternative strategies. 
+
+
+% \textbf{Distillation-based approaches:} Flow Q-Learning (FQL) addresses this by decoupling training and optimization: a high-capacity flow model is first trained via behavioral cloning, then distilled into a lightweight one-step policy amenable to standard policy gradient updates~\citep{park2025flow}. This separation avoids the need for recursive gradient computation and facilitates efficient online fine-tuning. Diffusion Trusted Q-Learning (DTQL) instead constrains a trainable one-step policy to remain within a trust region defined by a frozen diffusion prior, balancing improvement and stability~\citep{chen2024diffusion}.
+
+
+% \textbf{Residual Corrections:} Residual policy learning methods freeze a complex \ac{il} policy (e.g.\, \ chunked action planner) and learn a small corrective controller via \ac{rl} to address execution errors \citep{ankile2024imitation,yuan2024policy}. These techniques, along with careful regularization and architectural choices, can yield substantial performance gains over pure \ac{il}, with the potential to preserve the diversity learned from demonstrations.
+
+% \textbf{Direct use of Q-values for bootstrapping:} Methods like DIPO introduce the notion of ``action gradients,'' where actions in the datasets are nudged toward higher Q-values before training the diffusion model, serving as an indirect policy improvement step without backpropagating through the generative model~\citep{yang2023policy}.  Similarly, Diffusion-QL combines a conditional diffusion model with Q-learning to bias sampled actions toward higher-value regions, maintaining proximity to the demonstration manifold~\citep{wang2022diffusion}. 
+
+
+% \textbf{Gradient approximations:} Few recent approaches reframe the generative process itself to enable backpropagation through the model. This can be achieved in different ways: by reframing the diffusion as a decision-making problem, or by reparameterizing the action sampling to enable one-step sampling. In DPPO, the diffusion trajectory is interpreted as a multi-stage Markov decision process, allowing the application of policy gradients over the denoising steps~\cite{ren2024diffusion}. EDP instead introduces differentiable approximations to the sampling process, enabling policy optimization via offline Q-learning while avoiding full gradient flow through the denoising trajectory~\cite{kang2023efficient}.
+
+% \textbf{Steering policy:} Recent work has introduced steering policies to control the latent noise of generative action models, effectively biasing diffusion policies toward high-reward trajectories~\cite{wagenmaker2025steering}. By shaping the input noise distribution, these methods can guide a fixed pre-trained policy without modifying its weights.
+
+Diffusion- and flow-based models provide expressive policy parameterizations for multimodal action distributions, but fine-tuning them with reinforcement learning is challenging due to sequential sampling and the cost of backpropagating through the generative process. Recent work addresses these issues through three main strategies (illustrated in Figure~\ref{fig:related_work_categories}): direct fine-tuning, residual policies, and steering policies. 
+\emph{Direct fine-tuning} approaches adapt the network weights either by distilling the model into a one-step sampler for easier backpropagation~\citep{park2025flow, chen2024diffusion}, by casting the denoising process as a sequential decision problem~\citep{ren2024diffusion}, or by using differentiable approximations that allow offline Q-learning without backpropagating through all denoising steps~\citep{kang2023efficient}. Despite their promise, such approaches often collapse to a single reward-maximizing mode. 
+% adapt generative models to RL by directly biasing action samples toward high-value regions of the learned $Q$-function by either distilling the action sampling to enable one-step sampling which is more amenable for backpropagarion~\citep{park2025flow,chen2024diffusion}, reframing the diffusion as a decision-making problem~\cite{ren2024diffusion}, or thorugh differentiable approximations to the sampling process, enabling policy optimization via offline Q-learning while avoiding full gradient flow through the denoising trajectory~\cite{kang2023efficient}. These methods, however, often suffer from mode collapse.
+\emph{Residual policy} learning methods instead freeze a pre-trained generative policy and learn a small corrective controller via \ac{rl} to address execution errors \citep{ankile2024imitation,yuan2024policy}. These techniques, along with careful regularization and architectural choices, can yield substantial performance gains over pure \ac{il}, with the potential to preserve the diversity learned from demonstrations.
+\emph{Steering policy} methods instead bias the sampling process toward high-value actions without modifying the generative model itself. Some methods directly adjust training data or sampled actions using Q-values, either by nudging demonstration actions toward higher values~\citep{yang2023policy} or by combining diffusion with Q-learning to bias samples while staying close to the demonstration manifold~\citep{wang2022diffusion}. More recently, ~\cite{wagenmaker2025steering} proposed to learn to control the latent noise of generative models, guiding the sampling process toward regions of the noise space whose denoised actions yield higher reward.
+
+% While all these approaches enable RL fine-tuning of pre-trained generative policies, they lack explicit mechanisms to preserve multimodality, and often converge to a single reward-maximizing solution. Our work extends the steering-policy framework of~\cite{wagenmaker2025steering}, by using it not only to bias behaviors toward reward, but also to discover and control latent modalities, and to quantify multimodality for use as an intrinsic reward.
+
+Although all these approaches can successfully fine-tune pretrained policies with \ac{rl}, they lack an explicit mechanism to preserve multimodality, often collapsing to a single reward-maximizing behavior. Our approach extends the steering-policy framework~\cite{wagenmaker2025steering} by using it not only to bias behavior toward reward but also to uncover and control the latent multimodal structure of a pre-trained diffusion policy. Notably, this perspective positions the steering policy as a complementary module that can be combined with other fine-tuning methods to enforce the retention of diverse behaviors.
+
+
+\subsection{Skill Discovery}
+
+
+Multimodal behavior learning has also been explored through the lens of skill discovery methods.
+The goal of skill discovery is to acquire a set of diverse and distinguishable behaviors without relying on external rewards. A common approach is to maximize mutual information between a latent skill variable and the states or trajectories visited by the policy, as in VIC~\citep{gregor2016variational}, DIAYN~\citep{eysenbach2018diversity}, VALOR~\citep{achiam2018variational}, VISR~\citep{hansen2019fast}, or DADS~\citep{sharma2019dynamics}. Other methods rely on successor features~\citep{machado2017eigenoption, hansen2019fast}, exploration bonuses~\citep{liu2021aps, liu2021behavior}, or hierarchical decompositions~\citep{kim2021unsupervised, zhang2021hierarchical} to induce skill diversity. 
+
+Most of these works assume training policies from scratch in reward-free settings. However, purely diversity‑driven objectives often neglect reward alignment and directed exploration, yielding skills that may not transfer to specific manipulation goals. To mitigate this,  previous work has explored a range of approaches such as incorporating language guidance~\citep{LGSD}, combining discovery with generic extrinsic rewards~\citep{SLIM}, maximization of hard-to-achieve state transitions~\citep{CSD}, or mutual information maximization between agent and environment sections of state space~\citep{MUSIC, UnsupervisedRLTransferManip}. Our perspective is different: we leverage a pre-trained model to uncover diverse and useful behaviors already encoded in it. In particular, we are the first to study skill discovery in diffusion policies, where skills are represented as modes in the latent noise space of the generative model.
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/02_RW/related_work_long.pdf}
+    \caption{ \textbf{Taxonomy of \ac{rl} Fine-tuning Techniques Discussed in this Work.}  Each plot illustrates the learned action-value function $Q(s_t,\cdot)$ as the underlying reward landscape. Direct fine-tuning (left) adapts the pre-trained policy weights to optimize task performance, directly shifting the action distribution toward higher-value regions. Residual policies (center) learn an additive correction $\Delta a_t$ to the pre-trained action $a_t^{\mathcal{D}}$, combining them into a fine-tuned action $a_t^*$. Steering policies (right) learn a policy over the input latent noise of the generative model, biasing sampling toward regions of the noise space whose denoised actions have high-reward behaviors.  } 
+
+    \label{fig:related_work_categories}
+\end{figure}
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Derivation of Mutual Information in Latent-Conditioned Policies}
+\label{sec:app_MI_KL}
+
+
+We begin by recalling the definition of conditional mutual information between a latent variable $w$ and actions $a$, given states $s$:
+\begin{equation}
+    I(W; A \mid S) := \E_{s \sim p(s)} \left[ 
+        \E_{(a, w) \sim p(w, a \mid s)} 
+        \left[ \log \frac{p(w, a \mid s)}{p(a \mid s) \, p(w \mid s)} \right] 
+    \right].
+\end{equation}
+
+In the setting of latent-conditioned policies, we assume a generative process where the state $s \sim p(s)$ is sampled from a fixed distribution, the latent $w \sim p(w)$ is sampled independently of $s$, and actions are sampled from a conditional policy $\pi(a \mid s, w)$. This induces the joint distribution
+\begin{equation}
+    p(s, w, a) = p(s) \cdot p(w) \cdot \pi(a \mid s, w),
+\end{equation}
+and the conditional joint and marginals:
+\begin{align}
+    p(w, a \mid s) &= p(w) \cdot \pi(a \mid s, w), \\
+    p(w \mid s) &= p(w).
+\end{align}
+
+Substituting these expressions into the definition of conditional mutual information, we obtain:
+\begin{equation}
+\begin{aligned}
+    I(W; A \mid S)
+    &= \E_{s \sim p(s)} \Big[ 
+        \E_{w \sim p(w),\, a \sim \pi(a \mid s, w)} 
+        \Big[ \log \frac{p(w)\, \pi(a \mid s, w)}{p(w)\, p(a \mid s)} \Big] 
+    \Big] \\
+    &= \E_{s \sim p(s)} \Big[ 
+        \E_{w \sim p(w),\, a \sim \pi(a \mid s, w)} 
+        \Big[ \log \frac{\pi(a \mid s, w)}{p(a \mid s)} \Big] 
+    \Big].
+\end{aligned}
+\end{equation}
+
+Recognizing this expression as the Kullback–Leibler (KL) divergence between the conditional distribution $\pi(a \mid s, w)$ and its marginal $p(a \mid s)$, we rewrite the mutual information as:
+\begin{equation}
+    I(W; A \mid S)
+    = \E_{s \sim p(s)} \left[ 
+        \E_{w \sim p(w)} \left[ 
+            \KL \big( \pi(a \mid s, w) \,\Vert\, p(a \mid s) \big) 
+        \right] 
+    \right].
+\end{equation}
+
+In this formulation, $p(a \mid s)$ is interpreted as the marginal action distribution under latent sampling:
+\begin{equation}
+    p(a \mid s) = \E_{w \sim p(w)} \big[ \pi(a \mid s, w) \big].
+\end{equation}
+
+This derivation provides a formal and tractable characterization of the mutual information between latent variables and actions under a latent-conditioned policy. It also justifies the use of mutual information as a measure of multimodality: if $w$ has a significant influence on the action distribution $\pi(a \mid s, w)$, then the divergence between conditionals and the marginal $p(a \mid s)$ is large, leading to a high $I(W; A \mid S)$. Conversely, if the latent has little effect on the action distribution, the mutual information approaches zero.
+
+
+%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  \al{Some text
+%  }
+
+%  We now extend the previous derivation to the dependence between the latent variable $\rw$ and the next state $\rs' := S_{t+1}$. The conditional mutual information is defined as
+% \begin{equation}
+%     I(W; S' \mid S)
+%     := 
+%     \E_{\rs \sim p(\rs)} \left[
+%         \E_{(\rw, \rs') \sim p(\rw, \rs' \mid \rs)}
+%         \left[
+%             \log 
+%             \frac{
+%                 p(\rw, \rs' \mid \rs)
+%             }{
+%                 p(\rs' \mid \rs)\, p(\rw \mid \rs)
+%             }
+%         \right]
+%     \right].
+% \end{equation}
+
+% In the latent–conditioned policy setting, the generative process at each timestep is:
+% \begin{align}
+%     \rw &\sim p(\rw), \\
+%     \ra &\sim \pi(\ra \mid \rs, \rw), \\
+%     \rs' &\sim p(\rs'\mid \rs, \ra).
+% \end{align}
+% This induces the conditional joint distribution
+% \begin{equation}
+%     p(\rw, \rs' \mid \rs)
+%     = 
+%     p(\rw)
+%     \int \pi(\ra \mid \rs, \rw)\,
+%          p(\rs' \mid \rs, \ra)\,
+%     d\ra,
+% \end{equation}
+% and the marginal
+% \begin{equation}
+%     p(\rs' \mid \rs)
+%     = 
+%     \E_{\rw \sim p(\rw)}
+%     \left[
+%         \int 
+%         \pi(\ra \mid \rs, \rw)\,
+%         p(\rs' \mid \rs, \ra)\,
+%         d\ra
+%     \right].
+% \end{equation}
+
+% Substituting these into the definition of conditional mutual information yields
+% \begin{equation}
+% \begin{aligned}
+%     I(W; S' \mid S)
+%     &= 
+%     \E_{\rs \sim p(\rs)}
+%     \Bigg[
+%         \E_{\rw \sim p(\rw),\, 
+%            \ra \sim \pi(\ra \mid \rs, \rw),\,
+%            \rs' \sim p(\rs'\mid \rs,\ra)}
+%         \Bigg[
+%             \log 
+%             \frac{
+%                 \int \pi(\ra \mid \rs, \rw)\, p(\rs' \mid \rs, \ra)\, d\ra
+%             }{
+%                 p(\rs' \mid \rs)
+%             }
+%         \Bigg]
+%     \Bigg].
+% \end{aligned}
+% \end{equation}
+
+% Recognizing the inner expectation as a KL divergence between the next–state distributions conditioned on $w$ and their latent marginal, we obtain the compact form:
+% \begin{equation}
+%     I(W; S'\mid S)
+%     =
+%     \E_{\rs \sim p(\rs)}
+%     \left[
+%         \E_{\rw \sim p(\rw)}
+%         \Big[
+%             \KL\!\left(
+%                 p(\rs' \mid \rs, \rw)
+%                 \,\Vert\,
+%                 p(\rs' \mid \rs)
+%             \right)
+%         \Big]
+%     \right],
+% \end{equation}
+% where
+% \begin{equation}
+%     p(\rs'\mid \rs, \rw)
+%     :=
+%     \int 
+%         \pi(\ra \mid \rs, \rw)\,
+%         p(\rs' \mid \rs, \ra)\,
+%     d\ra.
+% \end{equation}
+
+% Thus, the influence of the latent $\rw$ on the next–state distribution induces a state–conditioned KL divergence, making $I(W; S'\mid S)$ a principled measure of trajectory-level multimodality.
+
+ 
+\section{Multimodality Implies Positive Mutual Information}
+\label{sec:proof_MI_positive}
+
+\reb{
+
+
+\begin{proposition}
+Let $W, A$ and $S$ be discrete random variables such that
+\begin{align*}
+P_{A|S,W}(\cdot | s_0, w_1) \ne P_{A|S,W}(\cdot | s_0, w_2)
+\end{align*}
+for some $s_0, w_1, w_2$ with $P_S(s_0) P_W(w_1) P_W(w_2) > 0$.
+Then  $I(W;A|S) > 0$. 
+\end{proposition}
+\begin{proof}
+First we show that for any discrete probability distributions $P$ and $Q$ on a common sample space $\mathcal{X}$, 
+\begin{align}
+P \ne Q \qquad\Rightarrow \qquad \DKL(P\parallel Q) > 0.
+\label{KL-positive}
+\end{align}
+Indeed, as $\log$ is concave, 
+\begin{align*}
+-\DKL(P\parallel Q) = \sum_{x : P(x)>0} P(x) \log \frac{Q(x)}{P(x)} \overset{\text{(a)}}{\le} \log\left(\sum_{x : P(x)>0} P(x) \frac{Q(x)}{P(x)}\right) \overset{\text{(b)}}{\le} 0.
+\end{align*}
+Moreover, either:
+\begin{itemize}
+\item $Q(x_1)/P(x_1) \ne Q(x_2)/P(x_2)$ for some $x_1, x_2$ in the support of $P$, and as $\log$ is strictly concave it follows that inequality (a) is strict;
+\item or $Q(x)/P(x)$ is constant for $x$ in the support of $P$, and as $P \ne Q$ it follows that $\sum_{x : P(x) > 0} Q(x) < 1$ so inequality (b) is strict.
+\end{itemize}
+Therefore (\ref{KL-positive}) holds.
+
+Let $i^* \in \{1,2\}$ be an index such that $P_{A|S}(\cdot | s_0) \ne P_{A|S,W}(\cdot|s_0,w_{i^*})$, noting that such an $i^*$ exists by the hypothesis that the distributions $P_{A|S,W}(\cdot | s_0, w_i)$ for $i=1,2$ are distinct.
+Using the expression for $I(W;A|S)$ of Appendix~[YourRef], and the nonnegativity of KL-divergence,
+\begin{align*}
+I(W;A|S) &= \mathbb{E}_{S} \mathbb{E}_{W}[\DKL( P_{A|S,W}(\cdot | S, W) \parallel P_{A|S}(\cdot | S))] \\
+&\ge P_S(s_0) P_W(w_{i^*}) \DKL( P_{A|s_0,w_{i^*}}(\cdot | s_0, w_{i^*}) \parallel P_{A|S}(\cdot | s_0)) \\
+&> 0
+\end{align*} 
+where in the last line we used  the hypothesis that $P_S(s_0) P_W(w_1) P_W(w_2) > 0$ and equation (\ref{KL-positive}).
+\end{proof}
+
+}
+
+% \begin{proposition}
+% Let $\pi(\ra \mid \rs, \rw)$ be a conditional policy distribution over actions $\ra \in \mathcal{A}$ given state $\rs \in \mathcal{S}$ and latent variable $\rw \in \mathcal{W}$, with $\rw \sim p(\rw)$ and $\rs \sim p(\rs)$. \reb{We assume} that for some state $\rs_0$ in the support of $p(\rs)$, there exist $\rw_1, \rw_2 \in \mathcal{W}$ with $\rw_1 \neq \rw_2$ such that:
+% \[
+% \KL\left( \pi(\ra \mid \rs_0, \rw_1) \,\Vert\, \pi(\ra \mid \rs_0, \rw_2) \right) \geq \delta > 0.
+% \]
+% Then the conditional mutual information (as derived in Appendix~\ref{sec:app_MI_KL})
+% \[
+% I(W; A \mid S) := \E_{\rs \sim p(\rs)} \left[ \E_{\rw \sim p(\rw)} \left[ \KL \big( \pi(\ra \mid \rs, \rw) \,\Vert\, p(\ra \mid \rs) \big) \right] \right]
+% \]
+% is strictly positive:
+% \[
+% I(W; A \mid S) > 0.
+% \]
+% \end{proposition}
+
+% \begin{proof}
+% \textbf{Step 1: Mutual information as expected KL.}
+
+% Recall that for random variables $\rw, \ra, \rs$, the conditional mutual information can be formulated as:
+% \[
+% I(W; A \mid S) 
+% = \E_{\rs \sim p(\rs)} \Big[ \E_{\rw \sim p(\rw)} \Big[ \KL \big( \pi(\ra \mid \rs, \rw) \,\Vert\, p(\ra \mid \rs) \big) \Big] \Big],
+% \]
+% where:
+% \[
+% p(\ra \mid \rs) := \E_{\rw \sim p(\rw)} \big[ \pi(\ra \mid \rs, \rw) \big]
+% \]
+% is the marginal (multimodal) action distribution.
+
+% \textbf{Step 2: Assumption implies non-constant action distributions in $\rw$.}
+
+% By assumption, there exist $\rw_1 \neq \rw_2$ such that:
+% \[
+% \KL\left( \pi(\ra \mid \rs_0, \rw_1) \,\Vert\, \pi(\ra \mid \rs_0, \rw_2) \right) \geq \delta > 0.
+% \]
+% This implies that the map $\rw \mapsto \pi(\ra \mid \rs_0, \rw)$ is not constant, i.e., there is variation in the action distribution as $\rw$ varies. Therefore, the marginal
+% \[
+% p(\ra \mid \rs_0) = \E_{\rw \sim p(\rw)} \big[ \pi(\ra \mid \rs_0, \rw) \big]
+% \]
+% is a non-degenerate mixture of at least two distinct distributions.
+
+% \textbf{Step 3: Use strict convexity of KL divergence.}
+
+% Let $f(\rw) := \pi(\ra \mid \rs_0, \rw)$ denote the conditional distribution over actions given latent $\rw$, and let $\bar{f} := \E_{\rw}[f(\rw)]$ be the marginal action distribution at state $\rs_0$:
+% \[
+% \bar{f} = p(\ra \mid \rs_0) = \E_{\rw \sim p(\rw)} \big[ \pi(\ra \mid \rs_0, \rw) \big].
+% \]
+
+% If we can show that the expected KL divergence between the latent-conditioned policy and the marginal action distribution:
+% \[
+% \E_{\rw} \left[ \KL\big( \pi(\ra \mid \rs_0, \rw) \,\Vert\, p(\ra \mid \rs_0) \big) \right] > 0,
+% \]
+% then $I(W; A \mid S=\rs_0) > 0$.
+
+% Since the KL divergence is a strictly convex function in its first argument, we can apply Jensen's inequality. In particular, for any strictly convex function $\phi$, Jensen's inequality implies:
+% \[
+% \E[\phi(X)] > \phi(\E[X]) \quad \text{if $X$ is not constant}.
+% \]
+
+% Applying this to the KL divergence and the random variable $f(\rw)$, we obtain:
+% \[
+% \E_{\rw} \left[ \KL(f(\rw) \,\Vert\, \bar{f}) \right] > \KL\big( \E_\rw[f(\rw)] \,\Vert\, \bar{f} \big).
+% \]
+
+% Since $\bar{f} = \E_\rw[f(\rw)]$, the KL divergence on the right-hand side is zero, and we conclude:
+% \[
+% \E_{\rw} \left[ \KL(f(\rw) \,\Vert\, \bar{f}) \right] > 0.
+% \]
+
+% In other words, the expected KL divergence is strictly positive whenever $f(\rw)$ is not constant in $\rw$. Therefore, there must exist at least one $\rw$ such that:
+% \[
+% \KL(f(\rw) \,\Vert\, \bar{f}) > 0.
+% \]
+
+% This establishes that the conditional mutual information between the latent variable $\rw$ and actions $\ra$ given state $\rs=\rs_0$ is strictly positive:
+% \[
+% I(W; A \mid S=\rs_0) = \E_{\rw} \left[ \KL\big( \pi(\ra \mid \rs_0, \rw) \,\Vert\, p(\ra \mid \rs_0) \big) \right] > 0.
+% \]
+
+% \textbf{Step 4: Positivity of expectation over $\rs$.}
+
+% Since $I(W; A \mid S)  = \E_{\rs} \left[ I(W; A \mid S=\rs \right]$ and the integrand is strictly positive for at least one $\rs=\rs_0$ (which lies in the support of $p(\rs)$), it follows that:
+% \[
+% I(W; A \mid S)  > 0.
+% \]
+% \end{proof}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \section{Derivation of the Variational Lower Bound for \( I(Z; A \mid S) \)}
+% \label{sec:MILBO}
+
+% We aim to derive a variational lower bound on the conditional mutual information between a latent variable $\rz$ and an action $\ra$, given a state $\rs$. The conditional mutual information is defined as:
+
+% \begin{equation}
+% I(Z; A \mid S)  = \E_{\rs \sim p(\rs)} \left[ 
+%     \KL\left( p(\rz, \ra \mid \rs) \,\Vert\, p(\rz \mid \rs)\, p(\ra \mid \rs) \right) 
+% \right].
+% \label{eq:definition}
+% \end{equation}
+
+% Using the definition of the Kullback–Leibler divergence, we expand~\Eqref{eq:definition} as:
+
+% \begin{align}
+% I(Z; A \mid S) 
+% &= \E_{\rs \sim p(\rs)} \left[ \int \!\! \int p(\rz, \ra \mid \rs) 
+%     \log \frac{p(\rz, \ra \mid \rs)}{p(\rz \mid \rs)\, p(\ra \mid \rs)} \, d\rz\, d\ra \right] \\
+% &= \E_{\rs \sim p(\rs),\, (\rz, \ra) \sim p(\rz, \ra \mid \rs)} 
+%     \left[ \log \frac{p(\rz, \ra \mid \rs)}{p(\rz \mid \rs)\, p(\ra \mid \rs)} \right].
+% \label{eq:expanded}
+% \end{align}
+
+% We now introduce a variational distribution $q(\rz \mid \ra, \rs)$ to approximate the intractable posterior $p(\rz \mid \ra, \rs)$. We start by rewriting the joint $p(\rz, \ra \mid \rs)$ in terms of the conditional and the marginal:
+
+% \begin{equation}
+% p(\rz, \ra \mid \rs) = p(\ra \mid \rs)\, p(\rz \mid \ra, \rs).
+% \end{equation}
+
+% Substituting into~\Eqref{eq:expanded} gives:
+
+% \begin{align}
+% I(Z; A \mid S) 
+% &= \E_{\rs \sim p(\rs),\, (\rz, \ra) \sim p(\rz, \ra \mid \rs)} 
+%     \left[ \log \frac{p(\rz \mid \ra, \rs)\, p(\ra \mid \rs)}{p(\rz \mid \rs)\, p(\ra \mid \rs)} \right] \\
+% &= \E_{\rs \sim p(\rs),\, (\rz, \ra) \sim p(\rz, \ra \mid \rs)} 
+%     \left[ \log \frac{p(\rz \mid \ra, \rs)}{p(\rz \mid \rs)} \right].
+% \end{align}
+
+% We now apply the variational approximation:
+
+% \begin{equation}
+% \log \frac{p(\rz \mid \ra, \rs)}{p(\rz \mid \rs)} 
+% = \log \frac{q(\rz \mid \ra, \rs)}{p(\rz \mid \rs)} 
+% + \log \frac{p(\rz \mid \ra, \rs)}{q(\rz \mid \ra, \rs)}.
+% \end{equation}
+
+% Taking expectation over $(\rz, \ra, \rs) \sim p(\rz, \ra, \rs) = p(\rs)\, p(\rz, \ra \mid \rs)$, we obtain:
+
+% \begin{align}
+% I(Z; A \mid S) 
+% &= \E_{\rs \sim p(\rs),\, \rz, \ra \sim p(\rz, \ra \mid \rs)} 
+%     \left[ \log \frac{q(\rz \mid \ra, \rs)}{p(\rz \mid \rs)} \right] \nonumber \\
+% &\quad + \E_{\rs \sim p(\rs)} \left[ \KL\big( p(\rz \mid \ra, \rs) \,\Vert\, q(\rz \mid \ra, \rs) \big) \right].
+% \label{eq:decomposition}
+% \end{align}
+
+% Since the second term is a KL divergence, it is non-negative. Dropping it yields a variational lower bound:
+
+% \begin{equation}
+% I(Z; A \mid S)  \geq 
+% \E_{\rs \sim p(\rs),\, \rz, \ra \sim p(\rz, \ra \mid \rs)} 
+% \left[ \log \frac{q(\rz \mid \ra, \rs)}{p(\rz \mid \rs)} \right].
+% \label{eq:vlb-1}
+% \end{equation}
+
+% We now assume a generative model where $\rz \sim p(\rz)$ is independent of $\rs$, and the policy $\pi(\ra \mid \rs, \rz)$ defines a conditional distribution over $\ra$ given $\rs$ and $\rz$. Thus, we can write:
+
+% \begin{equation}
+% p(\rz, \ra \mid \rs) = p(\rz)\, \pi(\ra \mid \rs, \rz), 
+% \quad \text{and} \quad p(\rz \mid \rs) = p(\rz).
+% \end{equation}
+
+% Substituting this model into~\Eqref{eq:vlb-1}, we get:
+
+% \begin{align}
+% I(Z; A \mid S) 
+% &\geq \E_{\rs \sim p(\rs),\, \rz \sim p(\rz),\, \ra \sim \pi(\ra \mid \rs, \rz)} 
+% \left[ \log \frac{q(\rz \mid \ra, \rs)}{p(\rz)} \right] \\
+% &= \E_{\rs \sim p(\rs),\, \rz \sim p(\rz),\, \ra \sim \pi(\ra \mid \rs, \rz)} 
+% \left[ \log q(\rz \mid \ra, \rs) - \log p(\rz) \right].
+% \label{eq:final-elbo}
+% \end{align}
+
+% ~\Eqref{eq:final-elbo} is the desired lower bound on the conditional mutual information. It can be optimized with respect to the parameters of the variational posterior $q(\rz \mid \ra, \rs)$, which is typically implemented as a neural network encoder. This objective promotes learning representations $\rz$ that are both recoverable from behavior and diverse in their influence on action selection. Simultaneously, the regularization term $-\log p(\rz)$ prevents the latent codes from deviating excessively from the prior. In practice, $p(\rz)$ is often chosen to be a uniform or isotropic Gaussian distribution.
+
+% \al{Some text}
+
+% e recall the definition of the mutual information between a latent variable
+% $Z$ and the visited states $S$:
+% \begin{equation}
+%     I(Z;S)
+%     = \E_{p(s,z)} \left[ \log p(z \mid s) - \log p(z) \right].
+% \end{equation}
+% Because the posterior $p(z \mid s)$ is generally intractable, we introduce a
+% variational approximation $q_\phi(z \mid s)$ and add--subtract its log-density:
+% \begin{equation}
+% \begin{aligned}
+%     I(Z;S)
+%     &= \E_{p(s,z)} \left[ \log q_\phi(z \mid s) - \log p(z) \right] \\
+%     &\quad\quad
+%        + \E_{p(s)} \left[
+%             \KL\!\left( p(z \mid s) \,\Vert\, q_\phi(z \mid s) \right)
+%        \right].
+% \end{aligned}
+% \end{equation}
+% Since the KL divergence is non--negative, this yields the variational
+% lower bound:
+% \begin{equation}
+%     I(Z;S)
+%     \;\ge\;
+%     \E_{p(s,z)} \left[ \log q_\phi(z \mid s) - \log p(z) \right].
+% \end{equation}
+% If the prior $p(z)$ is uniform over $K$ discrete skills, then $H(Z)=\log K$ is
+% constant, and the bound simplifies to
+% \begin{equation}
+%     I(Z;S)
+%     \;\ge\;
+%     H(Z)
+%     +
+%     \E_{z \sim p(z),\, s \sim p(s \mid z)}
+%     \left[ \log q_\phi(z \mid s) \right].
+% \end{equation}
+% Maximizing this lower bound therefore corresponds to training a discriminator
+% $q_\phi(z \mid s)$ that predicts the latent skill from the visited states.
+
+\section{Method Details}
+
+
+\subsection{Connection to Skill Discovery.}
+\label{appendix:skill_discovery_discussion}
+The variational lower bound in equation~\ref{eq:variational_MI} is formally analogous to those used in prior skill discovery methods, but its purpose in our setting is fundamentally different.
+In mutual-information-based skill discovery, the bound is optimized jointly with the policy to encourage exploration and broaden coverage of the state space. By contrast, our diffusion policy is pre-trained and fixed, so the mutual information objective cannot alter the state distribution. Instead, maximizing $I(Z;  S)$ serves to uncover and control the intrinsic multimodality already embedded in the generative policy by promoting diversity in the action space $\mathcal{A}$. In addition, this bound provides a practical metric to quantify multimodality in pre-trained policies, as demonstrated in Section~\ref{sec:2D_Gaussians}.
+
+%, but given the fixed pre-trained policy this also presents a lower bound for conditioned on states already visited by the pre-trained model. 
+% While the mapping between states and actions might not be strictly bijective, so the lower bound does not fully capture the mutual information between $Z$ and $\mathcal{A}$, it nevertheless provides a principled mechanism to uncover latent modes encoded in the diffusion policy. Thus, rather than discovering novel skills through active interaction with the environment, our approach leverages the same mutual information lower bound to reveal and steer the intrinsic multimodality of a fixed generative policy.
+
+
+\subsection{Curriculum Learning.} 
+
+Unlike in standard skill discovery, we have access to full trajectory rollouts for each mode we want to discover. However, this makes the joint optimization of the steering policy and inference model challenging as the policy must maintain temporal consistency while producing behaviors that remain discriminable by the inference model $q_\phi$, which can lead to instability during training. To mitigate this, we introduce a curriculum strategy that gradually increases the trajectory horizon. Concretely, instead of unrolling episodes for the full environment length $T$ from the outset, we begin training with shorter horizons $H < T$ and progressively extend them until reaching the maximum length. This staged schedule eases the optimization by allowing the policy to first acquire locally consistent behaviors, before being required to sustain them over longer time horizons, thereby improving the stability and quality of the learned latent modes. The proposed curriculum is visualized in Figure~\ref{fig:curriculum}.
+
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.98\linewidth]{figures/04_method/curriculum.pdf}
+    \caption{\textbf{Curriculum Learning.} Illustration of the curriculum strategy in a toy environment with four discrete modes. The environment is defined by a mixture of four Gaussian modes (details in Section~\ref{sec:2D_Gaussians}), each corresponding to a distinct cluster of trajectories. Starting from short horizons, the inference model $q_\phi$ only needs to discriminate local trajectory prefixes, which simplifies learning. As the horizon gradually increases, the trajectory distributions expand, and the modes become more separable across the state-action space. The curriculum thus enables the steering policy to develop temporally consistent and discriminable behaviors, progressively uncovering the underlying latent structure of the pre-trained model.}
+
+    \label{fig:curriculum}
+\end{figure}
+
+\subsection{Algorithm}
+\label{appendix:algorithm}
+
+
+We outline here Algorithm~\ref{alg:mode_finetuning}. We begin from the pre-trained diffusion policy $\pi_{\theta}(a\mid s,w)$ and initialize the steering policy $\pi^{\mathcal{W}}_{\psi}(w\mid s,z)$, inference model $q_{\phi}(z\mid s,a)$, and critic $V_{\omega}(s,z)$, with intrinsic scale $\lambda\!\ge\!0$, uniform prior $p(z)$, epochs $E$, episodes per epoch $N$, warm-start $E_{\text{wp}}$, initial horizon $H_0$, max horizon $T$, and a scheduler $H(e)\!\in\![H_0,T]$ that increases the rollout horizon by a fixed step every $20$ epochs after a first warm-up of $100$ epochs. For each epoch $e$ and episode $n$, we sample a latent $z\!\sim\!p(z)$ once and keep it fixed over the rollout of length $H(e)$; at each step we draw $w_t\!\sim\!\pi^{\mathcal{W}}_{\psi}(w\mid s_t,z)$, then $a_t\!\sim\!\pi_{\theta}(a\mid s_t,w_t)$, and transition $s_{t+1}\!\sim\!p(\cdot\mid s_t,a_t)$. The intrinsic reward is ${r^{\text{int}}_t=\lambda\big(\log q_{\phi}(z\mid s_{t+1},a_t)-\log p(z)\big)}$. During the \emph{mode-discovery} stage ($e<E_{\text{wp}}$) we optimize using intrinsic-only returns $r^{\text{tot}}_t=r^{\text{int}}_t$, allowing the curriculum $H(e)$ to grow from $H_0$ toward $T$ so the policy first attains locally consistent behaviors before sustaining them over longer horizons. After the warm-start ($e\ge E_{\text{wp}}$), we introduce the task reward and train with ${r^{\text{tot}}_t = r_{\text{env}}(s_t,a_t) + r^{\text{int}}_t}$ to steer toward high-return regions without collapsing diversity. At the end of each epoch, we update the actor and critic with PPO, minimizing $L_{\pi}^{\text{PPO}}(\psi)+c_V L_V(\omega)+c_{\mathcal{H}} L_{\mathcal{H}}(\psi)$, and train the inference model by NLL, $\min_{\phi} L_q(\phi) = -\mathbb{E}[\log q_{\phi}(z\mid s,a)]$; this repeats for $e=1,\dots,E$ with horizon scheduling and the stage switch as specified.
+
+
+% \input{iclr2026/sections/04Algo_method}
+
+\section{Implementation Details} 
+\label{appendix:implementation_details}
+We now detail the implementation and training of the pre-trained policy, all the baseline policies, and the discriminator. We also describe how our method integrates with these general fine-tuning strategies. All approaches employ PPO as fine-tuning \ac{rl} algorithm with clipping parameter $\epsilon=0.2$, GAE $\lambda=0.95$, discount $\gamma=0.99$, and Adam with learning rate $3\times 10^{-4}$. To facilitate reproducibility, we will release the full codebase together with all hyperparameters required to reproduce the results reported in this paper.
+
+\subsection{Pre-trained policy and DPPO fine-tuning} 
+The diffusion policy is trained with the standard behavioral cloning objective for diffusion models, where the network predicts the injected noise conditioned on the noisy actions. We follow the implementation and hyperparameter setup of DPPO~\cite{ren2024diffusion}, using a cosine noise schedule during training. The action horizon coincides with the execution horizon and consists of $4$ action steps per chunk. Pre-training is performed with $20$ denoising steps, while inference uses DDIM~\citep{song2020denoising} sampling with $2$ steps. For frozen policies, we set $\eta=0$, whereas for fine-tuning, we set $\eta=1$, which is equivalent to applying DDPM~\citep{ho2020denoising}. This choice ensures steerability of the policy and avoids memoryless noise schedules. The policy head is implemented as a multi-layer perceptron (MLP) with hidden dimensions $\{512, 512, 512\}$, and a time-embedding dimension of $16$, which we found to improve training stability compared to UNet backbones, similar to~\cite{ren2024diffusion}. For fine-tuning, we follow the implementation and hyperparameters introduced in~\cite{ren2024diffusion}, with the only addition of decreasing the number of fine-tuning steps of the denoising process form $10$ to $2$ to ensure non-memoryless noise schedule.
+
+\subsection{Residual Policy} 
+The residual policy learns an additive correction to the action chunk $a_{t:t+H}$ of length $H$ proposed by the pre-trained diffusion policy, such that $a^*_{t:t+H} = a_{t:t+H} + \lambda \Delta a_{t:t+H}$. 
+Concretely, the residual network receives as input the state and the pre-trained action chunk, and outputs a correction term that is passed through a $\tanh$ activation to ensure bounded updates, $\pi^{\mathrm{RES}}(\Delta a_{t:t+H}\mid s_t, a_{t:t+H})$. 
+To prevent the residual from completely overriding the original action, its contribution is scaled by a tunable factor $\lambda$, which balances task success with fidelity to the pre-trained behavior. 
+This scaling parameter is selected following prior work and tuned empirically to trade off between preserving the original action distribution and improving task success rates. 
+The residual policy is implemented as a Gaussian policy parameterized by a multilayer perceptron with hidden layers of dimension $\{256, 256, 256\}$ and Mish activations.
+
+\subsection{Steering policy} 
+The steering policy $\pi_\psi^{\mathcal{W}}(w \mid s, z)$ is implemented as a Gaussian policy parameterized by an MLP with hidden layers of size $\{256, 256, 256\}$. To constrain its support within that of the original diffusion prior, we apply a KL regularization during training of the form
+\[
+\mathcal{L}_{\mathrm{KL}} = \mathbb{E}_{s,z}\Big[ 
+D_{\mathrm{KL}}\!\left(\pi_\psi^{\mathcal{W}}(w \mid s,z)\,\big\|\,\mathcal{N}(0,I)\right)
+\Big],
+\]
+where $\mathcal{N}(0,I)$ denotes the isotropic Gaussian prior used in the diffusion model. The latent variable $z \in {0,1,\dots,K{-}1}$ is sampled from a uniform categorical prior $p(z)$, as we empirically found discrete latents easier to learn and more stable than continuous ones. The dimensionality of the latent space is a hyperparameter, in the experiments we consider $K=\{ 4, 8, 16\}$. Training proceeds in two stages: for the first 200 epochs, the steering policy is optimized only with the intrinsic reward $\log q_\phi(z \mid s, a) - \log p(z)$, serving as a mode-discovery phase; in the remaining epochs, the environment reward is added to steer behaviors toward high-return regions while retaining multimodality. %\al{Missing the critic?}
+
+
+\subsection{Inference model}
+The inference model $q_\phi(z \mid s)$ is implemented as a categorical classifier over the latent codes ${z \in \{0,\dots,K-1\}}$. It consists of a multilayer perceptron with hidden layers of dimension $\{256,256,256\}$, Mish activations~\citep{misra2019mish}, and a final softmax output producing the class probabilities $q_\phi(z \mid s)$. To prevent overfitting to small variations in continuous states, Gaussian noise with standard deviation $\{1.0, 0.01, 0.001\}$ (depending on the task) is injected into the inputs during training only. 
+The model is trained by minimizing the negative log-likelihood $
+\mathcal{L}_{\mathrm{NLL}}(\phi) = - \mathbb{E}_{(s,a,z)}\big[\log q_\phi(z \mid s)\big],
+$
+where the expectation is taken over state-action pairs generated by the steering policy and latent codes sampled from the prior $p(z)$. During training of the steering policy, the log-posterior $\log q_\phi(z \mid s)$ serves as an intrinsic reward, combined with the prior correction term $-\log p(z)$, thereby providing the intrinsic objective for mode discovery and diversity-preserving fine-tuning.
+
+
+\subsection{Integrating with other fine-tuning techniques.} 
+The steering policy with mode discovery uncovers and controls the behavioral modes of the pre-trained diffusion mode, steering them toward regions of high reward. However, because this mechanism does not update the diffusion weights directly, its performance remains bounded by the expressiveness of the pre-trained policy. From this perspective, the steering policy can be viewed as an \emph{exploration agent} that guides state visitation in a structured way, and can therefore be seamlessly combined with existing fine-tuning methods discussed in Section~\ref{sec:rw}. A key distinction is that our framework provides access to a discriminator that evaluates whether the fine-tuned behaviors remain consistent with the discovered modes, supplying an intrinsic reward that discourages collapse into a single strategy. While the steering policy itself can continue to adapt jointly with the diffusion model, we found it beneficial to update the discriminator with a very low learning rate: this allows it to accommodate novel states encountered during fine-tuning while preserving the previously identified mode structure, thereby stabilizing multimodality retention.
+
+
+% \
+
+\section{Baseline Methods and Evaluation Metrics Discussion}
+
+Following the characterization introduced in Section~\ref{sec:fine-tuning_tech}, we benchmark our approach against representative strategies for on-policy fine-tuning of generative policies, focusing on diffusion models but noting that analogous evaluations apply to flow-matching policies. Specifically, we consider methods that do (i) direct fine-tuning, (ii) residual corrections, and (iii) steering, noting that none of these explicitly seek to preserve multimodality. As a direct fine-tuning approach, we include \texttt{DPPO}~\citep{ren2024diffusion}, which optimizes the diffusion policy weights with PPO. We consider the DDIM parameterization of the generative process to ensure non-memoryless noise schedules, while maintaining a balance between $\eta > 0$ and the number of reverse diffusion steps to facilitate weight fine-tuning. To examine the effect of decreasing the number of reverse diffusion steps, we also consider the original hyperparameters of the \texttt{DPPO} baseline that uses the full denoising chain for action sampling with DDPM parameterization, and fine-tunes the last $10$ steps, denoted \texttt{DPPO[10]}, which makes the generation process non-memoryless.
+
+As a residual fine-tuning approach (\texttt{RES}), we evaluate Policy Decorator~\citep{yuan2024policy}, where a lightweight residual network is trained on top of the frozen pre-trained diffusion model. This allows task adaptation while limiting catastrophic interference with the base model. 
+Finally, we consider~\cite{wagenmaker2025steering} as a steering-based policy \texttt{SP}, which adapts the latent noise distribution $w$ to bias the pre-trained policy toward high-reward behaviors. This category operates entirely in the latent space and, like the others, does not include any explicit mechanism for mode discovery or diversity preservation. 
+
+Importantly, our approach is orthogonal to these categories: the proposed multimodality-preserving regularizer can be combined with either residual or steering-based fine-tuning under non-memoryless noise schedules. Accordingly, we report results both for the standalone baselines and for their variants augmented with our multimodality regularizer, denoted as \texttt{X[MD-MAD]}, where \texttt{X} indicates the corresponding baseline. Full implementation details for all baselines and their regularized variants are provided in Appendix~\ref{appendix:implementation_details}.
+
+\paragraph{Evaluation Metrics.}
+We assume access to the ground truth modes of the trajectories executed by the policy in simulation. and we evaluate fine-tuned policies along two axes: \emph{task success} and \emph{behavioral diversity}. For task success, we report the overall success rate $\mathrm{SR}$, and two mode-aggregated success measures: the success rate weighted for each mode
+$
+{\mathrm{SR}_{\text{M}}=\tfrac{1}{K}\sum_{i=1}^K \mathrm{SR}_i,}
+$
+which guards against degenerate solutions (e.g.\, \(100\%\) success on a single mode but failure on others), and
+mode coverage ${\mathrm{mc}@\tau=\tfrac{1}{K}\sum_{i=1}^K \mathbf{1}\{\mathrm{SR}_i \ge \tau\}}$,
+the fraction of modes solved above threshold \(\tau\).
+
+To further measure multimodality, we follow the D3IL benchmark~\citep{jia2024towards} and compute the entropy of the empirical distribution over modes among all rollouts: $H(\pi)=-\sum_{i=1}^K p_i\log p_i$, where $p_i$ is the fraction of episodes in mode $i$. A higher entropy reflects more balanced usage of the available modes, whereas a reduction after fine-tuning is indicative of mode collapse. All metrics are computed from $N=1024$ evaluation episodes with fixed seeds for fair comparison, and we report both the mean and standard deviation over three independent runs with different random seeds.
+
+
+\begin{figure*}[t!]
+  \centering
+
+  % ---------- LEFT: Original ----------
+  \begin{minipage}[t]{0.39\textwidth}\vspace{40pt}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape.png}
+    \subcaption{Original.}
+    \label{fig:original}
+  \end{minipage}\hfill
+  % ---------- RIGHT: 2x2 grid ----------
+  \begin{minipage}[t]{0.59\textwidth}\vspace{0pt}
+    \centering
+    \subcaptionbox{\textbf{Goal[1]} -- $\pi/8$}[0.48\linewidth]{%
+      \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G1_U0.png}}
+    \hfill
+    \subcaptionbox{\textbf{Goal[1]} (Unb.) -- $\pi/8$}[0.48\linewidth]{%
+      \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G1_U2.png}}\\[0.6em]
+    \subcaptionbox{\textbf{Goal[2]} -- $\pi/8$}[0.48\linewidth]{%
+      \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G2_U0.png}}
+    \hfill
+    \subcaptionbox{\textbf{Goal[2]} (Unb.) -- $\pi/8$}[0.48\linewidth]{%
+      \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G2_U2.png}}
+  \end{minipage}
+
+  \caption{Reward landscapes: (a) Original environment; (b–e) rotated goal variants with balanced and unbalanced setups.}
+  \label{fig:reward_landscapes}
+\end{figure*}
+
+
+\section{2D Gaussian Mixture Environment}
+
+We provide in this section detailed information regarding the implementation of the 2D Gaussian mixture environment, as well as ablation evaluation on the dimensionality of the latent space, the structure learned by the steering policy, and the effect of removing the steering policy after fine-tuning.
+
+\subsection{Implementation Details}
+\label{appendix:gaussian_env}
+We designed a two-dimensional navigation task where the reward landscape is given by a mixture of $4$ Gaussians.  
+The agent’s state is its position $(x,y) \in \mathbb{R}^2$, initialized at the origin $(0,0)$.  
+Actions are modeled as displacements $(\Delta x, \Delta y)$ applied at each step.  
+The instantaneous reward at position $\mathrm{pos}=(x,y)$ is defined as
+\begin{equation}
+    r(x,y) = \sum_{(c_x,c_y) \in \mathcal{C}} \exp\!\left(-\tfrac{(x-c_x)^2 + (y-c_y)^2}{2\sigma^2}\right),
+\end{equation}
+where $\mathcal{C}$ is the set of goal centers and $\sigma$ controls the spread of each Gaussian mode.  
+An episode is successful if the agent reaches within a fixed distance of any goal center.
+
+We consider two variants of this reward landscape:  
+
+\begin{itemize}
+\item \textbf{Balanced landscape.} Each Gaussian mode contributes equally to the reward. This creates a symmetric multimodal environment where all goal regions are equally attractive.  
+
+\item \textbf{Unbalanced landscape.} To introduce variability in mode prominence, we assign each Gaussian a random weight $w_i \sim \mathcal{U}(0,1)$.  
+To avoid degenerate scaling while preserving relative preferences, the weights are normalized via a softmax transformation, i.e.
+\[
+\tilde{w}_i = \frac{\exp(w_i)}{\sum_j \exp(w_j)},
+\]
+and the reward is defined as $r(x,y) = \sum_i \tilde{w}_i \, \exp\!\left(-\tfrac{(x-c_x^{(i)})^2 + (y-c_y^{(i)})^2}{2\sigma^2}\right)$.  
+This ensures that all modes remain present but with uneven reward magnitudes, yielding a more challenging and realistic multimodal landscape.
+\end{itemize}
+
+We refer to these as the \textbf{unbalanced Goal[1]} and \textbf{unbalanced Goal[2]} environments.  
+Figure~\ref{fig:reward_landscapes} provides visualizations of all balanced and unbalanced variants.
+
+
+
+
+\subsection{Expert Demonstrations}
+\label{appendix:gaussian_env_demos}
+
+Figure~\ref{fig:appendix_gaussian_demo} shows the expert demonstration dataset used for the experiments in section~\ref{sec:2D_Gaussians}.
+
+\begin{figure*}[t!]
+  \centering
+    \centering
+    % Row 1
+    \begin{subfigure}[t]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_1.png}
+      \caption{Dataset (1 mode)}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_2.png}
+      \caption{Dataset (2 modes)}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_4.png}
+      \caption{Dataset (4 modes)}
+    \end{subfigure}
+
+    \captionof{figure}{Expert datasets with different multimodal behaviors used to pre-train diffusion models to investigate mutual information as a proxy of multimodality. }
+    \label{fig:appendix_gaussian_demo}
+\end{figure*}
+
+
+
+% \begin{wraptable}[14]{r}{0.58\textwidth} % [9] = reserve ~9 text lines
+% \vspace{-0.6\baselineskip}              % tweak if needed
+% \centering
+% \caption{\textbf{Ablation on the dimensionality of $\mathcal{Z}$.} }
+% \resizebox{0.58\textwidth}{!}{%
+% \begin{tabular}{lcccc}
+% \toprule
+% \rowcolor{lightgray}   & \multicolumn{4}{c}{\textbf{Goal [2]}} \\
+% \rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+% \midrule
+% \rowcolor{lightgray} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=4$}} \\
+% \texttt{RES[MD-MAD]} & $1.00 \pm 0.00$ & $0.75 \pm 0.00$ & $3.00 / 4$ & $0.74 \pm 0.00$ \\
+% \texttt{DPPO[MD-MAD]}  & $1.00 \pm 0.00$ & $0.75 \pm 0.00$ & $3.00 / 4$ & $0.74 \pm 0.00$ \\
+% \midrule
+% \rowcolor{lightgray} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=8$}} \\
+% \texttt{RES[MD-MAD]}  & $1.00 \pm 0.00$ & $1.00 \pm 0.00$ & $4.00 / 4$ & $0.92 \pm 0.00$ \\
+% \texttt{DPPO[MD-MAD]} & $0.64 \pm 0.45$ & $0.63 \pm 0.45$ & $2.33 / 4$ & $0.99 \pm 0.00$ \\
+% \midrule
+% \rowcolor{lightgray} \multicolumn{5}{c}{\textbf{$|\mathcal{Z}|=16$}} \\
+% \texttt{RES[MD-MAD]} & $1.00 \pm 0.00$ & $1.00 \pm 0.00$ & $4.00 / 4$ & $0.94 \pm 0.00$ \\
+% \texttt{DPPO[MD-MAD]}  & $0.79 \pm 0.00$ & $0.82 \pm 0.00$ & $2.00 / 4$ & $0.94 \pm 0.00$ \\
+% \bottomrule
+% \end{tabular}%
+% }
+
+% \label{tab:z_values}
+% \end{wraptable}
+
+
+\subsection{Dimensionality of $\mathcal{Z}$} 
+\label{appendix:dim_z}
+We next examine the effect of the latent dimensionality $|\mathcal{Z}|$ on multimodality preservation. We repeat the \textbf{Goal[2]} evaluation using the \texttt{RES} and \texttt{DPPO} baselines with mode discovery, varying the number of latent codes. 
+
+\begin{wraptable}[16]{r}{0.58\textwidth} % [9] = reserve ~9 text lines
+\vspace{-0.6\baselineskip}              % tweak if needed
+\centering
+\caption{\textbf{Ablation on the dimensionality of $\mathcal{Z}$.} }
+\resizebox{0.58\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\rowcolor{lightgray}   & \multicolumn{4}{c}{\textbf{Goal [2]}} \\
+\rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+\midrule
+\rowcolor{lightgray} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=4$}} \\
+\texttt{RES[MD-MAD]} & $1.00 \pm 0.00$ & $0.75 \pm 0.00$ & $3.00 / 4$ & $0.74 \pm 0.00$ \\
+\texttt{DPPO[MD-MAD]}  & $1.00 \pm 0.00$ & $0.75 \pm 0.00$ & $3.00 / 4$ & $0.74 \pm 0.00$ \\
+\midrule
+\rowcolor{lightgray} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=8$}} \\
+\texttt{RES[MD-MAD]}  & $1.00 \pm 0.00$ & $1.00 \pm 0.00$ & $4.00 / 4$ & $0.92 \pm 0.00$ \\
+\texttt{DPPO[MD-MAD]} & $0.64 \pm 0.45$ & $0.63 \pm 0.45$ & $2.33 / 4$ & $0.99 \pm 0.00$ \\
+\midrule
+\rowcolor{lightgray} \multicolumn{5}{c}{\textbf{$|\mathcal{Z}|=16$}} \\
+\texttt{RES[MD-MAD]} & $1.00 \pm 0.00$ & $1.00 \pm 0.00$ & $4.00 / 4$ & $0.94 \pm 0.00$ \\
+\texttt{DPPO[MD-MAD]}  & $0.79 \pm 0.00$ & $0.82 \pm 0.00$ & $2.00 / 4$ & $0.94 \pm 0.00$ \\
+\bottomrule
+\end{tabular}%
+}
+
+\label{tab:z_values}
+\end{wraptable}
+Results are reported in Table~\ref{tab:z_values}. A dimension of $|\mathcal{Z}|=4$, which matches the ground-truth number of modes, fails to fully capture all task modalities. This limitation stems from our inference model, which distinguishes modes through state coverage and can become sensitive to minor state variations, occasionally treating nearby but distinct states as different modes. 
+Increasing dimensionality ($|\mathcal{Z}|=8,16$) improves coverage by promoting exploration of diverse trajectories. However, excessively large latent spaces introduce inefficiencies: for instance, \texttt{DPPO[MD-MAD]} deteriorates at $|\mathcal{Z}|=16$, likely due to a trade-off between task optimization and diversity. These results suggest that latent dimensionality should be tuned to the complexity of the multimodal structure, and that more robust inference models beyond simple state coverage may further improve mode discovery, representing an interesting direction for future work. %Given our design of the discriminator, we can observe how for example a dimensionality of $4$ leads to the loss of some modalities as the modes discovered by the model are diverse enough to be recognised by the discriminator but to not cover well the full state space. Increasing the dimensionality helps exploration and thus the retention of all modalities, but the higher the number of modes, the harder the problem becomes, making more samples inefficient for the training of DDIM, for example. 
+
+
+
+
+
+
+\begin{wrapfigure}{r}{0.4\textwidth}  % r = right, l = left
+\vspace{-0.9\baselineskip}             % adjust vertical spacing if needed
+\centering
+\includegraphics[width=0.85\linewidth]{figures/2D_Mixture/latent_structure_z=4.pdf}
+
+\caption{Latent noise samples $w$ for $z\in\{0,1,2,3\}$. }
+\label{fig:latent_structure}
+\vspace{-0.9cm} 
+\end{wrapfigure}
+
+\subsection{Structure Induced in the Latent Space}
+We investigate what the structure learned by the steering policy is in the policy latent space.
+We probe what the steering policy actually learns by inspecting the input-noise latents it predicts, rather than the trajectories executed by the full policy. 
+Concretely, for the initial state $s_0$ and each skill label $z \in \{0,1,2,3\}$, we draw $1024$ samples $w \sim \pi_\psi^{\mathcal{W}}(w\mid s_0,z)$ and visualize them in Figure~\ref{fig:latent_structure}  together with kernel-density contours and the per-skill mean. 
+The figure reveals a clear four-cluster organization where each skill forms a compact, well-separated mode in the latent space, with only limited cross-skill overlap. This analysis shows that the steering head has learned a discrete, multimodal latent structure aligned with the modes present in the original demonstration dataset.
+
+
+
+
+% \subsection{Removing the steering policy after fine-tuning}
+% The steering policy can be seen as an auxiliary mechanism to guide exploration in the latent noise space during fine-tuning, enabling the discovery and control of distinct behavioral modes without directly conditioning the policy itself. An important question, however, is what happens once fine-tuning is complete and the steering head is removed, i.e., when actions are again sampled from the original latent noise distribution.
+
+% \begin{table}[!t] 
+% \centering
+% \caption{Evaluation after removing the steering policy post–fine-tuning. 
+% We report multimodal success rate ($\mathrm{SR}_{\mathrm{M}}$), coverage at $80\%$, and entropy $\mathcal{H}$ for baselines augmented with mode discovery (\texttt{[MD]}). 
+% Results highlight that residual fine-tuning (\texttt{PD[+MD]}) retains multimodality even without explicit steering, whereas \texttt{DDIM[+MD]} and \texttt{SP[+MD]} remain strongly dependent on the steering mechanism.}
+
+% \label{tab:toy_results_NOSTEER}
+% \begin{tabular}{l|ccc|ccc}
+% \toprule
+% \rowcolor{lightgray}  & \multicolumn{3}{c|}{\textbf{Goal [1]}} & \multicolumn{3}{c}{\textbf{Goal [2]}} \\
+% \rowcolor{lightgray} \textbf{Method}& $\mathrm{SR}_{\mathrm{M}}$ &  $\mathrm{mc}@0.80$  & $\mathcal{H}$  & $\mathrm{SR}_{\mathrm{M}}$ &  $\mathrm{mc}@0.80$  & $\mathcal{H}$ \\
+% \midrule
+% \rowcolor{lightgray} \multicolumn{7}{l}{\textbf{dim $z=4$}} \\
+% \texttt{RP\;[MD]} & 0.64 & 0.50 & 0.96  & 0.51 & 0.50 & 0.76 \\
+% \texttt{SP\;[MD]}  & 0.00 & 0.00 & 1.00  & 0.00 & 0.00 & 0.90 \\
+% \texttt{DDIM\;[MD]} & 0.17 & 0.00 & 1.00 & 0.14 & 0.00 & 0.74 \\
+% \midrule
+% \rowcolor{lightgray} \multicolumn{7}{l}{\textbf{dim $z=8$}} \\
+% \texttt{RP\;[MD]}  & 0.99 & 1.00 & 1.00  & 0.62 & 0.25 & 0.81 \\
+% \texttt{SP\;[MD]} & 0.00 & 0.00 & 1.00 & 0.00 & 0.00 & 0.90 \\
+% \texttt{DDIM\;[MD]}  & 0.11 & 0.00 & 0.99  & 0.19 & 0.00 & 0.98 \\
+% \midrule
+% \rowcolor{lightgray} \multicolumn{7}{l}{\textbf{dim $z=16$}} \\
+% \texttt{RP\;[MD]} & 0.95 & 1.00 & 0.88 & 0.98 & 1.00 & 0.96 \\
+% \texttt{SP\;[MD]}  & 0.00 & 0.00 & 1.00 & 0.00 & 0.00 & 0.90 \\
+% \texttt{DDIM\;[MD]}  & 0.08 & 0.00 & 1.00  & 0.15 & 0.00 & 0.88 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% Table~\ref{tab:toy_results_NOSTEER} shows that the residual baseline (\texttt{PD[+MD]}) exhibits only a minor drop in performance once the steering policy is removed. In fact, performance tends to improve with higher-dimensional latent spaces ($z=8,16$), suggesting that exploration guided by the steering policy leads to durable improvements in the underlying policy. In other words, even without explicit steering, the residual update mechanism internalizes multimodal behaviors during fine-tuning and can reproduce them directly at test time. In contrast, \texttt{DDIM[+MD]} shows a sharp dependence on the steering policy: once steering is removed, success rates collapse despite maintaining high entropy values. This reflects the limited stochasticity of DDIM sampling, where steering primarily acts as a means to reach regions of high reward but does not leave lasting changes in the base policy. Similarly, \texttt{SP[+MD]} fails entirely without steering, further underscoring that steering alone is insufficient to ensure stable retention of multimodality.
+
+% Overall, these results highlight that residual fine-tuning is a particularly strong fine-tuning strategy, as it not only preserves multimodal behaviors but also integrates them into the policy itself, making it less dependent on the steering mechanism at test time.
+% This suggests an interesting future direction: using the steering policy as a scaffolding tool to discover and collect diverse behaviors, followed by supervised or reinforcement learning updates to distill these behaviors into the diffusion weights. Such an approach could combine the stability of residual fine-tuning with the expressivity of full diffusion-policy optimization.
+
+\section{Tasks Description}
+\label{appendix:manip_tasks}
+
+
+
+
+We evaluate our approach on \reb{five robotics tasks}. These include three robotic manipulation tasks and one locomotion tasks implemented within the ManiSkill~\citep{tao2024maniskill3} framework: \emph{Reach}, \emph{Lift}, \emph{Avoid} (re-implemented from D3IL~\citep{jia2024towards}), \reb{as manipulation tasks and \emph{ANYmal} as locomotion task. We further integrate the \emph{Franka Kitchen} environment from D4RL~\citep{fu2020d4rl} as a sequential multi-task setting.} Each task (shown in Figure~\ref{fig:tasks}) exhibits distinct forms and degrees of multimodality. \reb{In all cases, multimodality refers to the existence of several equally valid but spatially different solution strategies that the robot may follow to achieve the task. } Multimodality arises either from goal diversity or, for a fixed goal, from multiple feasible trajectories that lead to successful completion. All manipulation tasks are performed with a Franka Emika Panda robot, where agent actions are parameterized as 6-DoF end-effector delta poses $(\Delta x, \Delta y, \Delta z, \Delta \text{roll}, \Delta \text{pitch}, \Delta \text{yaw})$. \reb{The action space for the locomotion task consists of the 12 delta joint position commands controlling the four legs of the ANYmal.}
+
+
+% \begin{figure}[t!]
+%   \centering
+%     \centering
+%     % Row 1
+%     \begin{subfigure}[t]{0.32\textwidth}
+%       \centering
+%       \includegraphics[width=\linewidth]{figures/tasks/reach.png}
+%       \caption{\emph{Reach}}
+%     \end{subfigure}\hfill
+%     \begin{subfigure}[t]{0.32\textwidth}
+%       \centering
+%       \includegraphics[width=\linewidth]{figures/tasks/lift.png}
+%       \caption{\emph{Lift}}
+%     \end{subfigure}\hfill
+%     \begin{subfigure}[t]{0.32\textwidth}
+%       \centering
+%       \includegraphics[width=\linewidth]{figures/tasks/avoid.png}
+%       \caption{\emph{Avoid}}
+%     \end{subfigure}
+
+%     \captionof{figure}{Visualization of the three ManiSkill tasks used in our evaluation: \emph{Reach}, \emph{Lift}, and \emph{Avoid}.  
+% For each task we display four random environment initializations and highlight representative modes for solving the task.}
+%     \label{fig:tasks}
+% \end{figure}
+
+\begin{figure}[t!]
+  \centering
+  % Five tasks in one row
+  \begin{subfigure}[t]{0.18\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tasks/reach_v2.png}
+    \caption{\emph{Reach}}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.18\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tasks/lift_v2.png}
+    \caption{\emph{Lift}}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.18\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tasks/avoid_v2.png}
+    \caption{\emph{Avoid}}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.18\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tasks/anymal.png}
+    \caption{\emph{ANYmal}}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.23\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tasks/kitchen.png}
+    \caption{\emph{Franka Kitchen}}
+  \end{subfigure}
+
+  \caption{Visualization of the five ManiSkill tasks used in our evaluation. 
+  For each task, except the \emph{Franka Kitchen}, we highlight representative modes for solving the task.}
+  \label{fig:tasks}
+\end{figure}
+
+
+\paragraph{Reach (2 modes).} In \emph{Reach}, the agent must contact a green sphere while avoiding a gray obstacle; success can be achieved by approaching from either side. \reb{These left–right approaches constitute two disjoint solution classes, creating a simple bimodal structure.} This task is comparatively simple, as multimodality appears only at the beginning of the trajectory, after which the policy is effectively committed to a single mode. The state space comprises the robot joint positions and velocities, the end-effector pose, as well as goal and bar poses. The maximum episode length is $100$ steps. The task is considered to be successful if the agent reaches the goal within a pre-defined threshold
+
+\paragraph{Lift (2 modes).} In \emph{Lift}, the agent must lift a peg into vertical position. The peg can be grasped and lifted upright from either the red or blue side, yielding multiple valid grasping strategies. \reb{Here, multimodality reflects the existence of several grasp affordances around the object, which lead to distinct grasp–lift trajectories even when the final goal is identical.} The initial randomization of object configurations increases the ambiguity and difficulty of separating modes.  The state space comprises the robot joint positions and velocities, the end-effector pose, as well as the peg pose. The maximum episode length is $200$ steps. The task is considered to be successful if the peg is successfully lifted (assessed through the pose of the object) and stable.
+
+\paragraph{Avoid (24 modes).} In the \emph{Avoid} task, the agent must cross the green line by avoiding the obstacles in the table. This is the most challenging as numerous modalities emerge later in the trajectory, each corresponding to a distinct avoidance strategy with different path lengths. In this case, only the initial end-effector position is randomized at reset, while the obstacle remains fixed, emphasizing the diversity of possible avoidance strategies. The state representation encompasses the end-effector’s desired position and actual position in Cartesian space, with the caveat that the robot’s height (z position) remains fixed. The actions are represented by the desired velocity of the robot along the x and y axis. The maximum episode length is $300$ steps. The task is considered to be successful if the robot-end-effector reaches the green finish line.
+
+\reb{
+\paragraph{ANYmal Locomotion (4 modes).}
+In this locomotion task, a quadrupedal ANYmal robot must navigate to one of four goal locations placed at fixed positions in the environment. Multimodality arises from goal diversity: each goal corresponds to a distinct target direction and therefore induces different optimal locomotion strategies and turning behaviors. Demonstrations are generated by training four separate RL agents, each optimized to reach a single goal, producing unimodal expert trajectories for each target. When combined, these demonstrations form a four-modal behavior distribution that the policy must preserve. The state space includes proprioceptive robot observations (joint states, base pose, and velocities) and the relative goal position with respect to the agent position. The maximum episode length is $200$ steps, and an episode is successful if the robot reaches any goal within a predefined tolerance.
+
+\paragraph{Franka Kitchen (24 modes).}The Franka Kitchen environment from D4RL~\citep{fu2020d4rl} contains demonstrations of a robot manipulating several articulated objects (microwave, kettle, burner, light switch). We train on the mixed demonstration dataset, which contains trajectories performing different task combinations in varying orders, but never completing all four evaluation subtasks sequentially. As a result, multimodality emerges both from the diversity of partial task orders and from multiple valid ways to interact with each object. For evaluation, we follow the common benchmark and consider four subtasks—\texttt{microwave}, \texttt{kettle}, \texttt{bottom burner}, \texttt{light switch}. Success is achieved when the policy completes three of the four subtasks within the episode, possibly in any order. The state space consists of robot joint states, end-effector pose, and object poses; the maximum horizon is $280$ steps.
+}
+
+All environments provide dense or intermediate reward functions to support fine-tuning, and we employ a heuristic to identify the mode associated with each trajectory, enabling consistent evaluation of multimodality. Additional implementation details will be available upon the release of the codebase.
+
+
+
+
+% \paragraph{Implementation Details}
+% For each task, we collect $1000$ demos with a motion planner for each task and pre-train the diffusion model for $1000$ epochs. \al{Can we evaluate the difference between a trajectory trained with RL and the motion planning demos to quantify the reward landscape shift?} The baseline models are fine-tuned using only the task rewards, while the regularized version first pre-trains the steering policy with only the mode discovery objective.\al{Some other details}.
+
+\section{Ablation Experiments}
+
+
+\subsection{Method Ablations}
+\label{appendix:manipulation_ablation}
+
+
+\begin{wrapfigure}{r}{0.5\textwidth}  % r = right, l = left
+\vspace{-0.9\baselineskip}             % adjust vertical spacing if needed
+\centering
+\includegraphics[width=0.9\linewidth]{figures/exps/sr_vs_lambda.pdf}
+
+\caption{Impact of the regularization coefficient $\lambda$ on the task success rate. }
+\label{fig:lambda}
+\vspace{-0.6cm} 
+\end{wrapfigure}
+
+
+We first study the effect of the regularization weight $\lambda$ on task performance, focusing on the \emph{Lift} task with the \texttt{RES[MD-MAD]} baseline. Figure~\ref{fig:lambda} shows that as $\lambda$ increases, the intrinsic reward increasingly dominates over the task reward, leading to a drop in success rate. This illustrates the trade-off: stronger regularization favors diversity at the expense of task performance.
+
+Next, we analyze the impact of (i) pre-training with only the mode-discovery reward (\texttt{[NO-FT MD-MAD]}) and (ii) omitting fine-tuning of the inference model and steering policy when adapting the main policy with another fine-tuning technique (\texttt{[NO-PRE MD-MAD]}), (iii) removing the curriculum stage during the mode-discovery phase (\texttt{[NO-CURR MD-MAD]}). These ablations, reported in Table~\ref{tab:ablation}) for the \emph{Lift} task with \texttt{RES[MD-MAD]}, reveal that all factors negatively affect performance. In particular, disabling fine-tuning of the inference model and steering policy is catastrophic: the mutual-information signal becomes uninformative as the policy is driven toward out-of-distribution states relative to pre-training.
+
+\begin{table}[t!]
+\centering
+\caption{Ablation experiments on design choices.}
+\label{tab:ablation}
+\begin{tabular}{l|cccc}
+\toprule
+\rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+\midrule
+\texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
+\midrule
+\texttt{RES[MD-MAD]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
+\midrule
+\texttt{RES[NO-PRE MD-MAD]} & $0.91 \scriptscriptstyle\pm 0.04$ & $0.79 \scriptscriptstyle\pm 0.11$ & $1.33 / 2$& $0.74 \scriptscriptstyle\pm 0.08$  \\
+\texttt{RES[NO-FT MD-MAD]} & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 / 2$& $0.00 \scriptscriptstyle\pm 0.00$  \\
+\texttt{RES[NO-CURR MD-MAD]}& $0.85 \scriptscriptstyle\pm 0.08$ & $0.83 \scriptscriptstyle\pm 0.08$ & $1.33 / 2$& $0.95 \scriptscriptstyle\pm 0.05$   \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[t!]
+\centering
+\caption{Ablation experiment on removing the steering policy after fine-tuning with MD-MAD}
+\label{tab:remove_steering}
+\begin{tabular}{l|cccc}
+\toprule
+\rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+\midrule
+\texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
+\midrule
+\rowcolor{lightgray} \multicolumn{5}{c}{\emph{With Steering Policy}} \\
+\midrule
+\texttt{RES[MD-MAD]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
+\texttt{DPPO[MD-MAD]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.55 \scriptscriptstyle\pm 0.07$ & $1.00 / 2$& $0.06 \scriptscriptstyle\pm 0.04$ \\
+\midrule
+\rowcolor{lightgray} \multicolumn{5}{c}{\emph{Without Steering Policy (Random Sampling)}} \\
+\midrule
+\texttt{RES[MD-MAD]} & $0.95 \scriptscriptstyle\pm 0.02$ & $0.94 \scriptscriptstyle\pm 0.02$ & $2.00 / 2$& $0.93 \scriptscriptstyle\pm 0.03$ \\
+\texttt{DPPO[MD-MAD]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.58 \scriptscriptstyle\pm 0.06$ & $1.00 / 2$& $0.08 \scriptscriptstyle\pm 0.03$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Finally, we evaluate whether policies fine-tuned with MD-MAD retain multimodality and performance once the steering head is removed, i.e., actions are again driven by the original latent noise prior. Table~\ref{tab:remove_steering} reports success and multimodality metrics for only the \texttt{DPPO[MD-MAD]} and \texttt{RES[MD-MAD]} on \emph{Lift}, as removing the steering on the \texttt{SP} baseline would regress the performance back to the original pre-trained policy. The residual baseline shows minimal degradation after removing the steering head, indicating that residual updates internalize the discovered modes into the policy. Similarly, \texttt{DPPO[MD-MAD]} exhibits similar performance with respect to the version including the steering head.
+
+We hypothesize that MD-MAD’s regularization on the steering output, penalizing deviations from the original normal noise, encourages compatibility between the learned behaviors and the base diffusion noise. During fine-tuning, steering guides exploration over $z$ to expose distinct modes, while the regularizer keeps the induced noise close to the prior, allowing the policy to absorb mode structure without depending on explicit steering at inference. Consequently, \texttt{RES[MD-MAD]} especially, can execute diverse behaviors when sampling from the unmodified prior, preserving multimodality with limited impact on task success and making it a strong candidate for fine-tuning generative policies. 
+
+\reb{
+
+
+
+\begin{figure}[t!]
+  \centering
+\centering
+\includegraphics[width=\linewidth]{figures/exps/z_mode_confusion_matrices.pdf}
+\caption{Confusion matrices of the mappings from the latent $z\in\mathcal{Z}$ to the ground truth environment's modes.}
+\label{fig:confusion_matrices}
+
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\label{fig:locomotion_skills_viz}
+
+\begin{subfigure}[t]{0.3\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/exps/Skill_traj_1234.png}
+    \caption{Checkpoint $1$ (seed 1234).}
+    \label{fig:cp1-seed1234}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.3\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/exps/Skill_traj_2222.png}
+    \caption{Checkpoint $2$ (seed 2222).}
+    \label{fig:cp1-seed1234-b}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.3\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/exps/Skill_traj_4444.png}
+    \caption{Checkpoint $3$ (seed 4444).}
+    \label{fig:cp1-seed1234-c}
+\end{subfigure}
+
+\caption{Qualitative visualization of the trajectories distributions for different checkpoints, where different colors correspond to different $z\in\mathcal{Z}$.}
+\label{fig:modes_anymal}
+\end{figure}
+
+\subsection{Mode Stability Analysis}
+\label{appendix:mode stability}
+
+To assess the stability of the latent steering variable discovered by MD-MAD, we evaluate whether different training seeds induce consistent mappings between latent codes and environment modes in the \emph{ANYmal} task. We consider $3$ different seeds, all steering policies were trained under identical conditions and number of fine-tuning epochs, and for each checkpoint, we rolled out $1024$ episodes from randomized initial states. We predefined the sampled latent code $z$ for each episode (shared across the evaluations of the three seeds) and recorded the resulting environment-defined mode. 
+
+The confusion matrices in Figure~\ref{fig:confusion_matrices} show that all checkpoints exhibit highly consistent mode assignments across initial-state perturbations; however, the third checkpoint collapses two latent codes into the same mode, mirroring the behavior observed in our 2D Gaussian Mixture analysis, where small state perturbations cause our diversity objective to treat trajectories ending in the same mode as distinct, thereby compressing the latent space.   A qualitative visualization of the modes learned by the three checkpoints is shown in Figure~\ref{fig:modes_anymal}. We further report the success rate per mode in Table~\ref{tab:sr_modes}. 
+
+
+
+To quantify seed-level agreement, we compare the checkpoints using three metrics: (i) the Normalized Mutual Information (NMI), which measures the similarity of the mode distributions produced across seeds; (ii) the Adjusted Rand Index (ARI), which evaluates the alignment of the underlying mode-cluster structure; and (iii) a Z-Consistency score, defined as the fraction of latent codes whose dominant mode matches across seeds. As shown in Table~\ref{tab:z_stability_pairwise}, NMI and ARI remain high, indicating that all seeds recover consistent sets of behavioral modes, while the collapsed latent in the third checkpoint naturally leads to non-perfect scores. The Z-Consistency score is zero for the first checkpoint comparisons, confirming that although the learned modes are stable, the specific latent-code assignments are not necessarily preserved across seeds, reflecting the inherent permutation symmetry of unsupervised latent discovery.
+
+
+
+\renewcommand{\arraystretch}{1.2} % Adjust row spacing
+\setlength{\arrayrulewidth}{0.07pt} % Adjust line thickness
+
+\begin{table*}[t]
+
+\centering
+\begin{minipage}{0.4\linewidth}
+\centering
+\caption{Success rate per mode.}
+\label{tab:sr_modes}
+\centering
+\resizebox{\linewidth}{!}{%
+
+\centering
+
+
+\begin{tabular}{cccc}
+\toprule
+\rowcolor{lightgray} \textbf{Mode} & \textbf{C1} $(\uparrow)$ & \textbf{C2} $(\uparrow)$ & \textbf{C3} $(\uparrow)$ \\
+\midrule
+0 & 1.00 & 1.00 & 1.00 \\
+1 & 0.97 & 0.98 & -- \\
+2 & 1.00 & 0.91 & 0.95 \\
+3 & 0.97 & 0.89 & 0.92 \\
+\bottomrule
+\end{tabular}
+}
+\end{minipage}
+\hfill
+\centering
+\begin{minipage}{0.55\linewidth}
+\centering
+\caption{Pairwise comparison metrics for latent Z stability across checkpoints. }
+\label{tab:z_stability_pairwise}
+\resizebox{\linewidth}{!}{%
+% \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
+\centering
+
+
+\begin{tabular}{lccc}
+\toprule
+\rowcolor{lightgray} \textbf{Pair} & \textbf{NMI} $(\uparrow)$ & \textbf{ARI} $(\uparrow)$ & \textbf{Z Consistency} $(\uparrow)$ \\
+\midrule
+\texttt{C1 vs C2} & 1.00 & 1.00 & 0.00 \\
+\texttt{C1 vs C3} & 0.87 & 0.74 & 0.00 \\
+\texttt{C2 vs C3} & 0.87 & 0.74 & 0.50 \\
+\bottomrule
+\end{tabular}
+}
+\end{minipage}
+
+
+\end{table*}
+
+
+\subsection{Noise and Dynamics Perturbations}
+\label{sec:noise_dyn_perturbations}
+
+This section evaluates the robustness of the proposed method to environmental perturbations beyond reward shifts, specifically focusing on observation noise and dynamics alterations. We conduct these experiments in the \emph{ANYmal} environment. For the observation-noise ablation, we inject Gaussian noise with standard deviation $0.01$ into the observations prior to feeding them into the policy. For the dynamics-shift ablation, we immobilize the first joint of one leg by forcing the corresponding action to zero before each simulator step. These perturbation magnitudes were chosen to avoid completely destabilizing the pre-trained policy: the method assumes a non-trivial degree of multimodality in the underlying model, and more severe interventions (e.g.\, blocking the second joint) caused immediate falls, thereby collapsing behavioral diversity and falling outside the scope of this study.
+
+We evaluated the steering policy and compared its performance against the same policy trained under the same shifts without the MD-MAD regularization, using the same metrics introduced in the previous section. We further included the performance of the pre-trained model evaluated with the suggested shifts. Taken together, the results in Tables~\ref{tab:obs_noise} and~\ref{tab:dynamics_perturbation} show that MD-MAD consistently preserves multimodal behavior under observation noise and maintains distinct latent-behavioral modes even when the underlying system dynamics are perturbed. Although dynamic shifts reduce overall task performance, the fine-tuned steering policy still succeeds on two of the four environment modes (per-mode success: (0) 0.02, (1) 0.92, (2) 0.79, (3) 0.98), corresponding to $\mathrm{mc}@80=2/4$. This demonstrates robustness of the discovered behavioral modes, while also revealing room for improvement in handling stronger dynamic variations.
+
+\renewcommand{\arraystretch}{1.2} % Adjust row spacing
+\setlength{\arrayrulewidth}{0.07pt} % Adjust line thickness
+
+\begin{table*}[t]
+\centering
+\begin{minipage}{0.465\linewidth}
+\centering
+\caption{Observation noise perturbation. }
+\label{tab:obs_noise}
+\resizebox{\linewidth}{!}{%
+% \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\rowcolor{lightgray} \textbf{Method} & $\mathrm{SR}$$(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$& $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$\\
+\midrule
+\texttt{PRE} & $0.32 $ & $0.31  $ & $0.00 / 4$& $0.99 $  \\
+\midrule
+\texttt{SP} & $1.00 $ & $0.25  $ & $1.00 / 4$& $0.00  $ \\
+\texttt{SP[MD-MAD]} & $0.96 $ & $0.96  $ & $4.00 / 4$& $0.99 $  \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}\hfill
+\begin{minipage}{0.465\linewidth}
+\centering
+\caption{Dynamics shift perturbation.}
+\label{tab:dynamics_perturbation}
+\centering
+\resizebox{\linewidth}{!}{%
+% \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
+\begin{tabular}{lcccc}
+\toprule
+\rowcolor{lightgray} \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$& $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$ \\
+\midrule
+\texttt{PRE} & $0.05 $ & $0.06  $ & $0.00 / 4$& $0.90 $  \\
+\midrule
+\texttt{SP} & $0.98 $ & $0.24  $ & $1.00 / 4$& $0.00  $ \\
+\texttt{SP[MD-MAD]} & $0.69 $ & $0.69  $ & $2.00 / 4$& $0.99 $  \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\end{table*}
+
+
+\subsection{Successful Kitchen Tasks Sequences}
+
+Table~\ref{tab:kitchen_sequences} reports the distinct successful task sequences executed by each method in the Franka Kitchen environment. The pre-trained policy exhibits multiple valid one- and two-task sequences, while all baselines collapse to a single sequence per task count. In contrast, MD-MAD recovers multiple successful sequences across all levels, preserving most of the original multimodality but losing the sequence ``[microwave, bottom burner]''.
+
+\begin{table}[t]
+\caption{Unique successful action sequences discovered by each method, grouped by number of completed tasks.}
+\label{tab:kitchen_sequences}
+\resizebox{\linewidth}{!}{%
+% \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
+\centering
+\small
+\begin{tabular}{l c l}
+\toprule
+\textbf{Method} & \textbf{\# Tasks} & \textbf{Unique Sequences} \\
+\midrule
+\multirow{2}{*}{\texttt{PRE} }
+  & 1 & [microwave], [kettle] \\
+  & 2 & [kettle, bottom burner], [microwave, bottom burner], [microwave, kettle] \\
+    & 3 & - \\
+\midrule
+\multirow{3}{*}{\texttt{RES} / \texttt{SP} / \texttt{DPPO} / \texttt{DPPO[10]}}
+  & 1 & [kettle] \\
+  & 2 & [kettle, bottom burner] \\
+  & 3 & [kettle, bottom burner, light switch] \\
+\midrule
+\multirow{3}{*}{\texttt{SP [MD-MAD]}}
+  & 1 & [microwave], [kettle] \\
+  & 2 & [microwave, kettle], [kettle, bottom burner] \\
+  & 3 & [microwave, kettle, bottom burner], [kettle, bottom burner, light switch] \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+}
+
+\subsection{Qualitative visualization of the learned skills}
+\label{appendix:qualitative_skills}
+
+Figure~\ref{fig:learned_skills} shows qualitative examples of the trajectory sampled in each environment by the \texttt{DPPO} baseline, as well as the skills learned by the \texttt{DPPO[MD-MAD]} variant trained with our proposed mode discovery and regularization techniques. 
+
+\begin{figure}[t!]
+  \centering
+  % --- top row ---
+  \begin{subfigure}[t]{0.485\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tasks/reach_skills.pdf}
+    \caption{\emph{Reach}: \texttt{DPPO} (Left, green box) trajectories and modes learned by \texttt{DPPO[MD-MAD]}. }
+    \label{fig:top-left}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.485\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tasks/Lift_skills.pdf}
+    \caption{\emph{Lift}: \texttt{DPPO} (Left, green box) trajectories and modes learned by \texttt{DPPO[MD-MAD]}.}
+    \label{fig:top-right}
+  \end{subfigure}
+
+  % --- bottom row (wide) ---
+  \vspace{0.6em}
+  \begin{subfigure}[t]{0.99\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tasks/Avoid_Skills.pdf}
+    \caption{\emph{Avoid}: \texttt{DPPO} (Left, purple box) trajectories and modes learned by \texttt{DPPO[MD-MAD]}.}
+    \label{fig:bottom-wide}
+  \end{subfigure}
+
+  \caption{Visualization of trajectories (blue) from standard fine-tuning and MD-MAD fine-tuning across different tasks. Highlighted boxes (green, purple) show \texttt{DPPO}, which exhibits multimodal behavior only in the \emph{Reach} task. The remaining visualizations represent \texttt{DPPO[MD-MAD]}, where trajectories are sampled by varying $z \in \mathcal{Z}$}
+  \label{fig:learned_skills}
+\end{figure}
+
+
+
+\section{Use of Large Language Models (LLMs)}
+
+Large Language Models (LLMs) were employed as a general-purpose writing assistant. Specifically, we used LLMs to polish the language, improve readability, and refine the clarity of the manuscript. The models were not used for research ideation, experimental design, data analysis, or interpretation of results. All conceptual contributions, algorithms, experiments, and conclusions presented in this work are solely those of the authors.
+
+

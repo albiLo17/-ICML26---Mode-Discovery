@@ -1,0 +1,60 @@
+\section{Problem Formulation}
+\label{sec:problem}
+
+% MDP
+We formalize the problem within the standard Markov Decision Process (MDP) defined by the tuple $(\mathcal{S}, \mathcal{A}, r, p, \gamma)$, where $\mathcal{S}$ denotes the state space, $\mathcal{A}$ denotes the action space, $r: \mathcal{S} \times \mathcal{A} \rightarrow \mathbb{R}$ is the reward function, $p: \mathcal{S} \times \mathcal{A} \rightarrow \mathcal{P}(\mathcal{S})$ is the transition probability distribution over next states, and $\gamma \in [0, 1)$ is the discount factor. TThe goal of reinforcement learning is to find a policy $\pi$ that maximizes the expected cumulative discounted return:
+\begin{equation}
+    \pi^* = \arg\max_{\pi} J(\pi)\;= \arg\max_{\pi} \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t r(s_t, a_t) \right],
+\end{equation}
+where $\rho_0$ is the initial state distribution, $\rs_t \in \mathcal{S}$ the state at time $t$, and $a_t \sim \pi(\cdot \mid s_t)$.
+
+% A demonstration dataset and behavioral cloning
+\subsection{Multimodal Pre-trained Policy}
+% A  (multimodal) diffusion policy.
+We assume access to an offline dataset ${\mathcal{D}=\{(\vs_t^{(i)}, \va_t^{(i)}, r_t^{(i)}, \vs_{t+1}^{(i)})\}_{i=1}^N}$ collected by a behavior policy (e.g., human demonstrations), which we use to pre-train a policy $\pi_{\vtheta}(\ra \mid \rs)$ via imitation learning. Because classical Gaussian policies $\mathcal{N}(\vmu(\vs), \mSigma(\vs))$ are inherently unimodal in $\mathcal{A}$~\citep{huang2023reparameterized}, we focus on expressive policy classes such as diffusion and flow-based representations~\citep{chi2023diffusion,kang2023efficient,psenka2023learning,lipman2022flow,park2025flow} \al{Add reference to the appendix for a background on diffusion policies}. When $\mathcal{D}$ contains multimodal demonstrations, the resulting $\pi_{\vtheta}(\ra \mid \vs)$ is multimodal: for some states $\vs$ the conditional action distribution has multiple isolated high-probability regions. Equivalently, there exist distinct actions $\{\va^{(k)}\}_{k=1}^K$ with $K\ge 2$ such that each $\va^{(k)}$ is a local maximum of $\pi_{\vtheta}(\va \mid \vs)$ (i.e., $\nabla_{\va}\pi_{\vtheta}(\va^{(k)} \mid \vs)=\vzero$ and $\nabla_{\va}^2 \log \pi_{\vtheta}(\va^{(k)} \mid \vs)\prec \vzero$), with $\va^{(k)} \neq \va^{(\ell)}$ for $k\neq \ell$.
+\al{All these details are probably not needed and can be streamlined.}
+
+% Definition of multimodality for this class of models.
+ However, this definition is impractical for diffusion and flow-based policies, which define the action distribution implicitly via a generative process. As a result, the density $\pi_\theta(a \mid s)$ may not be available in closed form, making it infeasible to compute its gradient and Hessian with respect to the action and thus evaluate the multimodality of the policy.
+
+ 
+% \paragraph{Pre-trained Multimodal Generative Policies.}
+% We assume access to an offline demonstration dataset 
+% \[
+% \mathcal{D}
+% =
+% \{\tau^{(i)}\}_{i=1}^N,
+% \qquad
+% \tau^{(i)} = (s^{(i)}_0,a^{(i)}_0,\dots,s^{(i)}_{T_i},a^{(i)}_{T_i}),
+% \]
+% collected by diverse behavioral policies (e.g., human demonstrations). In many manipulation benchmarks, such demonstrations naturally decompose into a finite number of \emph{behavioral strategies} (trajectory-level modes), such as grasping from different sides or following distinct approach paths. We model this by assuming that $\mathcal{D}$ can be partitioned into $K \ge 2$ non-empty subsets
+% $\mathcal{D}_1,\dots,\mathcal{D}_K$, each corresponding to a semantically coherent strategy.
+
+% Whenever two such strategies visit similar states but choose systematically different actions (e.g., branching decisions early in the trajectory), the induced conditional action distribution
+% \[
+% p_{\mathcal{D}}(a \mid s)
+% \;=\;
+% \sum_{k=1}^K \alpha_k(s)\, p_{\mathcal{D}}(a \mid s, \tau \in \mathcal{D}_k),
+% \qquad 
+% \alpha_k(s) = \mathbb{P}(\tau \in \mathcal{D}_k \mid s_t = s),
+% \]
+% is multimodal on a subset of states of non-zero measure. Thus, \emph{trajectory-level diversity in the dataset necessarily induces multimodality in the conditional action distribution} at the states where strategies branch.
+
+% We pre-train a generative policy $\pi_\theta$ on $\mathcal{D}$ via imitation learning, following the diffusion-policy formulation used in recent work on robotic manipulation and offline RL, where the policy is represented as a conditional denoising diffusion process over actions and is explicitly designed to model complex, multimodal action distributions~\citep{chi2023diffusionpolicy,wang2022diffusionpolicy,song2025diffusionsurvey}. In this setting it is convenient to make explicit the dependence on the diffusion input noise $w \in \mathcal{W}$ and write
+% \[
+% \pi_\theta(a \mid s, w),
+% \]
+% where sampling actions consists of drawing $w$ from a simple base distribution (e.g., Gaussian) and running the reverse diffusion process conditioned on $s$. The multimodality inherited from $\mathcal{D}$ is then realized as a dependence of the generated actions on the noise variable $w$: different regions of the noise space induce different action patterns.
+
+% We use the term \emph{behavioral mode} to refer to a latent variable $z \in \mathcal{Z}$, implicitly encoded in the pre-trained multimodal policy, that indexes a trajectory distribution
+% \[
+% p^\pi(\tau \mid z)
+% =
+% p(s_0)\prod_{t=0}^{T-1} \pi_\theta(a_t \mid s_t, z)\, p(s_{t+1}\mid s_t,a_t),
+% \]
+% so that different values of $z$ correspond to distinct, self-consistent strategies that solve the task. The set of modes $\mathcal{Z}$ and their number are \emph{not} observed in the dataset; a central goal of this work is to preserve such latent behavioral modes during fine-tuning without ever explicitly enumerating them.
+
+
+\subsection{Fine-tuning}
+% Fine-tuning.
+Our goal is to fine-tune this initial policy using reinforcement learning to obtain a new policy $\pi_{\theta'}(a\mid s)$ that maximizes $J(\pi)$ while retaining as much as possible the \emph{multimodality} present in $\pi_\theta$. While some solutions for fine-tuing exists, they tend to destroy multimodality \al{Introduce toy example?}. The assumptions we make is that the policy must be steerable and that the pre-trained policy is deterministic. Which is the default in flow-matching but it is not the case in general for diffusion models, but we can make them deterministic with DDIM sampling.
