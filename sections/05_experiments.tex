@@ -46,13 +46,12 @@ All metrics are computed from $N=1024$ evaluation episodes with fixed seeds for 
   \caption{Mutual information and inference model loss.}
   \label{tab:mi_disc}
   % \scriptsize
-  \begin{tabular}{lcc}
+  \begin{tabular}{lccc}
   \toprule
-  \rowcolor{lightgray}  \textbf{Policy} & \textbf{$\mathcal{M}$ } & $q_\phi$ \textbf{Loss }\\
+  \rowcolor{lightgray}  & 1 Mode & 2 Modes & 4 Modes \\
   \midrule
-  1 mode  & $0.00 \scriptscriptstyle\pm 0.00$  & $1.38 \scriptscriptstyle\pm 0.00$ \\
-  2 modes & $0.58 \scriptscriptstyle\pm 0.02$  & $0.82 \scriptscriptstyle\pm 0.02$ \\
-  4 modes & $1.06 \scriptscriptstyle\pm 0.00$  & $0.33 \scriptscriptstyle\pm 0.02$ \\
+  \textbf{$\mathcal{M}$} & $0.00 \scriptscriptstyle\pm 0.00$ & $0.58 \scriptscriptstyle\pm 0.02$ & $1.06 \scriptscriptstyle\pm 0.00$ \\
+  $L_q(\phi)$  & $1.38 \scriptscriptstyle\pm 0.00$ & $0.82 \scriptscriptstyle\pm 0.02$ & $0.33 \scriptscriptstyle\pm 0.02$ \\
   \bottomrule
   \end{tabular}
   \end{table}
