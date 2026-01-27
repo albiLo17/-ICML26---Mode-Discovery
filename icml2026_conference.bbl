@@ -1,0 +1,307 @@
+\begin{thebibliography}{46}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Achiam et~al.(2018)Achiam, Edwards, Amodei, and
+  Abbeel]{achiam2018variational}
+Achiam, J., Edwards, H., Amodei, D., and Abbeel, P.
+\newblock Variational option discovery algorithms.
+\newblock \emph{arXiv preprint arXiv:1807.10299}, 2018.
+
+\bibitem[Ankile et~al.(2024)Ankile, Simeonov, Shenfeld, Torne, and
+  Agrawal]{ankile2024imitation}
+Ankile, L., Simeonov, A., Shenfeld, I., Torne, M., and Agrawal, P.
+\newblock From imitation to refinement--residual rl for precise assembly.
+\newblock \emph{arXiv preprint arXiv:2407.16677}, 2024.
+
+\bibitem[Black et~al.(2024)Black, Brown, Driess, Esmail, Equi, Finn, Fusai,
+  Groom, Hausman, Ichter, Jakubczak, Jones, Ke, Levine, Li-Bell, Mothukuri,
+  Nair, Pertsch, Shi, Tanner, Vuong, Walling, Wang, and
+  Zhilinsky]{black2410pi0}
+Black, K., Brown, N., Driess, D., Esmail, A., Equi, M., Finn, C., Fusai, N.,
+  Groom, L., Hausman, K., Ichter, B., Jakubczak, S., Jones, T., Ke, L., Levine,
+  S., Li-Bell, A., Mothukuri, M., Nair, S., Pertsch, K., Shi, L.~X., Tanner,
+  J., Vuong, Q., Walling, A., Wang, H., and Zhilinsky, U.
+\newblock $\pi_0$: A vision-language-action flow model for general robot
+  control.
+\newblock 2024.
+\newblock URL \url{https://arxiv.org/abs/2410.24164}.
+
+\bibitem[Brown et~al.(2019)Brown, Goo, Nagarajan, and
+  Niekum]{brown2019extrapolating}
+Brown, D., Goo, W., Nagarajan, P., and Niekum, S.
+\newblock Extrapolating beyond suboptimal demonstrations via inverse
+  reinforcement learning from observations.
+\newblock In \emph{International conference on machine learning}, pp.\
+  783--792. PMLR, 2019.
+
+\bibitem[Chen et~al.(2024)Chen, Wang, and Zhou]{chen2024diffusion}
+Chen, T., Wang, Z., and Zhou, M.
+\newblock Diffusion policies creating a trust region for offline reinforcement
+  learning.
+\newblock \emph{arXiv preprint arXiv:2405.19690}, 2024.
+
+\bibitem[Chen et~al.(2022)Chen, Ghadirzadeh, Yu, Gao, Wang, Li, Liang, Finn,
+  and Zhang]{chen2022latent}
+Chen, X., Ghadirzadeh, A., Yu, T., Gao, Y., Wang, J., Li, W., Liang, B., Finn,
+  C., and Zhang, C.
+\newblock Latent-variable advantage-weighted policy optimization for offline
+  rl.
+\newblock \emph{arXiv preprint arXiv:2203.08949}, 2022.
+
+\bibitem[Chi et~al.(2023)Chi, Xu, Feng, Cousineau, Du, Burchfiel, Tedrake, and
+  Song]{chi2023diffusion}
+Chi, C., Xu, Z., Feng, S., Cousineau, E., Du, Y., Burchfiel, B., Tedrake, R.,
+  and Song, S.
+\newblock Diffusion policy: Visuomotor policy learning via action diffusion.
+\newblock \emph{The International Journal of Robotics Research}, pp.\
+  02783649241273668, 2023.
+
+\bibitem[Cho et~al.(2022)Cho, Kim, and Kim]{UnsupervisedRLTransferManip}
+Cho, D., Kim, J., and Kim, H.~J.
+\newblock Unsupervised reinforcement learning for transferable manipulation
+  skill discovery.
+\newblock \emph{IEEE Robotics and Automation Letters}, 7:\penalty0 7455--7462,
+  2022.
+
+\bibitem[Emukpere et~al.(2024)Emukpere, Wu, Perez, and Renders]{SLIM}
+Emukpere, D., Wu, B., Perez, J., and Renders, J.-M.
+\newblock Slim: Skill learning with multiple critics.
+\newblock \emph{2024 International Conference on Robotics and Automation
+  (ICRA)}, 2024.
+
+\bibitem[Eysenbach et~al.(2018)Eysenbach, Gupta, Ibarz, and
+  Levine]{eysenbach2018diversity}
+Eysenbach, B., Gupta, A., Ibarz, J., and Levine, S.
+\newblock Diversity is all you need: Learning skills without a reward function.
+\newblock \emph{arXiv preprint arXiv:1802.06070}, 2018.
+
+\bibitem[Fu et~al.(2020)Fu, Kumar, Nachum, Tucker, and Levine]{fu2020d4rl}
+Fu, J., Kumar, A., Nachum, O., Tucker, G., and Levine, S.
+\newblock D4rl: Datasets for deep data-driven reinforcement learning, 2020.
+
+\bibitem[Gregor et~al.(2016)Gregor, Rezende, and
+  Wierstra]{gregor2016variational}
+Gregor, K., Rezende, D.~J., and Wierstra, D.
+\newblock Variational intrinsic control.
+\newblock \emph{International Conference on Learning Representations}, 2016.
+
+\bibitem[Habib et~al.()Habib, Grytskyy, and Moreno-Bote]{habibunsupervised}
+Habib, Y., Grytskyy, D., and Moreno-Bote, R.
+\newblock Unsupervised action-policy quantization via maximum entropy mixture
+  policies with minimum entropy components.
+\newblock In \emph{Eighteenth European Workshop on Reinforcement Learning}.
+
+\bibitem[Hansen et~al.(2019)Hansen, Dabney, Barreto, Van~de Wiele,
+  Warde-Farley, and Mnih]{hansen2019fast}
+Hansen, S., Dabney, W., Barreto, A., Van~de Wiele, T., Warde-Farley, D., and
+  Mnih, V.
+\newblock Fast task inference with variational intrinsic successor features.
+\newblock \emph{arXiv preprint arXiv:1906.05030}, 2019.
+
+\bibitem[Hausman et~al.(2017)Hausman, Chebotar, Schaal, Sukhatme, and
+  Lim]{hausman2017multi}
+Hausman, K., Chebotar, Y., Schaal, S., Sukhatme, G., and Lim, J.~J.
+\newblock Multi-modal imitation learning from unstructured demonstrations using
+  generative adversarial nets.
+\newblock \emph{Advances in neural information processing systems}, 30, 2017.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020denoising}
+Ho, J., Jain, A., and Abbeel, P.
+\newblock Denoising diffusion probabilistic models.
+\newblock \emph{Advances in neural information processing systems},
+  33:\penalty0 6840--6851, 2020.
+
+\bibitem[Huang et~al.(2023)Huang, Liang, Ling, Li, Gan, and
+  Su]{huang2023reparameterized}
+Huang, Z., Liang, L., Ling, Z., Li, X., Gan, C., and Su, H.
+\newblock Reparameterized policy learning for multimodal trajectory
+  optimization.
+\newblock In \emph{International Conference on Machine Learning}, pp.\
+  13957--13975. PMLR, 2023.
+
+\bibitem[Jia et~al.(2024)Jia, Blessing, Jiang, Reuss, Donat, Lioutikov, and
+  Neumann]{jia2024towards}
+Jia, X., Blessing, D., Jiang, X., Reuss, M., Donat, A., Lioutikov, R., and
+  Neumann, G.
+\newblock Towards diverse behaviors: A benchmark for imitation learning with
+  human demonstrations.
+\newblock \emph{arXiv preprint arXiv:2402.14606}, 2024.
+
+\bibitem[Kang et~al.(2023)Kang, Ma, Du, Pang, and Yan]{kang2023efficient}
+Kang, B., Ma, X., Du, C., Pang, T., and Yan, S.
+\newblock Efficient diffusion policies for offline reinforcement learning.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  36:\penalty0 67195--67212, 2023.
+
+\bibitem[Kim et~al.(2021)Kim, Park, and Kim]{kim2021unsupervised}
+Kim, J., Park, S., and Kim, G.
+\newblock Unsupervised skill discovery with bottleneck option learning.
+\newblock \emph{arXiv preprint arXiv:2106.14305}, 2021.
+
+\bibitem[Kim et~al.(2024)Kim, Pertsch, Karamcheti, Xiao, Balakrishna, Nair,
+  Rafailov, Foster, Lam, Sanketi, et~al.]{kim2024openvla}
+Kim, M.~J., Pertsch, K., Karamcheti, S., Xiao, T., Balakrishna, A., Nair, S.,
+  Rafailov, R., Foster, E., Lam, G., Sanketi, P., et~al.
+\newblock Openvla: An open-source vision-language-action model.
+\newblock \emph{arXiv preprint arXiv:2406.09246}, 2024.
+
+\bibitem[Lee et~al.(2025)Lee, Duan, Fang, Deng, Liu, Li, Fang, Zhang, Wang,
+  Lee, et~al.]{lee2025molmoact}
+Lee, J., Duan, J., Fang, H., Deng, Y., Liu, S., Li, B., Fang, B., Zhang, J.,
+  Wang, Y.~R., Lee, S., et~al.
+\newblock Molmoact: Action reasoning models that can reason in space.
+\newblock \emph{arXiv preprint arXiv:2508.07917}, 2025.
+
+\bibitem[Li et~al.(2025)Li, Cui, and Sadigh]{li2025train}
+Li, H., Cui, Y., and Sadigh, D.
+\newblock How to train your robots? the impact of demonstration modality on
+  imitation learning.
+\newblock \emph{arXiv preprint arXiv:2503.07017}, 2025.
+
+\bibitem[Li et~al.(2024)Li, Krohn, Chen, Ajay, Agrawal, and
+  Chalvatzaki]{li2024learning}
+Li, S., Krohn, R., Chen, T., Ajay, A., Agrawal, P., and Chalvatzaki, G.
+\newblock Learning multimodal behaviors from scratch with diffusion policy
+  gradient.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  37:\penalty0 38456--38479, 2024.
+
+\bibitem[Lipman et~al.(2022)Lipman, Chen, Ben-Hamu, Nickel, and
+  Le]{lipman2022flow}
+Lipman, Y., Chen, R.~T., Ben-Hamu, H., Nickel, M., and Le, M.
+\newblock Flow matching for generative modeling.
+\newblock \emph{arXiv preprint arXiv:2210.02747}, 2022.
+
+\bibitem[Liu \& Abbeel(2021{\natexlab{a}})Liu and Abbeel]{liu2021aps}
+Liu, H. and Abbeel, P.
+\newblock Aps: Active pretraining with successor features.
+\newblock In \emph{International Conference on Machine Learning}, pp.\
+  6736--6747. PMLR, 2021{\natexlab{a}}.
+
+\bibitem[Liu \& Abbeel(2021{\natexlab{b}})Liu and Abbeel]{liu2021behavior}
+Liu, H. and Abbeel, P.
+\newblock Behavior from the void: Unsupervised active pre-training.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  34:\penalty0 18459--18473, 2021{\natexlab{b}}.
+
+\bibitem[Machado et~al.(2017)Machado, Rosenbaum, Guo, Liu, Tesauro, and
+  Campbell]{machado2017eigenoption}
+Machado, M.~C., Rosenbaum, C., Guo, X., Liu, M., Tesauro, G., and Campbell, M.
+\newblock Eigenoption discovery through the deep successor representation.
+\newblock \emph{arXiv preprint arXiv:1710.11089}, 2017.
+
+\bibitem[Misra(2019)]{misra2019mish}
+Misra, D.
+\newblock Mish: A self regularized non-monotonic activation function.
+\newblock \emph{arXiv preprint arXiv:1908.08681}, 2019.
+
+\bibitem[Park et~al.(2023)Park, Lee, Lee, and Abbeel]{CSD}
+Park, S., Lee, K., Lee, Y., and Abbeel, P.
+\newblock Controllability-aware unsupervised skill discovery.
+\newblock \emph{International Conference on Machine Learning}, 2023.
+
+\bibitem[Park et~al.(2025)Park, Li, and Levine]{park2025flow}
+Park, S., Li, Q., and Levine, S.
+\newblock Flow q-learning.
+\newblock \emph{arXiv preprint arXiv:2502.02538}, 2025.
+
+\bibitem[Psenka et~al.(2023)Psenka, Escontrela, Abbeel, and
+  Ma]{psenka2023learning}
+Psenka, M., Escontrela, A., Abbeel, P., and Ma, Y.
+\newblock Learning a diffusion model policy from rewards via q-score matching.
+\newblock \emph{arXiv preprint arXiv:2312.11752}, 2023.
+
+\bibitem[Ren et~al.(2024)Ren, Lidard, Ankile, Simeonov, Agrawal, Majumdar,
+  Burchfiel, Dai, and Simchowitz]{ren2024diffusion}
+Ren, A.~Z., Lidard, J., Ankile, L.~L., Simeonov, A., Agrawal, P., Majumdar, A.,
+  Burchfiel, B., Dai, H., and Simchowitz, M.
+\newblock Diffusion policy policy optimization.
+\newblock \emph{arXiv preprint arXiv:2409.00588}, 2024.
+
+\bibitem[Rho et~al.(2025)Rho, Smith, Li, Levine, Peng, and Ha]{LGSD}
+Rho, S., Smith, L., Li, T., Levine, S., Peng, X.~B., and Ha, S.
+\newblock Language guided skill discovery.
+\newblock \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{schulman2017proximal}
+Schulman, J., Wolski, F., Dhariwal, P., Radford, A., and Klimov, O.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem[Sharma et~al.(2019)Sharma, Gu, Levine, Kumar, and
+  Hausman]{sharma2019dynamics}
+Sharma, A., Gu, S., Levine, S., Kumar, V., and Hausman, K.
+\newblock Dynamics-aware unsupervised discovery of skills.
+\newblock \emph{arXiv preprint arXiv:1907.01657}, 2019.
+
+\bibitem[Song et~al.(2020)Song, Meng, and Ermon]{song2020denoising}
+Song, J., Meng, C., and Ermon, S.
+\newblock Denoising diffusion implicit models.
+\newblock \emph{arXiv preprint arXiv:2010.02502}, 2020.
+
+\bibitem[Stoepker \& van~den Heuvel(2016)Stoepker and van~den
+  Heuvel]{stoepker2016testing}
+Stoepker, I. and van~den Heuvel, E.
+\newblock \emph{Testing for multimodality}.
+\newblock PhD thesis, BS thesis, Eindhoven University of Technology, Eindhoven,
+  2016.
+
+\bibitem[Tao et~al.(2024)Tao, Xiang, Shukla, Qin, Hinrichsen, Yuan, Bao, Lin,
+  Liu, Chan, et~al.]{tao2024maniskill3}
+Tao, S., Xiang, F., Shukla, A., Qin, Y., Hinrichsen, X., Yuan, X., Bao, C.,
+  Lin, X., Liu, Y., Chan, T.-k., et~al.
+\newblock Maniskill3: Gpu parallelized robotics simulation and rendering for
+  generalizable embodied ai.
+\newblock \emph{arXiv preprint arXiv:2410.00425}, 2024.
+
+\bibitem[Wagenmaker et~al.(2025)Wagenmaker, Nakamoto, Zhang, Park, Yagoub,
+  Nagabandi, Gupta, and Levine]{wagenmaker2025steering}
+Wagenmaker, A., Nakamoto, M., Zhang, Y., Park, S., Yagoub, W., Nagabandi, A.,
+  Gupta, A., and Levine, S.
+\newblock Steering your diffusion policy with latent space reinforcement
+  learning.
+\newblock \emph{arXiv preprint arXiv:2506.15799}, 2025.
+
+\bibitem[Wang et~al.(2022)Wang, Hunt, and Zhou]{wang2022diffusion}
+Wang, Z., Hunt, J.~J., and Zhou, M.
+\newblock Diffusion policies as an expressive policy class for offline
+  reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2208.06193}, 2022.
+
+\bibitem[Yang et~al.(2023)Yang, Huang, Lei, Zhong, Yang, Fang, Wen, Zhou, and
+  Lin]{yang2023policy}
+Yang, L., Huang, Z., Lei, F., Zhong, Y., Yang, Y., Fang, C., Wen, S., Zhou, B.,
+  and Lin, Z.
+\newblock Policy representation via diffusion probability model for
+  reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2305.13122}, 2023.
+
+\bibitem[Yuan et~al.(2024)Yuan, Mu, Tao, Fang, Zhang, and Su]{yuan2024policy}
+Yuan, X., Mu, T., Tao, S., Fang, Y., Zhang, M., and Su, H.
+\newblock Policy decorator: Model-agnostic online refinement for large policy
+  model.
+\newblock \emph{arXiv preprint arXiv:2412.13630}, 2024.
+
+\bibitem[Zhang et~al.(2021)Zhang, Yu, and Xu]{zhang2021hierarchical}
+Zhang, J., Yu, H., and Xu, W.
+\newblock Hierarchical reinforcement learning by discovering intrinsic options.
+\newblock \emph{arXiv preprint arXiv:2101.06521}, 2021.
+
+\bibitem[Zhao et~al.(2021)Zhao, Gao, Abbeel, Tresp, and Xu]{MUSIC}
+Zhao, R., Gao, Y., Abbeel, P., Tresp, V., and Xu, W.
+\newblock Mutual information state intrinsic control.
+\newblock \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem[Zhou \& Li(2024)Zhou and Li]{zhou2024rethinking}
+Zhou, W. and Li, W.
+\newblock Rethinking inverse reinforcement learning: from data alignment to
+  task alignment.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  37:\penalty0 27647--27688, 2024.
+
+\end{thebibliography}
