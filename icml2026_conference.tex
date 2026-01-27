@@ -108,9 +108,8 @@
   % will not be shown in the document
   \icmlkeywords{Machine Learning, ICML}
 
-  % \vskip 0.3in
 % ]
-
+    \vskip 0.1in
     {%
     \renewcommand\twocolumn[1][]{#1}%
     \begin{center}
@@ -118,16 +117,19 @@
         \captionsetup{type=figure}
     \includegraphics[width=\textwidth]{figures/01_intro/multimodality_comparison_v4.pdf} 
     % \vspace{-1cm}
-        \captionof{figure}{\textbf{Behavioral Mode Discovery (\methodname{}) prevents mode collapse during RL fine-tuning}.  Standard RL fine-tuning (RLFT) of a pre-trained multimodal policy often concentrates probability mass on few reward-maximizing behaviors, forgetting modes discovered during pre-training. Our approach, \methodname{}, regularizes RLFT to preserve multimodality while adapting to the downstream task. In the figure, each panel overlays trajectories (black) starting from the origin in a reward landscape with four symmetric goals (bright peaks). \emph{Left:} the pre-trained diffusion policy covers all four modes. \emph{Middle (DPPO):}  under two rotated reward shifts (cyan arrows), fine-tuning collapses to a subset of goals. \emph{Right (\methodname{}):} under the same shifts, the policy adapts without forgetting the original modes.}
+        \captionof{figure}{\textbf{Behavioral Mode Discovery (\methodname{}) prevents mode collapse during RL fine-tuning}.  Standard RL fine-tuning (RLFT) of a pre-trained multimodal policy often concentrates probability mass on few reward-maximizing behaviors, forgetting modes discovered during pre-training. Our approach, \methodname{}, regularizes RLFT to preserve multimodality while adapting to the downstream task. In the figure, each panel overlays trajectories (black) starting from the origin in a reward landscape with four symmetric goals (bright peaks). \emph{Left:} the pre-trained diffusion policy covers all four modes. \emph{Middle (DPPO):}  under two rotated reward shifts (cyan arrows), fine-tuning collapses to a subset of goals. \emph{Right (\methodname{}):} under the same shifts, the policy adapts without forgetting the modes.}
 
         \label{fig:fig1}
         
     \end{center}%
     }
+
+
+  \vskip 0.3in
 ]
 
 
-    \vskip 0.3in
+    % \vskip 0.3in
 
 % this must go after the closing bracket ] following \twocolumn[ ...
 

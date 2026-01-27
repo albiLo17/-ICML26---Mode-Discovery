@@ -1,5 +1,14 @@
 
 
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=0.97\columnwidth]{figures/01_intro/all_skills.pdf}
+%     \caption{\textbf{Lorem ipsum dolor sit amet.} Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.}
+%     \label{fig:fig1}
+%   \end{figure}
+  
+
 \section{Introduction}
 \label{sec:intro}
 
@@ -12,6 +21,7 @@ The central problem we address is therefore: \textit{how can we fine-tune pre-tr
 % What the community currently does: most overlook the multimodal aspect, destroying multimodality, some try to be clearer on what multimodality is, but they assum knowledge of the number of modalities of the policy
 % Despite the community’s growing interest in policies showcasing multimodal behaviors, little work systematically examines how \ac{rl} adaptation affects multimodality. Existing research splits broadly into two directions. A first line of work focuses on \ac{rlft} of expressive policies such as diffusion or flow models to improve robustness and returns~\citep{park2025flow,ren2024diffusion,chen2024diffusion}. These approaches, however, do not account for multimodality in the action distribution, and often collapse the diverse behaviors captured during demonstration into a single dominant strategy. A second line of work begins to address multimodality more explicitly, for instance by proposing metrics to characterize it~\citep{jia2024towards} or by leveraging language conditioning and instruction diversity~\citep{black2410pi0,kim2024openvla}. Yet, these efforts either rely on assumptions that the number of modes is known in advance or that multimodality can be fully captured through language and labels. In practice, the modalities contained in the demonstration are usually unknown, and language provides only a coarse handle on behavior, which prevents precise encoding of low-level motor attributes such as magnitudes, scales, and endpoints~\citep{lee2025molmoact}. %, leaving much of the multimodal structure unaddressed during RL adaptation. 
 Despite growing interest in multimodal policies, the effect of \ac{rl} adaptation on behavioral diversity remains underexplored. Prior work falls broadly into two directions. A first line studies \ac{rlft} of expressive generative policies (e.g., diffusion or flow models) to improve robustness and return~\citep{park2025flow,ren2024diffusion,chen2024diffusion}. However, these methods typically optimize task reward without explicitly accounting for multimodality, and can induce mode collapse, eliminating behaviors learned from demonstration. A second line addresses multimodality more directly, for instance by proposing diversity metrics~\citep{jia2024towards} or leveraging language conditioning and instruction diversity~\citep{black2410pi0,kim2024openvla}. Yet, these approaches often assume that the number of modes is known \emph{a priori} or that language and labels provide a sufficient description of multimodal structure. In practice, the modes present in demonstrations are rarely known, and language offers only coarse semantic control, making it difficult to preserve fine-grained motor attributes such as magnitudes, temporal scales, and endpoints~\citep{lee2025molmoact}. % , leaving much of the multimodal structure unaddressed during \ac{rl} adaptation. 
+
 
 
 %What we propose instead: unsupervised mode discovery, and intrinsic reward to maintain diversity
