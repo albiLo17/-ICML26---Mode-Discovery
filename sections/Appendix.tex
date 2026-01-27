@@ -1032,10 +1032,7 @@ To quantify seed-level agreement, we compare the checkpoints using three metrics
 \label{tab:sr_modes}
 \centering
 \resizebox{\linewidth}{!}{%
-
 \centering
-
-
 \begin{tabular}{cccc}
 \toprule
 \rowcolor{lightgray} \textbf{Mode} & \textbf{C1} $(\uparrow)$ & \textbf{C2} $(\uparrow)$ & \textbf{C3} $(\uparrow)$ \\
@@ -1057,8 +1054,6 @@ To quantify seed-level agreement, we compare the checkpoints using three metrics
 \resizebox{\linewidth}{!}{%
 % \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
 \centering
-
-
 \begin{tabular}{lccc}
 \toprule
 \rowcolor{lightgray} \textbf{Pair} & \textbf{NMI} $(\uparrow)$ & \textbf{ARI} $(\uparrow)$ & \textbf{Z Consistency} $(\uparrow)$ \\
@@ -1082,8 +1077,8 @@ This section evaluates the robustness of the proposed method to environmental pe
 
 We evaluated the steering policy and compared its performance against the same policy trained under the same shifts without the \methodname{} regularization, using the same metrics introduced in the previous section. We further included the performance of the pre-trained model evaluated with the suggested shifts. Taken together, the results in Tables~\ref{tab:obs_noise} and~\ref{tab:dynamics_perturbation} show that \methodname{} consistently preserves multimodal behavior under observation noise and maintains distinct latent-behavioral modes even when the underlying system dynamics are perturbed. Although dynamic shifts reduce overall task performance, the fine-tuned steering policy still succeeds on two of the four environment modes (per-mode success: (0) 0.02, (1) 0.92, (2) 0.79, (3) 0.98), corresponding to $\mathrm{mc}@80=2/4$. This demonstrates robustness of the discovered behavioral modes, while also revealing room for improvement in handling stronger dynamic variations.
 
-\renewcommand{\arraystretch}{1.2} % Adjust row spacing
-\setlength{\arrayrulewidth}{0.07pt} % Adjust line thickness
+% \renewcommand{\arraystretch}{1.2} % Adjust row spacing
+% \setlength{\arrayrulewidth}{0.07pt} % Adjust line thickness
 
 \begin{table*}[t]
 \centering
@@ -1200,8 +1195,8 @@ Figure~\ref{fig:learned_skills} shows qualitative examples of the trajectory sam
 
 
 
-\section{Use of Large Language Models (LLMs)}
+% \section{Use of Large Language Models (LLMs)}
 
-Large Language Models (LLMs) were employed as a general-purpose writing assistant. Specifically, we used LLMs to polish the language, improve readability, and refine the clarity of the manuscript. The models were not used for research ideation, experimental design, data analysis, or interpretation of results. All conceptual contributions, algorithms, experiments, and conclusions presented in this work are solely those of the authors.
+% Large Language Models (LLMs) were employed as a general-purpose writing assistant. Specifically, we used LLMs to polish the language, improve readability, and refine the clarity of the manuscript. The models were not used for research ideation, experimental design, data analysis, or interpretation of results. All conceptual contributions, algorithms, experiments, and conclusions presented in this work are solely those of the authors.
 
 

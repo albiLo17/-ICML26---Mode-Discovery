@@ -15,7 +15,7 @@ Our experimental evaluation is centered around three main questions: (i) Is the 
 
 \paragraph{Baselines.}
 % Following the characterization introduced in Section~\ref{sec:fine-tuning_tech},
-We benchmark our approach against representative strategies for on-policy fine-tuning of generative policies, focusing on diffusion models but noting that analogous evaluations apply to flow-matching policies. We include \texttt{DPPO}~\citep{ren2024diffusion}, as a direct finetuning approach, Policy Decorator~\citep{yuan2024policy} as a residual fine-tuning approach (\texttt{RES}), and we consider \texttt{DSRL}~\cite{wagenmaker2025steering} as a steering policy based approach. For \texttt{DPPO} we select DDIM parameterization that reduces stochasticity while balancing $\eta>0$ and the number of diffusion steps for stable weight updates. We further include a DDPM-based  version that samples with the full denoising chain and fine-tunes the last $10$ diffusion steps for completeness (\texttt{DPPO[10]}).
+We benchmark our approach against representative strategies for on-policy fine-tuning of generative policies, focusing on diffusion models but noting that analogous evaluations apply to flow-matching policies. We include \texttt{DPPO}~\citep{ren2024diffusion}, as a direct finetuning approach, Policy Decorator~\citep{yuan2024policy} as a residual fine-tuning approach (\texttt{RES}), and we consider \texttt{DSRL}~\cite{wagenmaker2025steering} as a steering policy-based approach. For \texttt{DPPO} we select DDIM parameterization that reduces stochasticity while balancing $\eta>0$ and the number of diffusion steps for stable weight updates. We further include a DDPM-based version that samples with the full denoising chain and fine-tunes the last $10$ diffusion steps for completeness (\texttt{DPPO[10]}).
 %For \texttt{DPPO}, we consider the DDIM parameterization reduce stochasticity, while keeping a balance between $\eta>0$ and the number of reverse diffusion steps to allow weight fine-tuning. We further include the DDPM parameterization\texttt{DPPO[10]}, fine-tuning the last $10$ steps to examine the effect of decreasing the number of reverse diffusion steps.
 % Specifically, we consider (i) direct fine-tuning, (ii) residual corrections, and (iii) steering methods, none of which explicitly seek to preserve multimodality.
 % As a direct fine-tuning approach, we include \texttt{DPPO}~\citep{ren2024diffusion}, which optimizes the diffusion policy weights with PPO.
@@ -30,7 +30,7 @@ Therefore, we report results both for the standalone baselines and their variant
 \paragraph{Evaluation Metrics.}
 % We assume access in simulation to the ground truth modes of the trajectories executed by the policy, and we evaluate fine-tuned policies along two axes: \emph{task success} and \emph{behavioral diversity}.
 
-We assume access to the ground truth modes of the trajectories executed by the policy in simulation, and we evaluate fine-tuned policies along two axes: \emph{task success} and \emph{behavioral diversity}. We report overall success rate $\mathrm{SR}$, and two mode-aggregated measures of the success rate to integrate behavioral diversity: the success rate weighted for each mode
+We assume access to the ground truth modes of the trajectories executed by the policy in simulation, and we evaluate fine-tuned policies along two axes: \emph{task success} and \emph{behavioral diversity}. We report the overall success rate $\mathrm{SR}$, and two mode-aggregated measures of the success rate to integrate behavioral diversity: the success rate weighted for each mode
 $
 {\mathrm{SR}_{\text{M}}=\tfrac{1}{K}\sum_{i=1}^K \mathrm{SR}_i,}
 $
@@ -68,7 +68,7 @@ Further details and illustrations about the environment are provided in Appendix
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.99\columnwidth]{figures/2D_Mixture/action_distribution.pdf}
-  \caption{(Top) Trajectories generated from policies pre-trained. % on demonstration datasets containing different degrees of multimodality. 
+  \caption{(Top) Trajectories generated from pre-trained policies. % on demonstration datasets containing different degrees of multimodality. 
   (Bottom) Monte Carlo estimate of the action distribution ($\Delta x, \Delta y$) at $t=0$.}
   \label{fig:q1-env-trajectories}
 \end{figure}
@@ -262,7 +262,7 @@ We hypothesize that a valid multimodality metric $\mathcal{M}$ should increase w
 % \setlength{\arrayrulewidth}{0.05pt} % Adjust line thickness
 
 
-Table~\ref{tab:mi_disc} reports the estimated mutual information and inference-model loss from $q_\phi$ on $1024$ trajectories with randomly sampled $z\in\mathcal{Z}$. As expected, mutual information increases with the number of modes, while the loss decreases, indicating that $q_\phi$ reliably recovers latent codes when multimodality exists, but struggles in the unimodal case. These results mutual information as a proxy for measuring multimodality, when such multimodality exists. Figure~\ref{fig:q1-modes-by-z} further shows that conditioning the steering policy on individual $z$ produces distinct, coherent trajectories, confirming that the latent space organizes noise into meaningful and controllable behavioral modes.
+Table~\ref{tab:mi_disc} reports the estimated mutual information and inference-model loss from $q_\phi$ on $1024$ trajectories with randomly sampled $z\in\mathcal{Z}$. As expected, mutual information increases with the number of modes, while the loss decreases, indicating that $q_\phi$ reliably recovers latent codes when multimodality exists, but struggles in the unimodal case. These results support mutual information as a proxy for measuring multimodality, when such multimodality exists. Figure~\ref{fig:q1-modes-by-z} further shows that conditioning the steering policy on individual $z$ produces distinct, coherent trajectories, confirming that the latent space organizes noise into meaningful and controllable behavioral modes.
 
 % Table~\ref{tab:mi_disc} reports the estimated mutual information alongside the inference-model loss computed from $q_\phi$ on $1024$ trajectories generated by the policy with randomly sampled $z\in \mathcal{Z}$. As hypothesized, the mutual-information estimate increases monotonically with the number of demonstrated modes. The inference-model loss follows the opposite trend, decreasing as the number of modes grows, reflecting that the inference model can reliably identify distinct latent codes when structure is present, but struggles in the unimodal case where no meaningful distinctions exist. Together, these results validate our use of conditional mutual information as a proxy for multimodality, providing a valuable training signal for retaining multimodal behaviors. Figure~\ref{fig:q1-modes-by-z} further illustrates that conditioning on individual latent codes $z \in Z$ yields coherent and distinct trajectories, demonstrating that the learned latent space organizes the noise distribution into behaviorally meaningful modes.
 
@@ -686,7 +686,7 @@ Additionally, ablations covering design choices such as curriculum learning and 
 \toprule
   \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$ & $\mathcal{H}$ $(\uparrow)$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{PRE} & 0.02 & 0.04 & $1.00 / 24$ & 0.44 \\
+\rowcolor{lightgray!50}\texttt{PRE} & 0.02 & 0.04 & $0.00 / 24$ & 0.44 \\
 \midrule
 \rowcolor{lightgray!50}\texttt{RES} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
 \texttt{DSRL} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
