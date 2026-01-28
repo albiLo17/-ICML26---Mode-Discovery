@@ -84,6 +84,29 @@
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\KL}{D_{\mathrm{KL}}}
 
+% -----------------------------
+% Global table compact styling
+% -----------------------------
+% Make tables slightly more compact by default (font + padding + row height).
+% This affects table contents (tabular), not body text.
+\usepackage{etoolbox}
+\setlength{\tabcolsep}{3pt}        % default ~6pt
+\renewcommand{\arraystretch}{1.0}  % tighter rows
+\AtBeginEnvironment{tabular}{\footnotesize}
+\AtBeginEnvironment{tabular*}{\footnotesize}
+
 % Method name command - change this to update the method name throughout the document
 % \newcommand{\methodname}{MD\textendash MAD}
 \newcommand{\methodname}{BMD}
+
+% -----------------------------
+% Compact paragraph headings
+% -----------------------------
+% Reduce vertical space around \paragraph{...} headings (used heavily in the paper).
+% This keeps \paragraph as a run-in heading while tightening the spacing.
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {0.25ex \@plus 0.5ex \@minus 0.2ex}% space before
+  {-0.8em}% space after (negative = run-in)
+  {\normalfont\normalsize\bfseries}}
+\makeatother

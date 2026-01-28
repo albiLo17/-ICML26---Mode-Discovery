@@ -23,7 +23,11 @@ We assume access to an offline demonstration dataset ${\mathcal{D}
 
 
 \paragraph{Behavioral Modes.}
-We represent behavioral modes using a discrete latent variable $z \in \mathcal{Z}$, where each value $z$ indexes a particular instantiation of the policy inducing the trajectory distribution ${ p^\pi(\tau \mid z) = p(s_0)\prod_{t=0}^{T-1} \pi(a_t \mid s_t, z)\, p(s_{t+1}\mid s_t,a_t)}$. Different values of $z$ therefore correspond to distinct self-consistent strategies present in the dataset, i.e., different behavioral modes. While we focus on discrete $z$ for studying the problem, a continuous latent representation (e.g., \(z \in \mathbb{R}^d\)) is also a valid modeling choice. We assume the original modes $z\in\mathcal{Z}$ contained in the datasets are unknown but implicitly encoded in the pre-trained multimodal policy. 
+We represent behavioral modes with a discrete latent variable $z \in \mathcal{Z}$, where each value indexes a policy instance inducing the trajectory distribution
+$
+p^\pi(\tau \mid z) = p(s_0)\prod_{t=0}^{T-1} \pi(a_t \mid s_t, z)\, p(s_{t+1}\mid s_t,a_t).
+$
+Different $z$ correspond to distinct self-consistent strategies (behavioral modes) in the data. Although we focus on discrete $z$, continuous latents (e.g., $z \in \mathbb{R}^d$) are also possible. We assume the true modes are unknown but implicitly encoded in the pre-trained multimodal policy.
 
 
 

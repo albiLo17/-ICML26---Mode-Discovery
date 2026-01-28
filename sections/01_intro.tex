@@ -1,12 +1,12 @@
 
 
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.97\columnwidth]{figures/01_intro/all_skills.pdf}
-    \caption{\textbf{Lorem ipsum dolor sit amet.} Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. TO TRY: Anymal and Avoid on top, or on second page. Try }
-    \label{fig:fig1}
-  \end{figure}
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=0.97\columnwidth]{figures/01_intro/all_skills.pdf}
+%     \caption{\textbf{Lorem ipsum dolor sit amet.} Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. TO TRY: Anymal and Avoid on top, or on second page. Try }
+%     \label{fig:fig1}
+%   \end{figure}
   
 
 \section{Introduction}
@@ -14,7 +14,7 @@
 
 % Importance and explanation of the Problem we address: Fine-tuning pre-trained diffusion policies while maintaining multimodality.
  Robotic tasks are inherently multimodal, admitting diverse yet valid strategies: a cup can be grasped from either side, a block can be rotated clockwise or counterclockwise, and kinematic redundancy enables diverse motions to reach the same goal. Preserving this diversity is crucial for policies that are robust, versatile, and adaptable to perturbations and unforeseen situations. %Policies that collapse to a single dominant strategy not only lose flexibility but also fail to generalize when the environment demands an alternative solution. 
-Recent advances in generative policy learning show that expressive architectures such as diffusion~\citep{chi2023diffusion,kang2023efficient,psenka2023learning} and flow-based models~\citep{lipman2022flow,park2025flow} can capture multimodal behavior from demonstrations. However, their behavior remains limited by the support of the demonstration dataset. \Ac{rl} provides a natural mechanism to adapt and improve these pre-trained policies beyond demonstrations, yet \ac{rlft} often concentrates probability mass on a small set of reward-maximizing behaviors, degrading behavioral diversity~\citep{zhou2024rethinking,brown2019extrapolating}. 
+Recent advances in policy learning show that expressive architectures such as diffusion~\citep{chi2023diffusion,kang2023efficient,psenka2023learning} and flow-based models~\citep{lipman2022flow,park2025flow} can capture multimodal behavior from demonstrations. However, their behavior remains limited by the support of the demonstration dataset. \Ac{rl} provides a natural mechanism to improve these pre-trained policies beyond demonstrations, yet \ac{rlft} often concentrates probability mass on a small set of reward-maximizing behaviors, degrading behavioral diversity~\citep{zhou2024rethinking,brown2019extrapolating}. 
 The central problem we address is therefore: \textit{how can we fine-tune pre-trained generative policies with \ac{rl} while preserving the multimodality acquired during supervised pre-training?}
 
 
@@ -30,9 +30,14 @@ Despite growing interest in multimodal policies, the effect of \ac{rl} adaptatio
 % % We begin by introducing a \reb{measure} of multimodality for this class of noise-conditioned generative models, such as diffusion and flow-based policies. 
 % Inspired by prior work on unsupervised skill discovery~\citep{gregor2016variational, eysenbach2018diversity}, we then design a mode discovery procedure that uncovers latent behavioral modes in pre-trained policies without assuming prior knowledge or relying on external annotations. This discovery process serves a dual purpose: it uncovers and makes controllable the latent modalities of the policy, and it enables the estimation of the policy's multimodality via a mutual information objective. This objective is subsequently employed as an intrinsic reward during \ac{rlft}, regularizing the policy to retain diverse behaviors, as shown in Figure~\ref{fig:fig1}. We evaluated the proposed regularization method on multiple robotic manipulation tasks exhibiting multimodal behaviors. Across all tasks, our approach achieves comparable task success to standard fine-tuning while retaining action multimodality, demonstrating the effectiveness of our regularization objective.
 
-In this work, we propose \methodname{} (\emph{\textbf{B}ehavioral \textbf{M}ode \textbf{D}iscovery}), a framework for \ac{rlft} that preserves multimodal behavior by uncovering and leveraging latent behavioral modes in pre-trained generative policies. 
-We begin by introducing a tractable proxy for multimodality in noise-conditioned generative policies %: under the assumption that the pre-trained policy is multimodal---in the sense that different latent noise realizations induce distinct behaviors---
-based on the mutual information between the latent noise and the induced behavior. Inspired by unsupervised skill discovery~\citep{gregor2016variational, eysenbach2018diversity}, we then design a mode-discovery procedure that exposes this structure without annotations or prior knowledge of the number of modes, yielding a controllable latent representation and a practical mutual-information estimate. Finally, we use this estimate as an intrinsic reward during \ac{rlft}, regularizing fine-tuning to prevent mode collapse while maintaining task performance (Figure~\ref{fig:fig1}). Our experiments show that across diverse multimodal robotic manipulation tasks, our approach matches or improves task success relative to standard fine-tuning while better preserving multimodality.
+We propose \methodname{} (\emph{\textbf{B}ehavioral \textbf{M}ode \textbf{D}iscovery}), a framework for \ac{rlft} that preserves multimodal behavior by uncovering and leveraging latent behavioral modes in pre-trained generative policies. 
+We begin by introducing a tractable proxy for multimodality in noise-conditioned generative policies 
+based on the mutual information between the latent noise and the induced behavior. Inspired by unsupervised skill discovery~\citep{gregor2016variational, eysenbach2018diversity}, we then design a mode-discovery procedure that exposes this structure without annotations or prior knowledge of the number of modes, yielding a controllable latent representation and a practical mutual-information estimate. Finally, we use this estimate as an intrinsic reward during \ac{rlft}, regularizing fine-tuning to prevent mode collapse while maintaining task performance. Our experiments show that across diverse multimodal robotic manipulation tasks, our approach matches or improves task success relative to standard fine-tuning while better preserving multimodality.
 
 
-In summary, our contributions are: \textbf{1)} A mutual-information--based proxy for quantifying multimodality in noise-conditioned generative policies, without mode labels or language supervision. \textbf{2)} An unsupervised mode-discovery procedure that identifies and makes controllable latent behavioral modes in pre-trained generative policies. \textbf{3)} A mode-preserving \ac{rlft} objective that uses a mutual-information intrinsic reward to regularize fine-tuning and prevent mode collapse while maintaining task performance. \textbf{4)} An empirical evaluation on multimodal robotic manipulation tasks demonstrating improved task success and stronger multimodality preservation compared to standard fine-tuning.
+% In summary, our contributions are: \textbf{1)} A mutual-information--based proxy for quantifying multimodality in noise-conditioned generative policies, without mode labels or language supervision. \textbf{2)} An unsupervised mode-discovery procedure that identifies and makes controllable latent behavioral modes in pre-trained generative policies. \textbf{3)} A mode-preserving \ac{rlft} objective that uses a mutual-information intrinsic reward to regularize fine-tuning and prevent mode collapse while maintaining task performance. \textbf{4)} An empirical evaluation on multimodal robotic manipulation tasks demonstrating improved task success and stronger multimodality preservation compared to standard fine-tuning.
+In summary, our contributions are:
+\textbf{1)} A mutual-information--based proxy for measuring multimodality in noise-conditioned generative policies. % without mode labels or language supervision.
+\textbf{2)} An unsupervised procedure for discovering and controlling latent behavioral modes in pre-trained generative policies.
+\textbf{3)} A mode-preserving \ac{rlft} objective that uses a mutual-information intrinsic reward to regularize fine-tuning and prevent mode collapse while maintaining task performance.
+\textbf{4)} An empirical evaluation on multimodal robotic manipulation tasks showing improved success and stronger multimodality preservation over standard fine-tuning.

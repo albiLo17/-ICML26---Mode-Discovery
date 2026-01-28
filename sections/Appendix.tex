@@ -13,6 +13,26 @@
 % \startcontents[appendix]
 % \printcontents[appendix]{l}{1}{\setcounter{tocdepth}{2}}
 
+\section{Extended Conclusions, Limitations and Future Work}
+\paragraph{Summary of the Contributions.} 
+
+We studied the problem of \ac{rlft} of pre-trained generative policies while preserving multimodal action distributions. Focusing on diffusion policies trained from demonstrations, we showed that standard fine-tuning often collapsed multimodality to a dominant behavior when the fine-tuning reward landscape diverged from the demonstrations. To address this, we proposed using mutual information as a proxy for multimodality and introduced \methodname{}, an unsupervised mode-discovery method based on a latent reparameterization of a steering policy. We then used the steering policy together with the mutual-information estimate to provide an intrinsic reward that regularized \ac{rlft} toward retaining diverse behaviors.  We benchmarked the method across different robotics environments, and showcased that the proposed regularization mitigated mode collapse, supporting \methodname{} as a practical approach to fine-tuning generative policies without sacrificing behavioral diversity.
+
+
+\paragraph{Limitations and Future Work.} Our study revealed several trade-offs and open directions. The intrinsic-reward regularization required careful tuning, as excessive weight slowed learning and reduced task success. Maintaining an inference model during fine-tuning also introduced instabilities, as it needed to track the policy’s shifting state distribution. 
+Moreover, in its current form, \methodname{} is designed as a task-level mode extractor, as it focuses on discovering and preserving \emph{within-task} behavioral modes, rather than modeling the structure of multi-task datasets. 
+Therefore, scaling \methodname{} to large, heterogeneous datasets may require richer latent parametrizations, such as a hierarchical latent space, to capture multi-task-level multimodality. 
+
+Designing the appropriate parametrization and structure of the latent space is also challenging.  In all experiments, we employed a single categorical latent $\mathcal{Z}$ indexing discrete behavioral modes within each task. We deliberately used a mildly overparameterized space, and our results indicated that \methodname{} could reliably collapse redundant codes and recover the relevant modes, suggesting that overparameterization is not critical in practice. 
+Nonetheless, exploring more expressive continuous or hybrid latent spaces, together with regularization strategies that improve the controllability of $\mathcal{Z}$, such as entropy or KL terms to balance code usage and mitigate mode collapse, is an important direction for future work.
+
+
+We occasionally observed that distinct latent codes were mapped to the same environment-defined mode, indicating that our mutual information objective can be sensitive to small variations in the visited state distribution. This is a known weakness of mutual information-based unsupervised skill discovery illustrated in~\cite{CSD}, and systematically assessing which trajectory-diversity metrics most effectively retain multimodal behavior is a promising direction for future work.
+
+Finally, although the formulation was independent of language supervision, the learned latent space is amenable to post-hoc semantic grounding. Aligning modes with language via preference learning or VLA mappings and developing a joint inference model that preserves diversity while enabling reliable semantic labels are compelling directions for future work.
+
+
+
 \section{Extended Related Work}
 \label{appendix:rw}
 
@@ -22,10 +42,17 @@ Robotic manipulation often admits multiple distinct solutions arising from kinem
 
 \subsection{Multimodal Behavior Learning and Action Diversity}
 
-Robotic manipulation often admits multiple distinct solutions, arising from kinematic redundancies, multimodal goals, or heterogeneous demonstrations~\citep{li2025train}. Standard RL policies parameterized by unimodal Gaussians collapse to a single behavior, limiting expressiveness and trapping learning in suboptimal modes~\citep{huang2023reparameterized}. Early work tackled this by introducing a latent‑conditioned policy within the policy gradient framework, casting trajectory generation as a latent‑variable model to encourage exploration of distinct modes and avoid local minima~\cite{huang2023reparameterized}. Imitation learning and offline RL have built on latent representations to infer discrete behaviors directly from data. Hausman et al.\ segment unlabeled demonstrations into “intention” clusters and learn a mode‑conditioned policy for each cluster~\citep{hausman2017multi}, while LAPO refines a multimodal policy via an advantage‑weighted divergence penalty that preserves original modes during offline finetuning~\citep{chen2022latent}. \reb{Closer to our setting, ~\cite{habibunsupervised} learn a mixture of low-entropy behavioral tokens by maximizing the discounted cumulative entropy of the mixture policy while minimizing the entropy of each component; however, unlike our method, its focus it to learn mixture components from scratch rather than preserving pre-existing multimodal structure in a pre-trained generative policy. } Integrating expressive policy representations such as diffusion and flow‑based generative policies further improves upon this by capturing complex, high‑dimensional distributions. Deep Diffusion Policy Gradient (DDiffPG)~\citep{li2024learning} demonstrated an RL agent that discovers and maintains multiple strategies by parameterizing the policy with a diffusion model. They address the tendency of the greedy RL objective to collapse to one mode by clustering experience and doing mode-specific value learning, thereby ensuring improvement of all discovered modes. 
+Robotic manipulation often admits multiple distinct solutions, arising from kinematic redundancies, multimodal goals, or heterogeneous demonstrations~\citep{li2025train}. Standard RL policies parameterized by unimodal Gaussians collapse to a single behavior, limiting expressiveness and trapping learning in suboptimal modes~\citep{huang2023reparameterized}. Early work tackled this by introducing a latent‑conditioned policy within the policy gradient framework, casting trajectory generation as a latent‑variable model to encourage exploration of distinct modes and avoid local minima~\cite{huang2023reparameterized}. Imitation learning and offline RL have built on latent representations to infer discrete behaviors directly from data. Hausman et al.\ segment unlabeled demonstrations into “intention” clusters and learn a mode‑conditioned policy for each cluster~\citep{hausman2017multi}, while LAPO refines a multimodal policy via an advantage‑weighted divergence penalty that preserves original modes during offline finetuning~\citep{chen2022latent}. Closer to our setting, ~\cite{habibunsupervised} learn a mixture of low-entropy behavioral tokens by maximizing the discounted cumulative entropy of the mixture policy while minimizing the entropy of each component; however, unlike our method, its focus it to learn mixture components from scratch rather than preserving pre-existing multimodal structure in a pre-trained generative policy. Integrating expressive policy representations such as diffusion and flow‑based generative policies further improves upon this by capturing complex, high‑dimensional distributions. Deep Diffusion Policy Gradient (DDiffPG)~\citep{li2024learning} demonstrated an RL agent that discovers and maintains multiple strategies by parameterizing the policy with a diffusion model. They address the tendency of the greedy RL objective to collapse to one mode by clustering experience and doing mode-specific value learning, thereby ensuring improvement of all discovered modes. 
 
 Similar to these approaches, our work builds on a latent-variable model, but we employ it within a steering policy rather than the main policy. Unlike prior approaches that learn multimodal behaviors from scratch, we leverage a pre-trained diffusion model that already encodes diverse demonstrations and focus on \ac{rlft} while preserving multimodality in the action distribution.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figures/02_RW/related_work_long.pdf}
+  \caption{ \textbf{Taxonomy of \ac{rlft} Techniques Discussed in this Work.}  Each plot illustrates the learned action-value function $Q(s_t,\cdot)$ as the underlying reward landscape. Direct fine-tuning (left) adapts the pre-trained policy weights to optimize task performance, directly shifting the action distribution toward higher-value regions. Residual policies (center) learn an additive correction $\Delta a_t$ to the pre-trained action $a_t^{\mathcal{D}}$, combining them into a fine-tuned action $a_t^*$. Steering policies (right) learn a policy over the input latent noise of the generative model, biasing sampling toward regions of the noise space whose denoised actions have high-reward behaviors.  } 
+
+  \label{fig:related_work_categories}
+\end{figure}
 
 \subsection{Fine-tuning of Pre-trained Generative Policies}
 \label{sec:fine-tuning_tech}
@@ -65,13 +92,7 @@ The goal of skill discovery is to acquire a set of diverse and distinguishable b
 Most of these works assume training policies from scratch in reward-free settings. However, purely diversity‑driven objectives often neglect reward alignment and directed exploration, yielding skills that may not transfer to specific manipulation goals. To mitigate this,  previous work has explored a range of approaches such as incorporating language guidance~\citep{LGSD}, combining discovery with generic extrinsic rewards~\citep{SLIM}, maximization of hard-to-achieve state transitions~\citep{CSD}, or mutual information maximization between agent and environment sections of state space~\citep{MUSIC, UnsupervisedRLTransferManip}. Our perspective is different: we leverage a pre-trained model to uncover diverse and useful behaviors already encoded in it. In particular, we are the first to study skill discovery in diffusion policies, where skills are represented as modes in the latent noise space of the generative model.
 
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.95\linewidth]{figures/02_RW/related_work_long.pdf}
-    \caption{ \textbf{Taxonomy of \ac{rlft} Techniques Discussed in this Work.}  Each plot illustrates the learned action-value function $Q(s_t,\cdot)$ as the underlying reward landscape. Direct fine-tuning (left) adapts the pre-trained policy weights to optimize task performance, directly shifting the action distribution toward higher-value regions. Residual policies (center) learn an additive correction $\Delta a_t$ to the pre-trained action $a_t^{\mathcal{D}}$, combining them into a fine-tuned action $a_t^*$. Steering policies (right) learn a policy over the input latent noise of the generative model, biasing sampling toward regions of the noise space whose denoised actions have high-reward behaviors.  } 
 
-    \label{fig:related_work_categories}
-\end{figure}
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Derivation of Mutual Information in Latent-Conditioned Policies}
 \label{sec:app_MI_KL}
@@ -231,7 +252,6 @@ This derivation provides a formal and tractable characterization of the mutual i
 \section{Multimodality Implies Positive Mutual Information}
 \label{sec:proof_MI_positive}
 
-\reb{
 
 
 \begin{proposition}
@@ -269,7 +289,7 @@ I(W;A|S) &= \mathbb{E}_{S} \mathbb{E}_{W}[\DKL( P_{A|S,W}(\cdot | S, W) \paralle
 where in the last line we used  the hypothesis that $P_S(s_0) P_W(w_1) P_W(w_2) > 0$ and equation (\ref{KL-positive}).
 \end{proof}
 
-}
+
 
 % \begin{proposition}
 % Let $\pi(\ra \mid \rs, \rw)$ be a conditional policy distribution over actions $\ra \in \mathcal{A}$ given state $\rs \in \mathcal{S}$ and latent variable $\rw \in \mathcal{W}$, with $\rw \sim p(\rw)$ and $\rs \sim p(\rs)$. \reb{We assume} that for some state $\rs_0$ in the support of $p(\rs)$, there exist $\rw_1, \rw_2 \in \mathcal{W}$ with $\rw_1 \neq \rw_2$ such that:
@@ -587,28 +607,26 @@ To further measure multimodality, we follow the D3IL benchmark~\citep{jia2024tow
   \centering
 
   % ---------- LEFT: Original ----------
-  \begin{minipage}[t]{0.39\textwidth}\vspace{40pt}
+  \begin{minipage}[t]{0.32\textwidth}\vspace{40pt}
     \centering
     \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape.png}
     \subcaption{Original.}
-    \label{fig:original}
-  \end{minipage}\hfill
-  % ---------- RIGHT: 2x2 grid ----------
-  \begin{minipage}[t]{0.59\textwidth}\vspace{0pt}
+    % \label{fig:original}
+  \end{minipage}\hfill%
+  \begin{minipage}[t]{0.32\textwidth}\vspace{40pt}
     \centering
-    \subcaptionbox{\textbf{Goal[1]} -- $\pi/8$}[0.48\linewidth]{%
-      \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G1_U0.png}}
-    \hfill
-    \subcaptionbox{\textbf{Goal[1]} (Unb.) -- $\pi/8$}[0.48\linewidth]{%
-      \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G1_U2.png}}\\[0.6em]
-    \subcaptionbox{\textbf{Goal[2]} -- $\pi/8$}[0.48\linewidth]{%
-      \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G2_U0.png}}
-    \hfill
-    \subcaptionbox{\textbf{Goal[2]} (Unb.) -- $\pi/8$}[0.48\linewidth]{%
-      \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G2_U2.png}}
+    \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G1_U0.png}
+    \subcaption{\textbf{G1}: $\pi/8$}
+    % \label{fig:original}
+  \end{minipage}\hfill%
+  \begin{minipage}[t]{0.32\textwidth}\vspace{40pt}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/tasks/four_corners_env_reward_landscape_G2_U0.png}
+    \subcaption{\textbf{G2}:  $\pi/4$}
+    % \label{fig:original}
   \end{minipage}
 
-  \caption{Reward landscapes: (a) Original environment; (b–e) rotated goal variants with balanced and unbalanced setups.}
+  \caption{Reward landscapes: (a) Original environment and the rotated goal variants.}
   \label{fig:reward_landscapes}
 \end{figure*}
 
@@ -626,56 +644,160 @@ The instantaneous reward at position $\mathrm{pos}=(x,y)$ is defined as
 \begin{equation}
     r(x,y) = \sum_{(c_x,c_y) \in \mathcal{C}} \exp\!\left(-\tfrac{(x-c_x)^2 + (y-c_y)^2}{2\sigma^2}\right),
 \end{equation}
-where $\mathcal{C}$ is the set of goal centers and $\sigma$ controls the spread of each Gaussian mode.  
-An episode is successful if the agent reaches within a fixed distance of any goal center.
+where $\mathcal{C}$ is the set of goal centers and $\sigma$ controls the spread of each Gaussian mode.  Each Gaussian mode contributes equally to the reward. This creates a symmetric multimodal environment where all goal regions are equally attractive.  
+An episode is successful if the agent reaches within a fixed distance of any goal center. Figure~\ref{fig:reward_landscapes} provides visualizations of the different reward landscapes used in the experiments.
 
-We consider two variants of this reward landscape:  
+% We consider two variants of this reward landscape:  
 
-\begin{itemize}
-\item \textbf{Balanced landscape.} Each Gaussian mode contributes equally to the reward. This creates a symmetric multimodal environment where all goal regions are equally attractive.  
+% \begin{itemize}
+% \item \textbf{Balanced landscape.} Each Gaussian mode contributes equally to the reward. This creates a symmetric multimodal environment where all goal regions are equally attractive.  
 
-\item \textbf{Unbalanced landscape.} To introduce variability in mode prominence, we assign each Gaussian a random weight $w_i \sim \mathcal{U}(0,1)$.  
-To avoid degenerate scaling while preserving relative preferences, the weights are normalized via a softmax transformation, i.e.
-\[
-\tilde{w}_i = \frac{\exp(w_i)}{\sum_j \exp(w_j)},
-\]
-and the reward is defined as $r(x,y) = \sum_i \tilde{w}_i \, \exp\!\left(-\tfrac{(x-c_x^{(i)})^2 + (y-c_y^{(i)})^2}{2\sigma^2}\right)$.  
-This ensures that all modes remain present but with uneven reward magnitudes, yielding a more challenging and realistic multimodal landscape.
-\end{itemize}
+% \item \textbf{Unbalanced landscape.} To introduce variability in mode prominence, we assign each Gaussian a random weight $w_i \sim \mathcal{U}(0,1)$.  
+% To avoid degenerate scaling while preserving relative preferences, the weights are normalized via a softmax transformation, i.e.
+% \[
+% \tilde{w}_i = \frac{\exp(w_i)}{\sum_j \exp(w_j)},
+% \]
+% and the reward is defined as $r(x,y) = \sum_i \tilde{w}_i \, \exp\!\left(-\tfrac{(x-c_x^{(i)})^2 + (y-c_y^{(i)})^2}{2\sigma^2}\right)$.  
+% This ensures that all modes remain present but with uneven reward magnitudes, yielding a more challenging and realistic multimodal landscape.
+% \end{itemize}
 
-We refer to these as the \textbf{unbalanced Goal[1]} and \textbf{unbalanced Goal[2]} environments.  
-Figure~\ref{fig:reward_landscapes} provides visualizations of all balanced and unbalanced variants.
-
+% We refer to these as the \textbf{unbalanced G1} and \textbf{unbalanced G2} environments.  
 
 
 
-\subsection{Expert Demonstrations}
+
+\subsection{Expert Demonstrations and Policies Rollouts}
 \label{appendix:gaussian_env_demos}
 
-Figure~\ref{fig:appendix_gaussian_demo} shows the expert demonstration dataset used for the experiments in section~\ref{sec:2D_Gaussians}.
+We collect demonstration using a simple euristic that samples actions to move the agent towards a randomly selected goal center, adding a small random noise to the action. Figure~\ref{fig:q1-env-trajectories} (top) shows the expert demonstration dataset used for the experiments in section~\ref{sec:2D_Gaussians}, along with the corresponding rollouts of the pre-trained policies (middle) as well as a Monte Carlo estimate of the action distribution at $t=0$ (bottom).
 
-\begin{figure*}[t!]
+The modes learned by the steering policy are illustrated in Figure~\ref{fig:q1-modes-by-z}, where the policy is conditioned on different latent codes $z\in\{0,1,2,3\}$. The consistent trajectories across different $z$ values suggest that the steering policy is able to learn a latent space that organizes noise into meaningful and controllable behavioral modes.
+
+% \begin{figure*}[t!]
+%   \centering
+%     \centering
+%     % Row 1
+%     \begin{subfigure}[t]{0.32\textwidth}
+%       \centering
+%       \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_1.png}
+%       \caption{Dataset (1 mode)}
+%     \end{subfigure}\hfill
+%     \begin{subfigure}[t]{0.32\textwidth}
+%       \centering
+%       \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_2.png}
+%       \caption{Dataset (2 modes)}
+%     \end{subfigure}\hfill
+%     \begin{subfigure}[t]{0.32\textwidth}
+%       \centering
+%       \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_4.png}
+%       \caption{Dataset (4 modes)}
+%     \end{subfigure}
+
+%     \captionof{figure}{Expert datasets with different multimodal behaviors used to pre-train diffusion models to investigate mutual information as a proxy of multimodality. }
+%     \label{fig:appendix_gaussian_demo}
+% \end{figure*}
+
+
+\begin{figure*}[t]
   \centering
-    \centering
+
+    % ---------- LEFT: 2 rows × 3 cols ----------
+    \begin{minipage}[t]{0.60\textwidth}
+      \centering
+      % Row 1
+      \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=0.9\linewidth]{figures/2D_Mixture/expert_trajectories_1.png}
+        \caption{Dataset (1 mode)}
+      \end{subfigure}\hfill
+      \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=0.9\linewidth]{figures/2D_Mixture/expert_trajectories_2.png}
+        \caption{Dataset (2 modes)}
+      \end{subfigure}\hfill
+      \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+      \includegraphics[width=0.9\linewidth]{figures/2D_Mixture/expert_trajectories_4.png}
+        \caption{Dataset (4 modes)}
+      \end{subfigure}
+  
+  
+      \vspace{0.6em}
+  % ---------- LEFT: 3 rows × 3 cols ----------
     % Row 1
     \begin{subfigure}[t]{0.32\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_1.png}
-      \caption{Dataset (1 mode)}
+      \includegraphics[width=0.9\linewidth]{figures/2D_Mixture/final_frame_p1.png}
+      \caption{Policy (1 mode)}
     \end{subfigure}\hfill
     \begin{subfigure}[t]{0.32\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_2.png}
-      \caption{Dataset (2 modes)}
+      \includegraphics[width=0.9\linewidth]{figures/2D_Mixture/final_frame_p2.png}
+      \caption{Policy (2 modes)}
     \end{subfigure}\hfill
     \begin{subfigure}[t]{0.32\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{figures/2D_Mixture/expert_trajectories_4.png}
-      \caption{Dataset (4 modes)}
+    \includegraphics[width=0.9\linewidth]{figures/2D_Mixture/final_frame_p4.png}
+      \caption{Policy (4 modes)}
     \end{subfigure}
 
-    \captionof{figure}{Expert datasets with different multimodal behaviors used to pre-train diffusion models to investigate mutual information as a proxy of multimodality. }
-    \label{fig:appendix_gaussian_demo}
+
+    \vspace{0.6em}
+
+    % Row 2
+    \begin{subfigure}[t]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/action_dist_t0_s0_model_1.pdf}
+      \caption{1 mode}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/action_dist_t0_s0_model_2.pdf}
+      \caption{2 modes.}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/action_dist_t0_s0_model_3.pdf}
+      \caption{4 modes.}
+    \end{subfigure}
+    \captionof{figure}{(Top) Trajectories generated from policies pre-trained. % on demonstration datasets containing different degrees of multimodality. 
+    (Bottom) Monte Carlo estimate of the action distribution ($\Delta x, \Delta y$) at $t=0$.}
+    \label{fig:q1-env-trajectories}
+  \end{minipage}
+  \hfill
+  % ---------- RIGHT: 2 rows × 2 cols (modes by z) ----------
+  \begin{minipage}[t]{0.36\textwidth}
+    \centering
+
+    \vspace{0.001em}
+    \vspace{-3em}
+    \begin{subfigure}[t]{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/mode_z0.png}
+      \caption{$z=0$}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/mode_z1.png}
+      \caption{$z=1$}
+    \end{subfigure}
+
+    \vspace{0.6em}
+
+    \begin{subfigure}[t]{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/mode_z2.png}
+      \caption{$z=2$}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{figures/2D_Mixture/mode_z3.png}
+      \caption{$z=3$}
+    \end{subfigure}
+    \captionof{figure}{Rollouts generated by steering the policy with latent codes \(z\in\{0,1,2,3\}\).}
+    \label{fig:q1-modes-by-z}
+
+  \end{minipage}
 \end{figure*}
 
 
@@ -687,7 +809,7 @@ Figure~\ref{fig:appendix_gaussian_demo} shows the expert demonstration dataset u
 % \resizebox{0.58\textwidth}{!}{%
 % \begin{tabular}{lcccc}
 % \toprule
-% \rowcolor{lightgray}   & \multicolumn{4}{c}{\textbf{Goal [2]}} \\
+% \rowcolor{lightgray}   & \multicolumn{4}{c}{\textbf{G2}} \\
 % \rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
 % \midrule
 % \rowcolor{lightgray} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=4$}} \\
@@ -711,16 +833,16 @@ Figure~\ref{fig:appendix_gaussian_demo} shows the expert demonstration dataset u
 
 \subsection{Dimensionality of $\mathcal{Z}$} 
 \label{appendix:dim_z}
-We next examine the effect of the latent dimensionality $|\mathcal{Z}|$ on multimodality preservation. We repeat the \textbf{Goal[2]} evaluation using the \texttt{RES} and \texttt{DPPO} baselines with mode discovery, varying the number of latent codes. 
+We next examine the effect of the latent dimensionality $|\mathcal{Z}|$ on multimodality preservation. We repeat the \textbf{G2} evaluation using the \texttt{RES} and \texttt{DPPO} baselines with mode discovery, varying the number of latent codes. 
 
-\begin{wraptable}[16]{r}{0.58\textwidth} % [9] = reserve ~9 text lines
+\begin{wraptable}[18]{r}{0.58\textwidth} % [9] = reserve ~9 text lines
 \vspace{-0.6\baselineskip}              % tweak if needed
 \centering
 \caption{\textbf{Ablation on the dimensionality of $\mathcal{Z}$.} }
 \resizebox{0.58\textwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
-\rowcolor{lightgray}   & \multicolumn{4}{c}{\textbf{Goal [2]}} \\
+\rowcolor{lightgray}   & \multicolumn{4}{c}{\textbf{G2}} \\
 \rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
 \midrule
 \rowcolor{lightgray} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=4$}} \\
@@ -748,21 +870,21 @@ Increasing dimensionality ($|\mathcal{Z}|=8,16$) improves coverage by promoting 
 
 
 
-\begin{wrapfigure}{r}{0.4\textwidth}  % r = right, l = left
-\vspace{-0.9\baselineskip}             % adjust vertical spacing if needed
-\centering
-\includegraphics[width=0.85\linewidth]{figures/2D_Mixture/latent_structure_z=4.pdf}
+% \begin{wrapfigure}{r}{0.4\textwidth}  % r = right, l = left
+% \vspace{-0.9\baselineskip}             % adjust vertical spacing if needed
+% \centering
+% \includegraphics[width=0.85\linewidth]{figures/2D_Mixture/latent_structure_z=4.pdf}
 
-\caption{Latent noise samples $w$ for $z\in\{0,1,2,3\}$. }
-\label{fig:latent_structure}
-\vspace{-0.9cm} 
-\end{wrapfigure}
+% \caption{Latent noise samples $w$ for $z\in\{0,1,2,3\}$. }
+% \label{fig:latent_structure}
+% \vspace{-0.9cm} 
+% \end{wrapfigure}
 
-\subsection{Structure Induced in the Latent Space}
-We investigate what the structure learned by the steering policy is in the policy latent space.
-We probe what the steering policy actually learns by inspecting the input-noise latents it predicts, rather than the trajectories executed by the full policy. 
-Concretely, for the initial state $s_0$ and each skill label $z \in \{0,1,2,3\}$, we draw $1024$ samples $w \sim \pi_\psi^{\mathcal{W}}(w\mid s_0,z)$ and visualize them in Figure~\ref{fig:latent_structure}  together with kernel-density contours and the per-skill mean. 
-The figure reveals a clear four-cluster organization where each skill forms a compact, well-separated mode in the latent space, with only limited cross-skill overlap. This analysis shows that the steering head has learned a discrete, multimodal latent structure aligned with the modes present in the original demonstration dataset.
+% \subsection{Structure Induced in the Latent Space}
+% We investigate what the structure learned by the steering policy is in the policy latent space.
+% We probe what the steering policy actually learns by inspecting the input-noise latents it predicts, rather than the trajectories executed by the full policy. 
+% Concretely, for the initial state $s_0$ and each skill label $z \in \{0,1,2,3\}$, we draw $1024$ samples $w \sim \pi_\psi^{\mathcal{W}}(w\mid s_0,z)$ and visualize them in Figure~\ref{fig:latent_structure}  together with kernel-density contours and the per-skill mean. 
+% The figure reveals a clear four-cluster organization where each skill forms a compact, well-separated mode in the latent space, with only limited cross-skill overlap. This analysis shows that the steering head has learned a discrete, multimodal latent structure aligned with the modes present in the original demonstration dataset.
 
 
 
@@ -779,7 +901,7 @@ The figure reveals a clear four-cluster organization where each skill forms a co
 % \label{tab:toy_results_NOSTEER}
 % \begin{tabular}{l|ccc|ccc}
 % \toprule
-% \rowcolor{lightgray}  & \multicolumn{3}{c|}{\textbf{Goal [1]}} & \multicolumn{3}{c}{\textbf{Goal [2]}} \\
+% \rowcolor{lightgray}  & \multicolumn{3}{c|}{\textbf{G1}} & \multicolumn{3}{c}{\textbf{G2}} \\
 % \rowcolor{lightgray} \textbf{Method}& $\mathrm{SR}_{\mathrm{M}}$ &  $\mathrm{mc}@0.80$  & $\mathcal{H}$  & $\mathrm{SR}_{\mathrm{M}}$ &  $\mathrm{mc}@0.80$  & $\mathcal{H}$ \\
 % \midrule
 % \rowcolor{lightgray} \multicolumn{7}{l}{\textbf{dim $z=4$}} \\
@@ -811,10 +933,10 @@ The figure reveals a clear four-cluster organization where each skill forms a co
 
 
 
-We evaluate our approach on \reb{five robotics tasks}. These include three robotic manipulation tasks and one locomotion tasks implemented within the ManiSkill~\citep{tao2024maniskill3} framework: \emph{Reach}, \emph{Lift}, \emph{Avoid} (re-implemented from D3IL~\citep{jia2024towards}), \reb{as manipulation tasks and \emph{ANYmal} as locomotion task. We further integrate the \emph{Franka Kitchen} environment from D4RL~\citep{fu2020d4rl} as a sequential multi-task setting.} Each task (shown in Figure~\ref{fig:tasks}) exhibits distinct forms and degrees of multimodality. \reb{In all cases, multimodality refers to the existence of several equally valid but spatially different solution strategies that the robot may follow to achieve the task. } Multimodality arises either from goal diversity or, for a fixed goal, from multiple feasible trajectories that lead to successful completion. All manipulation tasks are performed with a Franka Emika Panda robot, where agent actions are parameterized as 6-DoF end-effector delta poses $(\Delta x, \Delta y, \Delta z, \Delta \text{roll}, \Delta \text{pitch}, \Delta \text{yaw})$. \reb{The action space for the locomotion task consists of the 12 delta joint position commands controlling the four legs of the ANYmal.}
+We evaluate our approach on five robotics tasks. These include three robotic manipulation tasks and one locomotion tasks implemented within the ManiSkill~\citep{tao2024maniskill3} framework: \emph{Reach}, \emph{Lift}, \emph{Avoid} (re-implemented from D3IL~\citep{jia2024towards}), as manipulation tasks and \emph{ANYmal} as locomotion task. We further integrate the \emph{Franka Kitchen} environment from D4RL~\citep{fu2020d4rl} as a sequential multi-task setting. Each task (shown in Figure~\ref{fig:tasks}) exhibits distinct forms and degrees of multimodality. Multimodality arises either from goal diversity or, for a fixed goal, from multiple feasible trajectories that lead to successful completion. All manipulation tasks are performed with a Franka Emika Panda robot, where agent actions are parameterized as 6-DoF end-effector delta poses $(\Delta x, \Delta y, \Delta z, \Delta \text{roll}, \Delta \text{pitch}, \Delta \text{yaw})$. The action space for the locomotion task consists of the 12 delta joint position commands controlling the four legs of the ANYmal.
 
 
-% \begin{figure}[t!]
+% \begin{figure}[t!]  
 %   \centering
 %     \centering
 %     % Row 1
@@ -838,6 +960,21 @@ We evaluate our approach on \reb{five robotics tasks}. These include three robot
 % For each task we display four random environment initializations and highlight representative modes for solving the task.}
 %     \label{fig:tasks}
 % \end{figure}
+
+
+\paragraph{Reach (2 modes).} In \emph{Reach}, the agent must contact a green sphere while avoiding a gray obstacle; success can be achieved by approaching from either side. These left–right approaches constitute two disjoint solution classes, creating a simple bimodal structure. This task is comparatively simple, as multimodality appears only at the beginning of the trajectory, after which the policy is effectively committed to a single mode. The state space comprises the robot joint positions and velocities, the end-effector pose, as well as goal and bar poses. The maximum episode length is $100$ steps. The task is considered to be successful if the agent reaches the goal within a pre-defined threshold
+
+\paragraph{Lift (2 modes).} In \emph{Lift}, the agent must lift a peg into vertical position. The peg can be grasped and lifted upright from either the red or blue side, yielding multiple valid grasping strategies. Here, multimodality reflects the existence of several grasp affordances around the object, which lead to distinct grasp–lift trajectories even when the final goal is identical. The initial randomization of object configurations increases the ambiguity and difficulty of separating modes.  The state space comprises the robot joint positions and velocities, the end-effector pose, as well as the peg pose. The maximum episode length is $200$ steps. The task is considered to be successful if the peg is successfully lifted (assessed through the pose of the object) and stable.
+
+\paragraph{Avoid (24 modes).} In the \emph{Avoid} task, the agent must cross the green line by avoiding the obstacles in the table. This is the most challenging as numerous modalities emerge later in the trajectory, each corresponding to a distinct avoidance strategy with different path lengths. In this case, only the initial end-effector position is randomized at reset, while the obstacle remains fixed, emphasizing the diversity of possible avoidance strategies. The state representation encompasses the end-effector’s desired position and actual position in Cartesian space, with the caveat that the robot’s height (z position) remains fixed. The actions are represented by the desired velocity of the robot along the x and y axis. The maximum episode length is $300$ steps. The task is considered to be successful if the robot-end-effector reaches the green finish line.
+
+\paragraph{ANYmal Locomotion (4 modes).}
+In this locomotion task, a quadrupedal ANYmal robot must navigate to one of four goal locations placed at fixed positions in the environment. Multimodality arises from goal diversity: each goal corresponds to a distinct target direction and therefore induces different optimal locomotion strategies and turning behaviors. Demonstrations are generated by training four separate RL agents, each optimized to reach a single goal, producing unimodal expert trajectories for each target. When combined, these demonstrations form a four-modal behavior distribution that the policy must preserve. The state space includes proprioceptive robot observations (joint states, base pose, and velocities) and the relative goal position with respect to the agent position. The maximum episode length is $200$ steps, and an episode is successful if the robot reaches any goal within a predefined tolerance.
+
+\paragraph{Franka Kitchen (24 modes).}The Franka Kitchen environment from D4RL~\citep{fu2020d4rl} contains demonstrations of a robot manipulating several articulated objects (microwave, kettle, burner, light switch). We train on the mixed demonstration dataset, which contains trajectories performing different task combinations in varying orders, but never completing all four evaluation subtasks sequentially. As a result, multimodality emerges both from the diversity of partial task orders and from multiple valid ways to interact with each object. For evaluation, we follow the common benchmark and consider four subtasks—\texttt{microwave}, \texttt{kettle}, \texttt{bottom burner}, \texttt{light switch}. Success is achieved when the policy completes three of the four subtasks within the episode, possibly in any order. The state space consists of robot joint states, end-effector pose, and object poses; the maximum horizon is $280$ steps.
+
+All environments provide dense or intermediate reward functions to support fine-tuning, and we employ a heuristic to identify the mode associated with each trajectory, enabling consistent evaluation of multimodality. Additional implementation details will be available upon the release of the codebase.
+
 
 \begin{figure}[t!]
   \centering
@@ -874,23 +1011,6 @@ We evaluate our approach on \reb{five robotics tasks}. These include three robot
 \end{figure}
 
 
-\paragraph{Reach (2 modes).} In \emph{Reach}, the agent must contact a green sphere while avoiding a gray obstacle; success can be achieved by approaching from either side. \reb{These left–right approaches constitute two disjoint solution classes, creating a simple bimodal structure.} This task is comparatively simple, as multimodality appears only at the beginning of the trajectory, after which the policy is effectively committed to a single mode. The state space comprises the robot joint positions and velocities, the end-effector pose, as well as goal and bar poses. The maximum episode length is $100$ steps. The task is considered to be successful if the agent reaches the goal within a pre-defined threshold
-
-\paragraph{Lift (2 modes).} In \emph{Lift}, the agent must lift a peg into vertical position. The peg can be grasped and lifted upright from either the red or blue side, yielding multiple valid grasping strategies. \reb{Here, multimodality reflects the existence of several grasp affordances around the object, which lead to distinct grasp–lift trajectories even when the final goal is identical.} The initial randomization of object configurations increases the ambiguity and difficulty of separating modes.  The state space comprises the robot joint positions and velocities, the end-effector pose, as well as the peg pose. The maximum episode length is $200$ steps. The task is considered to be successful if the peg is successfully lifted (assessed through the pose of the object) and stable.
-
-\paragraph{Avoid (24 modes).} In the \emph{Avoid} task, the agent must cross the green line by avoiding the obstacles in the table. This is the most challenging as numerous modalities emerge later in the trajectory, each corresponding to a distinct avoidance strategy with different path lengths. In this case, only the initial end-effector position is randomized at reset, while the obstacle remains fixed, emphasizing the diversity of possible avoidance strategies. The state representation encompasses the end-effector’s desired position and actual position in Cartesian space, with the caveat that the robot’s height (z position) remains fixed. The actions are represented by the desired velocity of the robot along the x and y axis. The maximum episode length is $300$ steps. The task is considered to be successful if the robot-end-effector reaches the green finish line.
-
-\reb{
-\paragraph{ANYmal Locomotion (4 modes).}
-In this locomotion task, a quadrupedal ANYmal robot must navigate to one of four goal locations placed at fixed positions in the environment. Multimodality arises from goal diversity: each goal corresponds to a distinct target direction and therefore induces different optimal locomotion strategies and turning behaviors. Demonstrations are generated by training four separate RL agents, each optimized to reach a single goal, producing unimodal expert trajectories for each target. When combined, these demonstrations form a four-modal behavior distribution that the policy must preserve. The state space includes proprioceptive robot observations (joint states, base pose, and velocities) and the relative goal position with respect to the agent position. The maximum episode length is $200$ steps, and an episode is successful if the robot reaches any goal within a predefined tolerance.
-
-\paragraph{Franka Kitchen (24 modes).}The Franka Kitchen environment from D4RL~\citep{fu2020d4rl} contains demonstrations of a robot manipulating several articulated objects (microwave, kettle, burner, light switch). We train on the mixed demonstration dataset, which contains trajectories performing different task combinations in varying orders, but never completing all four evaluation subtasks sequentially. As a result, multimodality emerges both from the diversity of partial task orders and from multiple valid ways to interact with each object. For evaluation, we follow the common benchmark and consider four subtasks—\texttt{microwave}, \texttt{kettle}, \texttt{bottom burner}, \texttt{light switch}. Success is achieved when the policy completes three of the four subtasks within the episode, possibly in any order. The state space consists of robot joint states, end-effector pose, and object poses; the maximum horizon is $280$ steps.
-}
-
-All environments provide dense or intermediate reward functions to support fine-tuning, and we employ a heuristic to identify the mode associated with each trajectory, enabling consistent evaluation of multimodality. Additional implementation details will be available upon the release of the codebase.
-
-
-
 
 % \paragraph{Implementation Details}
 % For each task, we collect $1000$ demos with a motion planner for each task and pre-train the diffusion model for $1000$ epochs. \al{Can we evaluate the difference between a trajectory trained with RL and the motion planning demos to quantify the reward landscape shift?} The baseline models are fine-tuned using only the task rewards, while the regularized version first pre-trains the steering policy with only the mode discovery objective.\al{Some other details}.
@@ -903,7 +1023,7 @@ All environments provide dense or intermediate reward functions to support fine-
 
 
 \begin{wrapfigure}{r}{0.5\textwidth}  % r = right, l = left
-\vspace{-0.9\baselineskip}             % adjust vertical spacing if needed
+\vspace{-3.9\baselineskip}             % adjust vertical spacing if needed
 \centering
 \includegraphics[width=0.9\linewidth]{figures/exps/sr_vs_lambda.pdf}
 
@@ -917,48 +1037,49 @@ We first study the effect of the regularization weight $\lambda$ on task perform
 
 Next, we analyze the impact of (i) pre-training with only the mode-discovery reward (\texttt{[NO-FT \methodname{}]}) and (ii) omitting fine-tuning of the inference model and steering policy when adapting the main policy with another fine-tuning technique (\texttt{[NO-PRE \methodname{}]}), (iii) removing the curriculum stage during the mode-discovery phase (\texttt{[NO-CURR \methodname{}]}). These ablations, reported in Table~\ref{tab:ablation}) for the \emph{Lift} task with \texttt{RES[\methodname{}]}, reveal that all factors negatively affect performance. In particular, disabling fine-tuning of the inference model and steering policy is catastrophic: the mutual-information signal becomes uninformative as the policy is driven toward out-of-distribution states relative to pre-training.
 
-\begin{table}[t!]
+\begin{table*}[t!]
 \centering
-\caption{Ablation experiments on design choices.}
-\label{tab:ablation}
-\begin{tabular}{l|cccc}
-\toprule
-\rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
-\midrule
-\texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
-\midrule
-\texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
-\midrule
-\texttt{RES[NO-PRE \methodname{}]} & $0.91 \scriptscriptstyle\pm 0.04$ & $0.79 \scriptscriptstyle\pm 0.11$ & $1.33 / 2$& $0.74 \scriptscriptstyle\pm 0.08$  \\
-\texttt{RES[NO-FT \methodname{}]} & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 / 2$& $0.00 \scriptscriptstyle\pm 0.00$  \\
-\texttt{RES[NO-CURR \methodname{}]}& $0.85 \scriptscriptstyle\pm 0.08$ & $0.83 \scriptscriptstyle\pm 0.08$ & $1.33 / 2$& $0.95 \scriptscriptstyle\pm 0.05$   \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-
-\begin{table}[t!]
-\centering
-\caption{Ablation experiment on removing the steering policy after fine-tuning with \methodname{}}
-\label{tab:remove_steering}
-\begin{tabular}{l|cccc}
-\toprule
-\rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
-\midrule
-\texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
-\midrule
-\rowcolor{lightgray} \multicolumn{5}{c}{\emph{With Steering Policy}} \\
-\midrule
-\texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
-\texttt{DPPO[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.55 \scriptscriptstyle\pm 0.07$ & $1.00 / 2$& $0.06 \scriptscriptstyle\pm 0.04$ \\
-\midrule
-\rowcolor{lightgray} \multicolumn{5}{c}{\emph{Without Steering Policy (Random Sampling)}} \\
-\midrule
-\texttt{RES[\methodname{}]} & $0.95 \scriptscriptstyle\pm 0.02$ & $0.94 \scriptscriptstyle\pm 0.02$ & $2.00 / 2$& $0.93 \scriptscriptstyle\pm 0.03$ \\
-\texttt{DPPO[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.58 \scriptscriptstyle\pm 0.06$ & $1.00 / 2$& $0.08 \scriptscriptstyle\pm 0.03$\\
-\bottomrule
-\end{tabular}
-\end{table}
+\begin{minipage}[t]{0.48\textwidth}
+  \centering
+  \caption{Ablation experiments on design choices.}
+  \label{tab:ablation}
+  \begin{tabular}{l|cccc}
+    \toprule
+    \rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+    \midrule
+    \texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
+    \midrule
+    \texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
+    \midrule
+    \texttt{RES[NO-PRE \methodname{}]} & $0.91 \scriptscriptstyle\pm 0.04$ & $0.79 \scriptscriptstyle\pm 0.11$ & $1.33 / 2$& $0.74 \scriptscriptstyle\pm 0.08$  \\
+    \texttt{RES[NO-FT \methodname{}]} & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 / 2$& $0.00 \scriptscriptstyle\pm 0.00$  \\
+    \texttt{RES[NO-CURR \methodname{}]}& $0.85 \scriptscriptstyle\pm 0.08$ & $0.83 \scriptscriptstyle\pm 0.08$ & $1.33 / 2$& $0.95 \scriptscriptstyle\pm 0.05$   \\
+    \bottomrule
+  \end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+  \centering
+  \caption{Ablation experiment on removing the steering policy after fine-tuning with \methodname{}}
+  \label{tab:remove_steering}
+  \begin{tabular}{l|cccc}
+    \toprule
+    \rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+    \midrule
+    \texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
+    \midrule
+    \rowcolor{lightgray} \multicolumn{5}{c}{\emph{With Steering Policy}} \\
+    \midrule
+    \texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
+    \texttt{DPPO[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.55 \scriptscriptstyle\pm 0.07$ & $1.00 / 2$& $0.06 \scriptscriptstyle\pm 0.04$ \\
+    \midrule
+    \rowcolor{lightgray} \multicolumn{5}{c}{\emph{Without Steering Policy (Random Sampling)}} \\
+    \midrule
+    \texttt{RES[\methodname{}]} & $0.95 \scriptscriptstyle\pm 0.02$ & $0.94 \scriptscriptstyle\pm 0.02$ & $2.00 / 2$& $0.93 \scriptscriptstyle\pm 0.03$ \\
+    \texttt{DPPO[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.58 \scriptscriptstyle\pm 0.06$ & $1.00 / 2$& $0.08 \scriptscriptstyle\pm 0.03$\\
+    \bottomrule
+  \end{tabular}
+\end{minipage}
+\end{table*}
 
 
 Finally, we evaluate whether policies fine-tuned with \methodname{} retain multimodality and performance once the steering head is removed, i.e., actions are again driven by the original latent noise prior. Table~\ref{tab:remove_steering} reports success and multimodality metrics for only the \texttt{DPPO[\methodname{}]} and \texttt{RES[\methodname{}]} on \emph{Lift}, as removing the steering on the \texttt{DSRL} baseline would regress the performance back to the original pre-trained policy. The residual baseline shows minimal degradation after removing the steering head, indicating that residual updates internalize the discovered modes into the policy. Similarly, \texttt{DPPO[\methodname{}]} exhibits similar performance with respect to the version including the steering head.
@@ -1170,13 +1291,13 @@ Figure~\ref{fig:learned_skills} shows qualitative examples of the trajectory sam
   \begin{subfigure}[t]{0.485\linewidth}
     \centering
     \includegraphics[width=\linewidth]{figures/tasks/reach_skills.pdf}
-    \caption{\emph{Reach}: \texttt{DPPO} (Left, green box) trajectories and modes learned by \texttt{DPPO[\methodname{}]}. }
+    \caption{\emph{Reach}: (Left, green box) trajectories sampled from \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
     \label{fig:top-left}
   \end{subfigure}\hfill
   \begin{subfigure}[t]{0.485\linewidth}
     \centering
     \includegraphics[width=\linewidth]{figures/tasks/Lift_skills.pdf}
-    \caption{\emph{Lift}: \texttt{DPPO} (Left, green box) trajectories and modes learned by \texttt{DPPO[\methodname{}]}.}
+    \caption{\emph{Lift}: (Left, green box) trajectories sampled form \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
     \label{fig:top-right}
   \end{subfigure}
 
@@ -1185,7 +1306,7 @@ Figure~\ref{fig:learned_skills} shows qualitative examples of the trajectory sam
   \begin{subfigure}[t]{0.99\linewidth}
     \centering
     \includegraphics[width=\linewidth]{figures/tasks/Avoid_Skills.pdf}
-    \caption{\emph{Avoid}: \texttt{DPPO} (Left, purple box) trajectories and modes learned by \texttt{DPPO[\methodname{}]}.}
+    \caption{\emph{Avoid}: (Left, purple box) trajectories sampled from \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
     \label{fig:bottom-wide}
   \end{subfigure}
 

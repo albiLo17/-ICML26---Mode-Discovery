@@ -9,17 +9,21 @@
 % (ii) we then develop an unsupervised mode-discovery procedure by reparameterizing a steering policy $\pi_{\psi}^{\mathcal{W}}(w \mid s)$ through a latent variable $z \in \mathcal{Z}$, enabling us to uncover and control the behavioral modes of the pre-trained policy during training, while also providing an estimate of multimodality through mutual information.
 % (iii) Finally, we use this estimate to construct a mutual information–based intrinsic reward and combine it with task rewards, regularizing \ac{rlft} to improve task performance while explicitly retaining diverse behaviors. In what follows, we describe each component in detail.
 
-To fine-tune pre-trained diffusion policies while preserving multimodality, our method focuses on
-identifying and controlling latent behavioral modes of the pre-trained policy. This enables us to
-regularize \ac{rlft} using a trajectory-diversity objective. Our framework comprises three components:
-(i) we introduce a tractable mutual information–based proxy $\mathcal{M}(\cdot)$ to quantify
-multimodality in pre-trained generative policies;
-(ii) we develop an unsupervised mode-discovery mechanism by reparameterizing a steering policy
-$\pi_{\psi}^{\mathcal{W}}(w \mid s)$ through a latent variable $z \in \mathcal{Z}$, allowing us to uncover
-and control behavioral modes while estimating multimodality;
-(iii) we leverage this estimate to construct a mutual information–based intrinsic reward, which is
-combined with task rewards to regularize \ac{rlft}, improving performance while explicitly retaining
-diverse behaviors. We describe each component in detail below.
+% To fine-tune pre-trained diffusion policies while preserving multimodality, our method focuses on
+% identifying and controlling latent behavioral modes of the pre-trained policy. This enables us to
+% regularize \ac{rlft} using a trajectory-diversity objective. Our framework comprises three components:
+% (i) we introduce a tractable mutual information–based proxy $\mathcal{M}(\cdot)$ to quantify
+% multimodality in pre-trained generative policies;
+% (ii) we develop an unsupervised mode-discovery mechanism by reparameterizing a steering policy
+% $\pi_{\psi}^{\mathcal{W}}(w \mid s)$ through a latent variable $z \in \mathcal{Z}$, allowing us to uncover
+% and control behavioral modes while estimating multimodality;
+% (iii) we leverage this estimate to construct a mutual information–based intrinsic reward, which is
+% combined with task rewards to regularize \ac{rlft}, improving performance while explicitly retaining
+% diverse behaviors. We describe each component in detail below.
+To prevent mode collapse when fine-tuning pre-trained generative policies, our method explicitly discovers and controls latent behavioral modes of the policy. This allows us to regularize \ac{rlft} with a trajectory-diversity objective while maintaining task performance. Our framework comprises three components:
+(i) a tractable mutual-information proxy $\mathcal{M}(\cdot)$ for quantifying multimodality;
+(ii) an unsupervised mode-discovery mechanism that reparameterizes a steering policy $\pi_{\psi}^{\mathcal{W}}(w \mid s)$ with a latent variable $z \in \mathcal{Z}$ to uncover and control modes while estimating multimodality;
+(iii) a mutual-information intrinsic reward combined with task rewards to regularize \ac{rlft}, explicitly retaining diverse behaviors. We describe each component below.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%% OLD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,16 +144,19 @@ space. %Consequently, this quantity alone is insufficient to guarantee the prese
 % this pre-existing diversity controllable as well as measure multimodality via $I(Z;S)$.
 %define a framework to preserve it during fine-tuning by maximizing $I(Z;S)$.
 
-To address this limitation, we quantify multimodality at the trajectory level by measuring the
-dependence between the latent noise variable $W$ and the visited states. Specifically, we consider
-the mutual information $I(W; S)$, which directly captures diversity in the induced trajectories.
-Under the environment dynamics, actions mediate the influence of $W$ on future states $S$, inducing the
-Markov chain $W \rightarrow A \rightarrow S'$. By the data processing inequality, this implies $I(W; S') \le I(W; A)$.
-As a result, state-based mutual information provides a conservative estimate of multimodality,
-retaining only behaviorally meaningful distinctions that persist through the dynamics. 
-With a slight abuse of notation, we henceforth write $I(W; S)$ to denote the mutual information
-between the latent variable $W$ and the state visitation distribution induced by trajectories under
-the policy, omitting explicit time indices for clarity.
+% To address this limitation, we quantify multimodality at the trajectory level by measuring the
+% dependence between the latent noise variable $W$ and the visited states. Specifically, we consider
+% the mutual information $I(W; S)$, which directly captures diversity in the induced trajectories.
+% Under the environment dynamics, actions mediate the influence of $W$ on future states $S$, inducing the
+% Markov chain $W \rightarrow A \rightarrow S'$. By the data processing inequality, this implies $I(W; S') \le I(W; A)$.
+% As a result, state-based mutual information provides a conservative estimate of multimodality,
+% retaining only behaviorally meaningful distinctions that persist through the dynamics. 
+% With a slight abuse of notation, we henceforth write $I(W; S)$ to denote the mutual information
+% between the latent variable $W$ and the state visitation distribution induced by trajectories under
+% the policy, omitting explicit time indices for clarity.
+
+To address this limitation, we quantify multimodality at the trajectory level via the mutual information between the latent noise variable $W$ and visited states, $I(W; S)$, which captures diversity in the induced behaviors. Under the dynamics, actions mediate the influence of $W$ on future states, forming the Markov chain $W \rightarrow A \rightarrow S'$, and the data processing inequality yields $I(W; S') \le I(W; A)$. Consequently, state-based mutual information provides a conservative estimate of multimodality, retaining only distinctions that persist through the dynamics. Henceforth, with slight abuse of notation, $I(W; S)$ denotes the mutual information between $W$ and the state-visitation distribution induced by trajectories, omitting time indices for clarity.
+
 
 This perspective is inspired by the unsupervised skill discovery literature, which similarly
 emphasizes trajectory diversity through mutual information between latent variables and visited
@@ -158,12 +165,17 @@ however, which seeks to \emph{learn} a latent skill space from scratch, our sett
 pre-trained generative policy whose latent noise space $\mathcal{W}$ already encodes multiple
 behavioral modes. 
 % These modes, however, are implicit in the structure of $\mathcal{W}$.
-These modes, however, are not explicitly represented in $\mathcal{W}$ as the noise variable $w \in \mathcal{W}$ is
-time-local and varies at each time step, whereas the behavioral modes we are interested in emerge at the trajectory level. As a result, the mode structure is implicit in
-$\mathcal{W}$ and not directly accessible through $W$ alone.
-In the next section, we introduce a method to uncover and control
-these latent behavioral modes, effectively lifting step-wise noise into coherent trajectory-level
-structure.
+% These modes, however, are not explicitly represented in $\mathcal{W}$ as the noise variable $w \in \mathcal{W}$ is
+% time-local and varies at each time step, whereas the behavioral modes we are interested in emerge at the trajectory level. As a result, the mode structure is implicit in
+% $\mathcal{W}$ and not directly accessible through $W$ alone.
+% In the next section, we introduce a method to uncover and control
+% these latent behavioral modes, effectively lifting step-wise noise into coherent trajectory-level
+% structure.
+However, these modes are not explicitly represented in $\mathcal{W}$: the noise variable $w \in \mathcal{W}$ is time-local and varies at each step, whereas the behavioral modes of interest emerge at the trajectory level. Consequently, mode structure is only implicit in $\mathcal{W}$ and not directly accessible from $W$ alone. In the next section, we introduce a method to uncover and control these latent modes, lifting step-wise noise into coherent trajectory-level structure.
+
+% These modes are not explicitly encoded in $\mathcal{W}$, since the noise variable $w$ is time-local while behavioral modes arise at the trajectory level. Thus, mode structure is only implicit in $\mathcal{W}$. We next introduce a method to uncover and control these latent modes by lifting step-wise noise into coherent trajectory-level structure.
+
+
 
 % However, while $I(W; S)$ captures the dependence between noise realizations and trajectories, the latent variable $w \in \mathcal{W}$
 % does not directly represent behavioral modes as defined in Section~\ref{sec:problem_formulation}. In particular, $w$ is sampled
@@ -256,11 +268,11 @@ Let $\pi_\psi^{\mathcal{W}}(w\mid s)$ denote a steering policy that selects the 
 
 Under this reparameterization, multimodality, or trajectory-level diversity, can be quantified by
 the mutual information $I(Z; S)$ between the latent code and the visited states. Combined with the
-assumption that $I(W; S) > 0$, this formulation allows us to uncover the behavioral modes implicitly
+assumption that $I(W; S) > 0$, this formulation allows us to discover the behavioral modes implicitly
 encoded in the latent noise space by training a steering policy to maximize $I(Z; S)$. Maximizing
 this objective encourages different values of $z$ to steer the sampling of $\mathcal{W}$ toward
 distinct state–trajectory distributions, thereby inducing coherent and identifiable behavioral
-modes. However, $I(Z; S)$ is not directly tractable to optimize. 
+modes. %However, $I(Z; S)$ is not directly tractable to optimize. 
 
 % While $I(Z; S)$ defines the desired objective, it is not directly tractable to optimize. In the
 % following, we therefore derive a variational lower bound that yields a practical learning signal
@@ -272,7 +284,7 @@ modes. However, $I(Z; S)$ is not directly tractable to optimize.
 
 \paragraph{Variational Lower Bound.}
 To optimize $\pi_\psi^{\mathcal{W}}$ via $I(Z;  S)$
-we follow standard practice in skill discovery~\citep{eysenbach2018diversity}, which derives a variational lower bound on the mutual information by introducing an inference model $q_\phi(z \mid s)$ that approximates the posterior over latent codes. This yields
+we follow standard practice in skill discovery~\citep{eysenbach2018diversity}, which derives a variational lower bound on $I(Z;  S)$ by introducing an inference model $q_\phi(z \mid s)$ that approximates the posterior over latent codes. This yields
 
 \begin{align}
     I(Z; S) 
@@ -289,7 +301,7 @@ We refer to ~\cite{eysenbach2018diversity} for the derivation of Equation~\ref{e
 
 
 
-\paragraph{Steering Policy Training.} The log-posterior likelihood is used as an intrinsic reward for training the steering policy $\pi_\psi^{\mathcal{W}}$, aligning the RL objective with the identifiability of $z$. This establishes a feedback loop in which $q_\phi$ improves at classifying latent codes while the $\pi_\psi^{\mathcal{W}}$ is incentivized to select $w\in \mathcal{W}$ so as to induce trajectories that are consistent and discriminable. 
+\paragraph{Steering Policy Training.} The log-posterior likelihood in Equation~\ref{eq:variational_MI} is used as an intrinsic reward for training the steering policy $\pi_\psi^{\mathcal{W}}$, aligning the RL objective with the identifiability of $z$. This establishes a feedback loop in which $q_\phi$ improves at classifying latent codes while the $\pi_\psi^{\mathcal{W}}$ is incentivized to select $w\in \mathcal{W}$ so as to induce trajectories that are consistent and discriminable. 
 
 As a result, the proposed method explicitly uncovers and organizes the behavioral modes implicit in
 the pre-trained policy, yielding a trajectory-level representation that both quantifies
@@ -302,20 +314,26 @@ discovery process is shown in Figure~\ref{fig:method}.
 
 
 \subsection{Policy Fine-tuning with Intrinsic Reward}
-Recall from Section~\ref{sec:problem_formulation} that we formulated the fine-tuning objective as maximizing task return regularized by a multimodality measure $\mathcal{M}$.  Building on this, the variational lower bound introduced above provides a tractable instantiation of $\mathcal{M}$, which is leveraged as an intrinsic signal to preserve multimodality during \ac{rlft}.  Concretely, we define the augmented reward
+% Recall from Section~\ref{sec:problem_formulation} that we formulated the fine-tuning objective as maximizing task return regularized by a multimodality measure $\mathcal{M}$.  
+% The variational lower bound introduced in Equation~\ref{eq:variational_MI} provides a tractable instantiation of $\mathcal{M}$, which allows us to regularize the fine-tuning objective as define in Section~\ref{sec:problem_formulation} by leveraging it as an intrinsic signal to preserve multimodality during \ac{rlft}.  We define the augmented reward
+
+We leverage the variational lower bound from Equation~\ref{eq:variational_MI} as a tractable instantiation of $\mathcal{M}$ and use it as an intrinsic signal to regularize the fine-tuning objective defined in Section~\ref{sec:problem_formulation} during \ac{rlft}. We define the augmented reward
 \begin{equation}
     r_{\text{total}}(s,z) = r_{\mathrm{env}}(s,a) 
     + \lambda \Big( \log q_\phi(z \mid s) - \log p(z) \Big),
 \end{equation}
-where $r_{\mathrm{env}}$ is the environment reward and $\lambda \geq 0$ balances task performance with multimodality preservation. %The extrinsic term promotes task success, while the intrinsic term encourages different latent codes $z$ to induce distinguishable behaviors, thereby preventing mode collapse. 
-Directly combining task and intrinsic rewards may lead to premature collapse if the task signal dominates before the multimodal structure is discovered. We therefore adopt a two-stage scheme: first, the steering policy is trained with the intrinsic objective alone to uncover the modes of the pretrained policy; then the environment reward is introduced to guide fine-tuning toward high-return behaviors without destroying diversity.  During mode discovery, we also apply a short-to-long horizon curriculum to stabilize learning.
-Algorithm~\ref{alg:mode_finetuning}  summarizes the overall procedure, which is thoroughly described in Appendix~\ref{appendix:algorithm}. 
-%The steering policy $\pi^{\mathcal{W}}(w\mid s,z)$ is updated using the augmented reward $r_{\text{total}}$, while the discriminator $q_\phi(z \mid s,a)$ is trained to maximize the variational lower bound, providing the intrinsic reward signal. 
-While we adopt PPO~\citep{schulman2017proximal} in our experiments, our framework is agnostic to the specific RL algorithm used. % to train the steering policy and is compatible with both on-policy and off-policy methods.
+where $r_{\mathrm{env}}$ is the environment reward and $\lambda \geq 0$ balances task performance with multimodality preservation.
+Directly combining task and intrinsic rewards may lead to mode collapse if the task signal dominates before the multimodal structure is discovered. We therefore adopt a two-stage scheme: first, the steering policy is trained with the intrinsic objective alone to uncover the modes of the pretrained policy; then the environment reward is introduced to guide fine-tuning toward high-return behaviors without destroying diversity.  During mode discovery, we also apply a short-to-long horizon curriculum to stabilize learning.
+Algorithm~\ref{alg:mode_finetuning} summarizes the procedure (details in Appendix~\ref{appendix:algorithm}). Although we use PPO~\citep{schulman2017proximal} in our experiments, the framework is agnostic to the underlying RL algorithm.
 
+
+
+% \paragraph{Broader Use of the Framework.}
+% While the formulation above fine-tunes the generative model indirectly via the steering policy, the framework is not limited to this case. Because the steering head actively explores diverse input-noise regions while pursuing reward, it can be combined with direct fine-tuning of the diffusion weights, acting as a structured exploration agent. At test time, the steering policy can either be retained—allowing explicit control over the behavioral mode—or removed, reverting to random sampling from the noise prior. Furthermore, while outside the present study, the learned latent space $\mathcal{Z}$ provides a natural basis for grounding semantic labels (e.g.\, language instructions) when limited annotations are available. 
 
 \paragraph{Broader Use of the Framework.}
-While the formulation above fine-tunes the generative model indirectly via the steering policy, the framework is not limited to this case. Because the steering head actively explores diverse input-noise regions while pursuing reward, it can be combined with direct fine-tuning of the diffusion weights, acting as a structured exploration agent. At test time, the steering policy can either be retained—allowing explicit control over the behavioral mode—or removed, reverting to random sampling from the noise prior. Furthermore, while outside the present study, the learned latent space $\mathcal{Z}$ provides a natural basis for grounding semantic labels (e.g.\, language instructions) when limited annotations are available. 
+Although we fine-tune the generative model indirectly via the steering policy, the framework is not limited to this setting: because the steering head explores diverse noise regions while optimizing reward, it can be combined with direct fine-tuning of the diffusion weights as a form of structured exploration. At test time, the steering policy can either be retained to enable explicit control over behavioral modes or removed to revert to sampling from the noise prior. While outside the scope of this work, the learned latent space $\mathcal{Z}$ also provides a natural basis for grounding semantic labels (e.g., language instructions) when limited annotations are available.
+
 
 
 \input{sections/04Algo_method}
