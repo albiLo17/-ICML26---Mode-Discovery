@@ -110,3 +110,10 @@
   {-0.8em}% space after (negative = run-in)
   {\normalfont\normalsize\bfseries}}
 \makeatother
+
+% -----------------------------
+% Table styling helpers
+% -----------------------------
+% Use inside a tabular (typically right after \midrule) to get alternating
+% light-gray rows like in the Gaussian tables.
+\newcommand{\tablerowcolors}{\rowcolors{1}{lightgray!50}{white}}

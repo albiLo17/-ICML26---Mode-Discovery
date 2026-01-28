@@ -19,7 +19,7 @@ where $s_t$ and $a_t$ are distributed according to the transition dynamics $p$ a
 
 \paragraph{Pre-Trained Multimodal Generative Policies.}%Action Distirbutions.} %\al{Here we discuss mode in the trajectories but not in the action distribution.}
 We assume access to an offline demonstration dataset ${\mathcal{D}
-= \{\tau^{(i)}\}_{i=1}^N, \tau^{(i)} = (s^{(i)}_0,a^{(i)}_0,\dots,s^{(i)}_{T_i},a^{(i)}_{T_i})}$, collected from diverse behavioral policies (e.g.\, human demonstrations), used to pre-train a generative policy $\pi_\theta$ via imitation learning. We further assume that the resulting policy is \emph{multimodal}, in the sense that it assigns non-negligible probability mass to multiple distinct behaviors reflected in the dataset~\cite{chi2023diffusion}. When relevant, we make explicit the dependence of the generative policy on its input noise variable $w \in \mathcal{W}$ by denoting it as $\pi_\theta(a \mid s, w)$.
+= \{\tau^{(i)}\}_{i=1}^N, \tau^{(i)} = (s^{(i)}_0,a^{(i)}_0,\dots,s^{(i)}_{T_i},a^{(i)}_{T_i})}$, collected with diverse behavioral policies (e.g.\, human demonstrations), used to pre-train a generative policy $\pi_\theta$ via imitation learning. We further assume that the resulting policy is \emph{multimodal}, in the sense that it assigns non-negligible probability mass to multiple distinct behaviors reflected in the dataset~\cite{chi2023diffusion}. When relevant, we make explicit the dependence of the generative policy on its input noise variable $w \in \mathcal{W}$ by denoting it as $\pi_\theta(a \mid s, w)$.
 
 
 \paragraph{Behavioral Modes.}

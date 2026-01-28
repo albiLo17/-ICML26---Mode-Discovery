@@ -3,7 +3,7 @@
 
 \section{Experiments}
 
-Our experimental evaluation is centered around three main questions: (i) Is the mutual information in Eq.~\ref{eq:variational_MI} a valid measure of multimodality? (ii) Do existing fine-tuning techniques preserve multimodality? (iii) Does our method retain multimodality without sacrificing task performance? We evaluate across increasingly challenging domains: a 2D Gaussian-mixture reward landscape; multimodal manipulation in ManiSkill~\citep{tao2024maniskill3} and D3IL~\citep{jia2024towards}; and high-dimensional sequential control (ANYmal locomotion, Franka Kitchen~\citep{fu2020d4rl}). We also ablate key design choices.
+Our experimental evaluation is centered around three main questions: (i) Is the mutual information in Equation~\ref{eq:variational_MI} a valid estimate of multimodality? (ii) Do existing fine-tuning techniques preserve multimodality? (iii) Does our method retain multimodality without sacrificing task performance? We evaluate across increasingly challenging domains: a 2D Gaussian-mixture reward landscape; multimodal manipulation in ManiSkill~\citep{tao2024maniskill3} and D3IL~\citep{jia2024towards}; and high-dimensional sequential control (ANYmal locomotion, Franka Kitchen~\citep{fu2020d4rl}). We also ablate key design choices.
  %We evaluated these questions in a progressively more challenging set of environments:  an 2D Gaussian-mixture reward landscape, multimodal manipulation tasks from ManiSkill~\citep{tao2024maniskill3} and D3IL~\citep{jia2024towards}, and additional high-dimensional and sequential domains including ANYmal locomotion and Franka Kitchen~\citep{fu2020d4rl}. We finally included ablations on key design choices. 
 
 % written in question formal
@@ -50,13 +50,12 @@ All metrics are computed from $N=1024$ evaluation episodes with fixed seeds for 
   \centering
   \includegraphics[width=0.88\textwidth]{figures/01_intro/multimodality_comparison_v4.pdf}
   \caption{ 
-  \textbf{Multimodality Comparison. TO FINISH THE CAPTION AND TO FIX THE NAME}  
-  }
+  \textbf{Qualitative trajectories for two rotated reward landscapes.} Each panel overlays trajectories from the origin in a four-goal reward landscape (bright peaks). \emph{Left:} the pre-trained policy covers all modes. \emph{Middle:} \texttt{DPPO} fine-tuning collapses to a subset of modes after reward rotation. \emph{Right:} \texttt{\methodname{}} fine-tunes the policy while maintaining full mode coverage.}
   \label{fig:multimodality_comparison}
 \end{figure*}
 
-\renewcommand{\arraystretch}{1.15} % Adjust row spacing
-\setlength{\arrayrulewidth}{0.04pt} % Adjust line thickness
+% \renewcommand{\arraystretch}{1.15} % Adjust row spacing
+% \setlength{\arrayrulewidth}{0.04pt} % Adjust line thickness
 
 
 
@@ -253,7 +252,7 @@ Further details and illustrations about the environment are provided in Appendix
 
 
 \paragraph{Mutual Information as a Proxy for Multimodality.}  
-We first evaluate if mutual information provides a reliable proxy for multimodality. To this end, we construct $3$ expert datasets in the Gaussian-mixture environment containing one, two, or four goal modes, and train separate policies on each dataset. Visualizations of the demonstrations,  rollouts of policies trained on each dataset alongside Monte Carlo estimates of their action distributions are shown in the Appendix in Figures~\ref{fig:q1-env-trajectories} and ~\ref{fig:q1-modes-by-z}. %). Figure~\ref{fig:q1-env-trajectories} shows rollouts of policies trained on each dataset (top row) alongside Monte Carlo estimates of their action distributions at $t=0$ (bottom row). 
+We first evaluate if mutual information provides a reliable proxy for multimodality. To this end, we construct $3$ expert datasets in the Gaussian-mixture environment containing one, two, or four goal modes, and train separate policies on each dataset. Visualizations of the demonstrations,  rollouts of policies trained on each dataset alongside Monte Carlo estimates of their action distributions are shown in the Appendix in Figure~\ref{fig:q1-env-trajectories}. %). Figure~\ref{fig:q1-env-trajectories} shows rollouts of policies trained on each dataset (top row) alongside Monte Carlo estimates of their action distributions at $t=0$ (bottom row). 
 % As expected, policies trained on multimodal datasets exhibit multi-peaked action distributions.
 We hypothesize that a valid multimodality metric $\mathcal{M}$ should increase with the number of modes. To test this, we estimate $\mathcal{M}$ with Equation~\ref{eq:variational_MI} by jointly training a steering policy and an inference model $q_\phi$ over a discrete latent space $\mathcal{Z}=\{0,1,2,3\}$. %The policy generates trajectories conditioned on $z$, $q_\phi$ predicts $z$ from state–action pairs, and $\mathcal{M}$ is then estimated from $q_\phi$ on $1024$ trajectories with random latent codes.
 % Our hypothesis is that a valid multimodality metric $\mathcal{M}$ should systematically increase in value with the number of available modes. We estimate $\mathcal{M}$ using the variational formulation in Equation~\ref{eq:variational_MI}, by jointly training a steering policy and an inference model $q_\phi$ over a predefined discrete latent space $Z \equiv \{0,1,2,3\}$. The steering policy generates trajectories conditioned on $z$, while the inference model is trained to recover $z$ from state–action pairs. After training, $\mathcal{M}$ is estimated from $q_\phi$ by evaluating $1024$ trajectories produced by the steering policy with randomly sampled latent codes.
@@ -272,8 +271,9 @@ We hypothesize that a valid multimodality metric $\mathcal{M}$ should increase w
   \label{tab:mi_disc}
   \begin{tabular}{lcc}
   \toprule
-  \rowcolor{lightgray} \textbf{Policy} & \textbf{$\mathcal{M}$} & $\mathbf{L_q(\phi)}$ \\
+  \textbf{Policy} & \textbf{$\mathcal{M}$} & $\mathbf{L_q(\phi)}$ \\
   \midrule
+  \tablerowcolors
   1 mode  & $0.00 \scriptscriptstyle\pm 0.00$  & $1.38 \scriptscriptstyle\pm 0.00$ \\
   2 modes & $0.58 \scriptscriptstyle\pm 0.02$  & $0.82 \scriptscriptstyle\pm 0.02$ \\
   4 modes & $1.06 \scriptscriptstyle\pm 0.00$  & $0.33 \scriptscriptstyle\pm 0.02$ \\
@@ -282,11 +282,17 @@ We hypothesize that a valid multimodality metric $\mathcal{M}$ should increase w
   \vspace{-0.7\baselineskip}
 \end{wraptable}
 
-Table~\ref{tab:mi_disc} reports the estimated mutual information and inference-model loss from $q_\phi$ on $1024$ trajectories with randomly sampled $z\in\mathcal{Z}$. As expected, mutual information increases with the number of modes, while the loss decreases, indicating that $q_\phi$ reliably recovers latent codes when multimodality exists, but struggles in the unimodal case. These results support mutual information as a proxy for measuring multimodality, when such multimodality exists. Figure~\ref{fig:q1-modes-by-z} further shows that conditioning the steering policy on individual $z$ produces distinct, coherent trajectories, confirming that the latent space organizes noise into meaningful and controllable behavioral modes.
+Table~\ref{tab:mi_disc} reports the estimated mutual information and inference-model loss from $q_\phi$ on $1024$ trajectories with randomly sampled $z\in\mathcal{Z}$. As expected, mutual information increases with the number of modes, while the inference loss decreases, indicating that $q_\phi$ reliably discriminates latent codes when multimodality exists. These results support mutual information as a proxy for measuring multimodality, when such multimodality exists. Figure~\ref{fig:q1-modes-by-z} further shows that conditioning the steering policy on individual $z$ produces distinct, coherent trajectories, confirming that the latent space organizes noise into meaningful and controllable behavioral modes.
 
 % Table~\ref{tab:mi_disc} reports the estimated mutual information alongside the inference-model loss computed from $q_\phi$ on $1024$ trajectories generated by the policy with randomly sampled $z\in \mathcal{Z}$. As hypothesized, the mutual-information estimate increases monotonically with the number of demonstrated modes. The inference-model loss follows the opposite trend, decreasing as the number of modes grows, reflecting that the inference model can reliably identify distinct latent codes when structure is present, but struggles in the unimodal case where no meaningful distinctions exist. Together, these results validate our use of conditional mutual information as a proxy for multimodality, providing a valuable training signal for retaining multimodal behaviors. Figure~\ref{fig:q1-modes-by-z} further illustrates that conditioning on individual latent codes $z \in Z$ yields coherent and distinct trajectories, demonstrating that the learned latent space organizes the noise distribution into behaviorally meaningful modes.
 
 % It is important to note, however, that this estimate of the mutual information is not an absolute metric: its value depends on the learned latent representation and the capacity of the discriminator, and is therefore not directly comparable across different models or training runs. Instead, it should be regarded as a relative proxy that reflects the preservation of multimodality within a given training setup. In the following experiments, we empirically demonstrate its effectiveness as a fine-tuning signal.
+
+
+
+\renewcommand{\arraystretch}{1.10} % Adjust row spacing
+\setlength{\arrayrulewidth}{0.04pt} % Adjust line thickness
+
 
 \begin{table}[!t]
   \centering
@@ -312,120 +318,16 @@ Table~\ref{tab:mi_disc} reports the estimated mutual information and inference-m
   
 
 \paragraph{Fine-Tuning Evaluation.}
-We evaluate the performance of existing fine-tuning methods against our proposed \methodname{} in preserving multimodality when the reward used for adaptation differs from the one implicitly encoded in the demonstrations.  
+We evaluate the performance of existing fine-tuning methods against \methodname{} in preserving multimodality when the reward used for adaptation differs from the one implicitly encoded in the demonstrations.  
 To simulate this mismatch, we define two shifted reward landscapes obtained by rotating the Gaussian peaks used for demonstrations by ${\tfrac{\pi}{8}}$ and ${\tfrac{\pi}{4}}$, denoted as \textbf{G1} and \textbf{G2}.  
-%For each, we consider both a \emph{balanced} variant, where all modes contribute equally, and an \emph{unbalanced} variant, where the Gaussian weights are rescaled to produce asymmetric rewards (more details in Appendix~\ref{appendix:gaussian_env}).
+
+Tables~\ref{tab:toy_results_g1} and~\ref{tab:toy_results_g2} report results for \ac{rlft} with \textbf{G1} and \textbf{G2}, respectively. Among baselines, the residual policy (\texttt{RES}) performs best, solving \textbf{G1} and retaining two modes in \textbf{G2}, as tuning the magnitude of the residual corrections to small values helps preserve multimodality. Gradient-based methods (\texttt{DPPO}, \texttt{DPPO[10]}) improve task success, with \texttt{DPPO} aided by extra denoising steps, but both collapse to fewer modes when rewards diverge from demonstrations. Steering alone (\texttt{DSRL}) is least effective, with limited success in \textbf{G1} and full performance drop in \textbf{G2}. %Multimodality retention further degrades in the unbalanced setting, where reward bias toward specific goals causes even strong baselines to collapse to dominant peaks. 
+These results suggest that standard fine-tuning techniques fail to fully preserve the original multimodality when the reward landscape deviates from the distribution underlying the demonstrations.
+
+In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consistently: \texttt{RES[\methodname{}]} recovers full mode coverage across both goals, and \texttt{DPPO[\methodname{}]} shows similar gains. For the \texttt{DSRL} method,  \texttt{[\methodname{}]} mitigates but does not prevent collapse, indicating that additional fine-tuning of the original policy is required in this case. Overall, \methodname{} regularized fine-tuning preventing the RL objective to bias the policy toward fewer behaviors.  Qualitative visualizations of the trajectories learned by the \texttt{DPPO} and \texttt{RES[\methodname{}]} policies are shown in Figure~\ref{fig:multimodality_comparison}. Appendix~\ref{appendix:dim_z} reports ablations on the role of the dimensionality of $\mathcal{Z}$.
 
 
 
-% \begin{table}[!t] % float environment, allows caption + top placement
-% \centering
-% \caption{\al{Separate this evaluation from the one of the z! And add stds.} Evaluation on the Gaussian-mixture environment under two rotated goals. 
-% We report multimodal success rate ($\mathrm{SR}_{\mathrm{M}}$), mode coverage at $80\%$ ($\mathrm{mc}@0.80$), entropy of the discovered modes ($\mathcal{H}$), and unbalanced multimodal success rate ($\mathrm{SR}_{\mathrm{M}}$ Unb.) across baselines and their variants augmented with our mode discovery regularizer (\texttt{[MD]}). 
-% Results are shown for different latent dimensionalities $z \in \{4,8,16\}$.}
-% \label{tab:toy_results}
-% \resizebox{\textwidth}{!}{%
-% \begin{tabular}{l|ccc!{\color{gray}\vrule width 0.6pt}c||ccc!{\color{gray}\vrule width 0.6pt}c}
-% % \caption{Your caption goes here.}
-% \toprule
-% \rowcolor{lightgray}  & \multicolumn{4}{c||}{\textbf{G1}} & \multicolumn{4}{c}{\textbf{G2}} \\
-% \rowcolor{lightgray} \textbf{Method} & $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$ & $\mathcal{H}$ & $\mathrm{SR}_{\mathrm{M}}$ (Unb.) & $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$ & $\mathrm{SR}_{\mathrm{M}}$ (Unb.) \\
-% \midrule
-% \rowcolor{lightgray} \multicolumn{9}{l}{\textbf{Baselines}} \\
-% \texttt{RP} & 0.96 & 1.00 & 1.00 & 0.68 & 0.51 & 0.50 & 0.77 & 0.43 \\
-% \texttt{DSRL} & 0.25 & 0.25 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
-% \texttt{DPPO} & 0.50 & 0.50 & 0.45 & 0.25 & 0.25 & 0.25 & 0.00 & 0.25 \\
-% \texttt{DDIM} & 0.25 & 0.25 & 0.00 & 0.25 & 0.18 & 0.00 & 0.39 & 0.25 \\
-% \midrule
-% \rowcolor{lightgray} \multicolumn{9}{l}{\textbf{dim $z=4$}} \\
-% \texttt{RP\;[MD]} & \textbf{1.00} & \textbf{1.00 }& \textbf{0.99} & \textbf{1.00} & 0.75 & 0.75 & 0.74 & 0.75 \\
-% \texttt{DSRL\;[MD]} & \textbf{0.75} & \textbf{0.75} & \textbf{0.99} & 0.00 & 0.00 & 0.00 & 0.74 & 0.00 \\
-% \texttt{DDIM\;[MD]} & \textbf{1.00} & \textbf{1.00} & \textbf{0.99 }& \textbf{1.00} & 0.75 & 0.75 & 0.74 & 0.75 \\
-% \midrule
-% \rowcolor{lightgray} \multicolumn{9}{l}{\textbf{dim $z=8$}} \\
-% \texttt{RP\;[MD]} & 0.87 & 0.75 & 0.99 & 0.87 & 1.00 & 1.00& 0.93 & 1.00 \\
-% \texttt{DSRL\;[MD]} & 0.54 & 0.25 & 0.96 & 0.15 & 0.00 & 0.00 & 0.91 & 0.00 \\
-% \texttt{DDIM\;[MD]} & 0.79 & 0.50 & 0.93 & 0.79 & \textbf{1.00} & \textbf{1.00}& \textbf{0.99} & \textbf{1.00} \\
-% \midrule
-% \rowcolor{lightgray} \multicolumn{9}{l}{\textbf{dim $z=16$}} \\
-% \texttt{RP\;[MD]} & 1.00 & 1.00 & 0.94 & 1.00 &\textbf{ 1.00} & \textbf{1.00} &\textbf{ 0.94} & \textbf{1.00} \\
-% \texttt{DSRL\;[MD]} & 0.07 & 0.00 & 0.98 & 0.09 & 0.00 & 0.00 & 0.97 & 0.00 \\
-% \texttt{DDIM\;[MD]} & 0.40 & 0.00 & 1.00 & 0.40 & 0.82 & 0.50 & 0.94 & 0.82 \\
-% \midrule
-% \bottomrule
-% \end{tabular}
-% }
-% \end{table}
-
-
-% \begin{table}[!t] % float environment, allows caption + top placement
-% \centering
-% \caption{\al{TODO: add SR, stds., and change coverage values.} Evaluation on the Gaussian-mixture environment under two rotated goals. 
-% We report multimodal success rate ($\mathrm{SR}_{\mathrm{M}}$), mode coverage at $80\%$ ($\mathrm{mc}@0.80$), entropy of the discovered modes ($\mathcal{H}$), and unbalanced multimodal success rate ($\mathrm{SR}_{\mathrm{M}}$ Unb.) across baselines and their variants augmented with our mode discovery regularizer (\texttt{[MD]}). 
-% }
-% \label{tab:toy_results}
-% \resizebox{\textwidth}{!}{%
-% \begin{tabular}{l|ccc!{\color{gray}\vrule width 0.6pt}c||ccc!{\color{gray}\vrule width 0.6pt}c}
-% % \caption{Your caption goes here.}
-% \toprule
-% \rowcolor{lightgray}  & \multicolumn{4}{c||}{\textbf{G1}} & \multicolumn{4}{c}{\textbf{G2}} \\
-% \rowcolor{lightgray} \textbf{Method} & $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$ & $\mathcal{H}$ & $\mathrm{SR}_{\mathrm{M}}$ (Unb.) & $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$ & $\mathrm{SR}_{\mathrm{M}}$ (Unb.) \\
-% \midrule
-% \texttt{RES} & 0.96 & 1.00 & 1.00 & 0.68 & 0.51 & 0.50 & 0.77 & 0.43 \\
-% \texttt{DSRL} & 0.25 & 0.25 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
-% \texttt{DPPO} & 0.25 & 0.25 & 0.00 & 0.25 & 0.18 & 0.00 & 0.39 & 0.25 \\
-% \texttt{DPPO[10]} & 0.50 & 0.50 & 0.45 & 0.25 & 0.25 & 0.25 & 0.00 & 0.25 \\
-% \midrule
-% \texttt{RES[MD]} & 1.00 & 1.00 & 0.99 & 1.00 & 1.00 & 1.00 & 0.94 & 1.00 \\
-% \texttt{DSRL[MD]} & 0.75 & 0.75 & 0.99 & 0.00 & 0.00 & 0.00 & 0.97 & 0.00 \\
-% \texttt{DPPO[MD]} & 1.00 & 1.00 & 0.99 & 1.00 & 1.00 & 1.00& 0.99 & 1.00 \\
-% \bottomrule
-% \end{tabular}
-% }
-% \end{table}
-
-
-
-
-
-% \begin{table}[!t] % float environment, allows caption + top placement
-% \centering
-% \caption{\al{Separate this evaluation from the one of the z! And add stds.} Evaluation on the Gaussian-mixture environment under two rotated goals. 
-% We report multimodal success rate ($\mathrm{SR}_{\mathrm{M}}$), mode coverage at $80\%$ ($\mathrm{mc}@0.80$), entropy of the discovered modes ($\mathcal{H}$), and unbalanced multimodal success rate ($\mathrm{SR}_{\mathrm{M}}$ Unb.) across baselines and their variants augmented with our mode discovery regularizer (\texttt{[MD]}). 
-% Results are shown for different latent dimensionalities $z \in \{4,8,16\}$.}
-% \label{tab:z_values}
-% \resizebox{\textwidth}{!}{%
-% \begin{tabular}{lccc!{\color{gray}\vrule width 0.6pt}c}
-% % \caption{Your caption goes here.}
-% \toprule
-% \rowcolor{lightgray} & \multicolumn{4}{c}{\textbf{G2}} \\
-% \rowcolor{lightgray} \textbf{Method}& $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$ & $\mathrm{SR}_{\mathrm{M}}$ (Unb.) \\
-% \midrule
-% \rowcolor{lightgray} \multicolumn{5}{c}{\textbf{dim $z=4$}} \\
-% \texttt{RES[MD]} & 0.75 & 0.75 & 0.74 & 0.75 \\
-% \texttt{DPPO[MD]} & 0.75 & 0.75 & 0.74 & 0.75 \\
-% \midrule
-% \rowcolor{lightgray} \multicolumn{5}{c}{dim $z=8$} \\
-% \texttt{RES[MD]}  & 1.00 & 1.00& 0.93 & 1.00 \\
-% \texttt{DPPO[MD]} & 1.00 & 1.00& 0.99 & 1.00 \\
-% \midrule
-% \rowcolor{lightgray} \multicolumn{5}{c}{\textbf{dim $z=16$}} \\
-% \texttt{RES[MD]}  & 1.00 & 1.00 & 0.94 & 1.00 \\
-% \texttt{DPPO[MD]}  & 0.82 & 0.50 & 0.94 & 0.82 \\
-% \midrule
-% \bottomrule
-% \end{tabular}
-% }
-% \end{table}
-
-% Table~\ref{tab:toy_results} reports results for both goals. Among baselines, the residual policy (\texttt{RES}) achieves the strongest performance, solving \textbf{G1} and retaining two modes in \textbf{G2}, preserving the original multimodality by applying constrained corrections. Diffusion-based methods (\texttt{DPPO}, \texttt{DPPO[10]}) improve task success, with \texttt{DPPO} benefiting from additional denoising steps, though both collapse to fewer modes when the reward deviates from the demonstrations. Steering alone (\texttt{DSRL}) is the least effective, with limited success in \textbf{G1} and complete collapse in \textbf{G2}. Despite some success in retaining multimodality, these trends degrade in the unbalanced setting, where rewards favor a subset of goals and even the stronger baselines collapse to dominant peaks. These results suggest that the further the reward landscape deviates from the implicit distribution of the demonstrations, the harder it becomes to preserve multimodality during fine-tuning. 
-
-Tables~\ref{tab:toy_results_g1} and~\ref{tab:toy_results_g2} report results for \textbf{G1} and \textbf{G2}, respectively. Among baselines, the residual policy (\texttt{RES}) performs best, solving \textbf{G1} and retaining two modes in \textbf{G2}, as tuning the magnitude of the residual corrections to small values helps preserve multimodality. Diffusion-based methods (\texttt{DPPO}, \texttt{DPPO[10]}) improve task success, with \texttt{DPPO} aided by extra denoising steps, but both collapse to fewer modes when rewards diverge from demonstrations. Steering alone (\texttt{DSRL}) is least effective, with limited success in \textbf{G1} and full collapse in \textbf{G2}. %Multimodality retention further degrades in the unbalanced setting, where reward bias toward specific goals causes even strong baselines to collapse to dominant peaks. 
-These results suggest that standard fine-tuning techniques fail to fully preserve the original multimodality as the reward landscape deviates from the distribution underlying the demonstrations.
-
-% In contrast, the [MD-MAD] variants consistently preserve diversity. For \texttt{RES}, mode discovery restores full mode coverage for both goals and unbalanced versions, and \texttt{DPPO} shows similar gains. While \texttt{DSRL} mitigates but does not prevent collapse, suggesting that additional fine-tuning of the original policy (by residual or direct-finetuning) is necessary in this specific scenario. These results demonstrate that our method not only stabilizes fine-tuning in symmetric tasks but also counteracts asymmetries that bias baselines toward fewer behaviors. Qualitative visualizations of the trajectories learned by these policies under these different reward landscapes are presented in Figure~\ref{fig:fig1}, and ablations on the impact of the choice of dimensionality of $\mathcal{Z}$ are reported in Appendix~\ref{appendix:dim_z}. 
-
-In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consistently: \texttt{RES} recovers full mode coverage across both goals and their unbalanced versions, and \texttt{DPPO} shows similar gains. For the \texttt{DSRL} method,  \texttt{[\methodname{}]} mitigates but does not prevent collapse, indicating that additional fine-tuning of the original policy is required in this case. Overall, \methodname{} regularized fine-tuning preventing the RL objective to bias the policy toward fewer behaviors.  Qualitative visualizations of the trajectories learned by the \texttt{DPPO} and \texttt{RES[\methodname{}]} policies are shown in Figure~\ref{fig:fig1}, while Appendix~\ref{appendix:dim_z} reports ablations on the dimensionality of $\mathcal{Z}$.
 
 
 \begin{table}[!t]
@@ -454,9 +356,8 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 
 
 
-
-\renewcommand{\arraystretch}{1.15} % Adjust row spacing
-\setlength{\arrayrulewidth}{0.04pt} % Adjust line thickness
+% \renewcommand{\arraystretch}{1.15} % Adjust row spacing
+% \setlength{\arrayrulewidth}{0.04pt} % Adjust line thickness
 
 \begin{table*}[t]
 \centering
@@ -546,13 +447,9 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 
 
 
-
-\renewcommand{\arraystretch}{1.15} % Adjust row spacing
-\setlength{\arrayrulewidth}{0.04pt} % Adjust line thickness
-
 \begin{table*}[t]
 \centering
-\begin{minipage}{0.495\linewidth}
+\begin{minipage}{0.465\linewidth}
 \centering
 \caption{ANYmal locomotion environment. }
 \label{tab:anymal_results}
@@ -563,13 +460,13 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 \toprule
  \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$ & $\mathcal{H}$ $(\uparrow)$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{PRE} & 0.42 & 0.40 & $0.00 / 4$ & 0.95 \\
+\rowcolor{lightgray!50}\texttt{PRE} & $0.41 \scriptscriptstyle\pm 0.01$ & $0.39 \scriptscriptstyle\pm 0.01$ & $0.00 / 4$ & $0.96 \scriptscriptstyle\pm 0.00$ \\
 \midrule
-% \rowcolor{lightgray!50}\texttt{RES} & $0.98 \scriptscriptstyle\pm 0.01$ & $0.90 \scriptscriptstyle\pm 0.11$ & $3.67 / 4$ & $0.90 \scriptscriptstyle\pm 0.09$ \\
+\rowcolor{lightgray!50}\texttt{RES} & $0.98 \scriptscriptstyle\pm 0.01$ & $0.90 \scriptscriptstyle\pm 0.11$ & $3.67 / 4$ & $0.90 \scriptscriptstyle\pm 0.09$ \\
 \texttt{DSRL} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.25 \scriptscriptstyle\pm 0.00$ & $1.00 / 4$ & $0.00 \scriptscriptstyle\pm 0.00$ \\
-% \rowcolor{lightgray!50}\texttt{DPPO[10]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.42 \scriptscriptstyle\pm 0.12$ & $1.67 / 4$ & $0.15 \scriptscriptstyle\pm 0.20$\\
-% \texttt{DPPO} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.32 \scriptscriptstyle\pm 0.10$ & $1.33 / 4$ & $0.09 \scriptscriptstyle\pm 0.13$ \\
-% \midrule
+\rowcolor{lightgray!50}\texttt{DPPO} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.32 \scriptscriptstyle\pm 0.10$ & $1.33 / 4$ & $0.09 \scriptscriptstyle\pm 0.13$ \\
+\texttt{DPPO[10]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.42 \scriptscriptstyle\pm 0.12$ & $1.67 / 4$ & $0.15 \scriptscriptstyle\pm 0.20$\\
+\midrule
 \rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]}  & $0.97 \scriptscriptstyle\pm 0.01$ & $0.89 \scriptscriptstyle\pm 0.12$ & $3.67 / 4$ & $0.91 \scriptscriptstyle\pm 0.12$ \\
 \bottomrule
 \end{tabular}
@@ -587,13 +484,17 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 \toprule
   \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$ & $\mathcal{H}$ $(\uparrow)$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{PRE} & 0.02 & 0.04 & $0.00 / 24$ & 0.44 \\
+\rowcolor{lightgray!50}\texttt{PRE} & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 / 24$ & $0.33 \scriptscriptstyle\pm 0.07$ \\
 \midrule
 % \rowcolor{lightgray!50}\texttt{RES} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
-\texttt{DSRL} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
+% \texttt{DSRL} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
 % \rowcolor{lightgray!50}\texttt{DPPO[10]} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
 % \texttt{DPPO} & 0.71 & 0.04 & $1.00 / 24$ & 0.19 \\
 % \midrule
+\rowcolor{lightgray!50}\texttt{RES} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.0 / 24$ & $0.00 \scriptscriptstyle\pm 0.00$ \\
+\texttt{DSRL} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.0 / 24$ & $0.01 \scriptscriptstyle\pm 0.02$ \\
+\rowcolor{lightgray!50}\texttt{DPPO} & $0.56 \scriptscriptstyle\pm 0.41$ & $0.03 \scriptscriptstyle\pm 0.02$ & $0.67 / 24$ & $0.08 \scriptscriptstyle\pm 0.08$ \\
+\texttt{DPPO[10]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.0 / 24$ & $0.00 \scriptscriptstyle\pm 0.00$ \\
 \rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & 0.98 & 0.08 & $2.00 / 24$ & 0.23 \\
 \bottomrule
 \end{tabular}%
@@ -667,14 +568,14 @@ Next, we evaluate our method on three simulated robotic tasks: \emph{Reach}, \em
 
 % \paragraph{Standard Fine-tuning.} We first evaluate baseline fine-tuning methods that do not include explicit mechanisms to preserve multimodality. Results are summarized in Table~\ref{tab:baselines}. In the \emph{Reach} task, all methods successfully fine-tune the pre-trained policy without collapsing modes, obtaining high scores across all metrics, suggesting that the inherent exploration of the diffusion policy is sufficient to fine-tune both modes. For the \emph{Lift} task, although fine-tuning improves overall success rates, none of the methods consistently solves both modalities. Only the steering-based baseline (\texttt{DSRL}) maintains higher entropy in the distribution of explored behaviors, indicating that regularization via a KL divergence with a Gaussian prior can partially mitigate collapse at the cost of reduced task performance. Finally, in the \emph{Avoid} task, fine-tuning achieves high task success but largely eliminates multimodality. We attribute this collapse to two factors: (i) a mismatch between the reward landscape used for pre-training and that used during fine-tuning, and (ii) the varying trajectory lengths associated with different modalities, which bias the fine-tuning process toward solutions with a shorter horizon. Altogether, these results are consistent with the 2D Gaussian mixture experiments and show that standard RL fine-tuning progressively destroys multimodality as the reward landscape deviates from the pre-trained trajectory distribution and becomes unbalanced across modes. This highlights the necessity of explicit regularization and motivates our method as a general mechanism for preserving multimodal behaviors during fine-tuning.
 
-\paragraph{Standard Fine-tuning.} Table~\ref{tab:baselines} summarizes results for baselines without explicit multimodality preservation. In \emph{Reach}, all methods fine-tune the pre-trained policy without collapse, indicating that the inherent exploration of diffusion policies suffices to adapt both modes. In \emph{Lift}, fine-tuning improves success rates but fails to consistently solve both modalities; only the steering-based baseline (\texttt{DSRL}) maintains higher entropy, showing that KL regularization with a Gaussian prior on the output of the steering policy (to enforce closeness with the original input noise distribution) can partly mitigate collapse, albeit at the cost of performance. In \emph{Avoid}, fine-tuning achieves high task success but eliminates multimodality, driven by (i) reward mismatch between pre-training and fine-tuning, and (ii) trajectory length asymmetries that bias toward shorter-horizon solutions. Taken together, the results align with the 2D Gaussian mixture experiments and indicate that standard RL fine-tuning progressively destroys multimodality as the reward landscape deviates from the pre-trained trajectory distribution and becomes unbalanced across modes. %This underscores the need for explicit regularization and motivates our method as a general mechanism to preserve multimodal behaviors during fine-tuning.
+\paragraph{Standard Fine-tuning.} Table~\ref{tab:baselines} summarizes results for baselines without explicit multimodality preservation. In \emph{Reach}, all methods fine-tune the pre-trained policy without collapse, indicating that the inherent exploration of diffusion policies suffices to adapt both modes. In \emph{Lift}, fine-tuning improves success rates but fails to consistently solve both modalities; only the steering-based baseline (\texttt{DSRL}) maintains higher entropy but fails to consistently solve both modalities. In \emph{Avoid}, fine-tuning achieves high task success but eliminates multimodality likely due to trajectory length asymmetries that bias toward shorter-horizon solutions. Taken together, the results align with the 2D Gaussian mixture experiments and indicate that standard RL fine-tuning progressively destroys multimodality as the reward landscape deviates from the pre-trained trajectory distribution and becomes unbalanced across modes. %This underscores the need for explicit regularization and motivates our method as a general mechanism to preserve multimodal behaviors during fine-tuning.
 
 
 
 \paragraph{\methodname{} Fine-tuning.} 
 % Here we evaluate the impact of incorporating our regularization during fine-tuning. As summarized in Table~\ref{tab:our_method}, the intrinsic reward enables adaptation of the pre-trained policy while preserving, in most cases, the multimodal structure of its behavior, with only a minimal trade-off between diversity and task performance. In the \emph{Reach} task, introducing our regularization has no adverse effect on the final success rate, confirming that diversity can be preserved without compromising performance. For the \emph{Lift} task, regularization enables the policy to retain both of the original solution modes from the pre-trained policy, improving upon standard fine-tuning. In the more challenging \emph{Avoid} task, it maintains high success rates while retaining a subset of the original modes, again surpassing standard fine-tuning. Although some collapse persists, the results indicate that the proposed regularization substantially mitigates mode loss, even under pronounced reward imbalance.
-Table~\ref{tab:our_method} shows that incorporating our regularization enables adaptation of the pre-trained policy while largely preserving multimodality, with only minimal trade-offs between diversity and task performance. In \emph{Reach}, regularization leaves success rates unaffected, confirming that our regularization term does not sacrifice performance. In \emph{Lift}, it allows the policy to retain both solution modes from the pre-trained policy, improving over standard fine-tuning. In the more challenging \emph{Avoid}, it sustains high success while preserving a subset of the modes, again outperforming baselines. Although some collapse remains, the results indicate that regularization substantially mitigates mode loss, even under pronounced reward imbalance. Qualitative visualizations of the skills learned by our method are shown in Figure~\ref{fig:learned_skills_main}. %For completeness, Appendix~\ref{appendix:manipulation_ablation} also presents ablations covering the curriculum, steering-policy pre-training for mode discovery, the choice of $\lambda$, and the effect of removing the steering policy after fine-tuning.
-Additionally, ablations covering design choices such as curriculum learning and pre-training the steering policy for mode discovery, as well as the role of the regularization weight $\lambda$ and the effect of removing the steering policy after fine-tuning, are reported in Appendix~\ref{appendix:manipulation_ablation}.
+Table~\ref{tab:our_method} shows that incorporating our regularization enables adaptation of the pre-trained policy while largely preserving multimodality, with only minimal trade-offs between diversity and task performance. In \emph{Reach}, regularization leaves success rates unaffected, confirming that our regularization term does not sacrifice performance. In \emph{Lift}, \methodname{} enables the policy to retain both solution modes from the pre-trained policy, improving over standard fine-tuning. In the more challenging \emph{Avoid}, our method retains high success while preserving a subset of the modes, again outperforming baselines. Although some collapse remains, the results indicate that regularization substantially mitigates mode loss, even under pronounced reward imbalance. Qualitative visualizations of the skills learned by our method are shown in Figure~\ref{fig:learned_skills_main}. %For completeness, Appendix~\ref{appendix:manipulation_ablation} also presents ablations covering the curriculum, steering-policy pre-training for mode discovery, the choice of $\lambda$, and the effect of removing the steering policy after fine-tuning.
+Additionally, ablations covering design choices such as curriculum learning and pre-training the steering policy for mode discovery, or the role of the regularization weight $\lambda$, are reported in Appendix~\ref{appendix:manipulation_ablation}.
 
 
 
@@ -682,10 +583,9 @@ Additionally, ablations covering design choices such as curriculum learning and 
 
 \subsection{Robotic Locomotion and Sequential Manipulation}
 
-We further evaluate \methodname{} in more challenging settings: ANYmal locomotion, a high-dimensional extension of the 2D Gaussian setup, and the sequential, combinatorial Franka Kitchen task, both detailed in Appendix~\ref{appendix:manip_tasks}. In both cases, we fine-tune the steering policy and compare against the previously introduced baselines, using latent dimensionalities of $4$ and $16$, respectively. %a high-dimensional locomotion task and a sequential manipulation task with combinatorial structure. We evaluate on ANYmal Locomotion, which extends the 2D Gaussian setup, and on the Franka Kitchen environment, both described in detail in the Appendix~\ref{appendix:manip_tasks}. In both cases, we fine-tune the steering policy and compare against the baselines introduced earlier. The latent dimensionality is set to $4$ and $16$, respectively.
+We further evaluate \methodname{} in more challenging settings: ANYmal locomotion, a high-dimensional extension of the 2D Gaussian setup, and the sequential, combinatorial Franka Kitchen task, both detailed in Appendix~\ref{appendix:manip_tasks}. In both cases, we fine-tune the steering policy and compare against the previously introduced baselines, using latent dimensionalities of $4$ and $64$, respectively. %a high-dimensional locomotion task and a sequential manipulation task with combinatorial structure. We evaluate on ANYmal Locomotion, which extends the 2D Gaussian setup, and on the Franka Kitchen environment, both described in detail in the Appendix~\ref{appendix:manip_tasks}. In both cases, we fine-tune the steering policy and compare against the baselines introduced earlier. The latent dimensionality is set to $4$ and $16$, respectively.
 
-Table~\ref{tab:anymal_results} summarizes the locomotion results. Despite the increased dimensionality, the results closely mirror those of the 2D Gaussian Mixture experiments: \texttt{RES} is a strong baseline in this setting, and \methodname{} preserves all four modes of the pre-trained steering policy and prevents collapse during fine-tuning. We further provide visualizations of the fine-tuned policy rollouts and an analysis of the stability of the learned modes in Appendix~\ref{appendix:mode stability}.
+Table~\ref{tab:anymal_results} summarizes the locomotion results. Despite the increased dimensionality, the results closely mirror those of the 2D Gaussian Mixture experiments: \texttt{RES} is a strong baseline in this setting, and \methodname{} preserves all four modes of the pre-trained policy. Additional rollout visualizations, mode-stability analyses, and robustness evaluations under observation noise and dynamics perturbations are provided in Appendix~\ref{appendix:mode stability} and Appendix~\ref{sec:noise_dyn_perturbations}.
 
-Table~\ref{tab:franka_results} reports the results for Franka Kitchen, where success is defined as completing three subtasks in any order. We first observe that the original pre-trained policy exhibits limited mode coverage, as reflected by its low entropy. However, all baselines collapse the multimodality present in the pre-trained policy. In contrast, \methodname{} maintains most of the original behavioral diversity while still fine-tuning the policy to high success. The slight entropy reduction reflects the loss of a single successful sequence, consistent with the sequences reported in Table~\ref{tab:kitchen_sequences}. Exploring different latent dimensionalities could further mitigate this loss and recover the missing mode. Overall, these results demonstrate that \methodname{} effectively preserves multimodal structure in both high-dimensional control tasks and sequential manipulation domains, where the baselines collapse to a single solution.
-
+Table~\ref{tab:franka_results} reports the results for Franka Kitchen, where success is defined as completing three subtasks in any order. We first observe that the original pre-trained policy exhibits limited mode coverage, as reflected by its relatively low entropy. All baselines collapse the multimodality present in the pre-trained policy. In contrast, \methodname{} maintains some of the original behavioral diversity while still fine-tuning the policy to high success. The slight entropy reduction reflects the loss of a single successful sequence, consistent with the sequences reported in Table~\ref{tab:kitchen_sequences}. Exploring different latent dimensionalities could further mitigate this loss and recover the missing mode. Overall, these results demonstrate that \methodname{} effectively preserves multimodal structure in both high-dimensional control tasks and sequential manipulation domains, where the baselines collapse to a single solution.
 

@@ -559,13 +559,14 @@ This scaling parameter is selected following prior work and tuned empirically to
 The residual policy is implemented as a Gaussian policy parameterized by a multilayer perceptron with hidden layers of dimension $\{256, 256, 256\}$ and Mish activations.
 
 \subsection{Steering policy} 
-The steering policy $\pi_\psi^{\mathcal{W}}(w \mid s, z)$ is implemented as a Gaussian policy parameterized by an MLP with hidden layers of size $\{256, 256, 256\}$. To constrain its support within that of the original diffusion prior, we apply a KL regularization during training of the form
-\[
-\mathcal{L}_{\mathrm{KL}} = \mathbb{E}_{s,z}\Big[ 
-D_{\mathrm{KL}}\!\left(\pi_\psi^{\mathcal{W}}(w \mid s,z)\,\big\|\,\mathcal{N}(0,I)\right)
-\Big],
-\]
-where $\mathcal{N}(0,I)$ denotes the isotropic Gaussian prior used in the diffusion model. The latent variable $z \in {0,1,\dots,K{-}1}$ is sampled from a uniform categorical prior $p(z)$, as we empirically found discrete latents easier to learn and more stable than continuous ones. The dimensionality of the latent space is a hyperparameter, in the experiments we consider $K=\{ 4, 8, 16\}$. Training proceeds in two stages: for the first 200 epochs, the steering policy is optimized only with the intrinsic reward $\log q_\phi(z \mid s, a) - \log p(z)$, serving as a mode-discovery phase; in the remaining epochs, the environment reward is added to steer behaviors toward high-return regions while retaining multimodality. %\al{Missing the critic?}
+The steering policy $\pi_\psi^{\mathcal{W}}(w \mid s, z)$ is implemented as a Gaussian policy parameterized by an MLP with hidden layers of size $\{256, 256, 256\}$. %To constrain its support within that of the original diffusion prior, we apply a KL regularization during training of the form
+% \[
+% \mathcal{L}_{\mathrm{KL}} = \mathbb{E}_{s,z}\Big[ 
+% D_{\mathrm{KL}}\!\left(\pi_\psi^{\mathcal{W}}(w \mid s,z)\,\big\|\,\mathcal{N}(0,I)\right)
+% \Big],
+% \]
+% where $\mathcal{N}(0,I)$ denotes the isotropic Gaussian prior used in the diffusion model. 
+The latent variable $z \in {0,1,\dots,K{-}1}$ is sampled from a uniform categorical prior $p(z)$, as we empirically found discrete latents easier to learn and more stable than continuous ones. The dimensionality of the latent space is a hyperparameter, in the experiments we consider $K=\{ 4, 8, 16\}$. Training proceeds in two stages: for the first 200 epochs, the steering policy is optimized only with the intrinsic reward $\log q_\phi(z \mid s, a) - \log p(z)$, serving as a mode-discovery phase; in the remaining epochs, the environment reward is added to steer behaviors toward high-return regions while retaining multimodality. %\al{Missing the critic?}
 
 
 \subsection{Inference model}
@@ -842,18 +843,21 @@ We next examine the effect of the latent dimensionality $|\mathcal{Z}|$ on multi
 \resizebox{0.58\textwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
-\rowcolor{lightgray}   & \multicolumn{4}{c}{\textbf{G2}} \\
-\rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+  & \multicolumn{4}{c}{\textbf{G2}} \\
+ \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
 \midrule
-\rowcolor{lightgray} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=4$}} \\
+\rowcolor{lightgray!50} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=4$}} \\
+\tablerowcolors
 \texttt{RES[\methodname{}]} & $1.00 \pm 0.00$ & $0.75 \pm 0.00$ & $3.00 / 4$ & $0.74 \pm 0.00$ \\
 \texttt{DPPO[\methodname{}]}  & $1.00 \pm 0.00$ & $0.75 \pm 0.00$ & $3.00 / 4$ & $0.74 \pm 0.00$ \\
 \midrule
-\rowcolor{lightgray} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=8$}} \\
+\rowcolor{lightgray!50} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=8$}} \\
+\tablerowcolors
 \texttt{RES[\methodname{}]}  & $1.00 \pm 0.00$ & $1.00 \pm 0.00$ & $4.00 / 4$ & $0.92 \pm 0.00$ \\
 \texttt{DPPO[\methodname{}]} & $0.64 \pm 0.45$ & $0.63 \pm 0.45$ & $2.33 / 4$ & $0.99 \pm 0.00$ \\
 \midrule
-\rowcolor{lightgray} \multicolumn{5}{c}{\textbf{$|\mathcal{Z}|=16$}} \\
+\rowcolor{lightgray!50} \multicolumn{5}{c}{\textbf{$|\mathcal{Z}|=16$}} \\
+\tablerowcolors
 \texttt{RES[\methodname{}]} & $1.00 \pm 0.00$ & $1.00 \pm 0.00$ & $4.00 / 4$ & $0.94 \pm 0.00$ \\
 \texttt{DPPO[\methodname{}]}  & $0.79 \pm 0.00$ & $0.82 \pm 0.00$ & $2.00 / 4$ & $0.94 \pm 0.00$ \\
 \bottomrule
@@ -1041,12 +1045,14 @@ Next, we analyze the impact of (i) pre-training with only the mode-discovery rew
 \centering
 \begin{minipage}[t]{0.48\textwidth}
   \centering
-  \caption{Ablation experiments on design choices.}
+  \caption{Ablation experiments on key design choices: (i) pre-training with only the mode-discovery reward, (ii) omitting fine-tuning of the inference model and steering policy when adapting the main policy with another fine-tuning technique, and (iii) removing the curriculum stage during the mode-discovery phase.}
   \label{tab:ablation}
-  \begin{tabular}{l|cccc}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lcccc}
     \toprule
-    \rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+    \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
     \midrule
+    \tablerowcolors
     \texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
     \midrule
     \texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
@@ -1056,28 +1062,32 @@ Next, we analyze the impact of (i) pre-training with only the mode-discovery rew
     \texttt{RES[NO-CURR \methodname{}]}& $0.85 \scriptscriptstyle\pm 0.08$ & $0.83 \scriptscriptstyle\pm 0.08$ & $1.33 / 2$& $0.95 \scriptscriptstyle\pm 0.05$   \\
     \bottomrule
   \end{tabular}
+  }
 \end{minipage}\hfill
 \begin{minipage}[t]{0.48\textwidth}
   \centering
   \caption{Ablation experiment on removing the steering policy after fine-tuning with \methodname{}}
   \label{tab:remove_steering}
-  \begin{tabular}{l|cccc}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lcccc}
     \toprule
-    \rowcolor{lightgray} \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
+    \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
     \midrule
+    \tablerowcolors
     \texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
     \midrule
-    \rowcolor{lightgray} \multicolumn{5}{c}{\emph{With Steering Policy}} \\
+    \rowcolor{lightgray!50} \multicolumn{5}{c}{\emph{With Steering Policy}} \\
     \midrule
     \texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
     \texttt{DPPO[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.55 \scriptscriptstyle\pm 0.07$ & $1.00 / 2$& $0.06 \scriptscriptstyle\pm 0.04$ \\
     \midrule
-    \rowcolor{lightgray} \multicolumn{5}{c}{\emph{Without Steering Policy (Random Sampling)}} \\
+    \rowcolor{lightgray!50} \multicolumn{5}{c}{\emph{Without Steering Policy (Random Sampling)}} \\
     \midrule
     \texttt{RES[\methodname{}]} & $0.95 \scriptscriptstyle\pm 0.02$ & $0.94 \scriptscriptstyle\pm 0.02$ & $2.00 / 2$& $0.93 \scriptscriptstyle\pm 0.03$ \\
     \texttt{DPPO[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.58 \scriptscriptstyle\pm 0.06$ & $1.00 / 2$& $0.08 \scriptscriptstyle\pm 0.03$\\
     \bottomrule
   \end{tabular}
+  }
 \end{minipage}
 \end{table*}
 
@@ -1086,7 +1096,21 @@ Finally, we evaluate whether policies fine-tuned with \methodname{} retain multi
 
 We hypothesize that \methodname{}’s regularization on the steering output, penalizing deviations from the original normal noise, encourages compatibility between the learned behaviors and the base diffusion noise. During fine-tuning, steering guides exploration over $z$ to expose distinct modes, while the regularizer keeps the induced noise close to the prior, allowing the policy to absorb mode structure without depending on explicit steering at inference. Consequently, \texttt{RES[\methodname{}]} especially, can execute diverse behaviors when sampling from the unmodified prior, preserving multimodality with limited impact on task success and making it a strong candidate for fine-tuning generative policies. 
 
-\reb{
+
+
+
+\subsection{Mode Stability Analysis}
+\label{appendix:mode stability}
+
+To assess the stability of the latent steering variable discovered by \methodname{}, we evaluate whether different training seeds induce consistent mappings between latent codes and environment modes in the \emph{ANYmal} task. We consider $3$ different seeds, all steering policies were trained under identical conditions and number of fine-tuning epochs, and for each checkpoint, we rolled out $1024$ episodes from randomized initial states. We predefined the sampled latent code $z$ for each episode (shared across the evaluations of the three seeds) and recorded the resulting environment-defined mode. 
+
+The confusion matrices in Figure~\ref{fig:confusion_matrices} show that all checkpoints exhibit highly consistent mode assignments across initial-state perturbations; however, the third checkpoint collapses two latent codes into the same mode, mirroring the behavior observed in our 2D Gaussian Mixture analysis, where small state perturbations cause our diversity objective to treat trajectories ending in the same mode as distinct, thereby compressing the latent space.   A qualitative visualization of the modes learned by the three checkpoints is shown in Figure~\ref{fig:modes_anymal}. We further report the success rate per mode in Table~\ref{tab:sr_modes}. 
+
+
+
+To quantify seed-level agreement, we compare the checkpoints using three metrics: (i) the Normalized Mutual Information (NMI), which measures the similarity of the mode distributions produced across seeds; (ii) the Adjusted Rand Index (ARI), which evaluates the alignment of the underlying mode-cluster structure; and (iii) a Z-Consistency score, defined as the fraction of latent codes whose dominant mode matches across seeds. As shown in Table~\ref{tab:z_stability_pairwise}, NMI and ARI remain high, indicating that all seeds recover consistent sets of behavioral modes, while the collapsed latent in the third checkpoint naturally leads to non-perfect scores. The Z-Consistency score is zero for the first checkpoint comparisons, confirming that although the learned modes are stable, the specific latent-code assignments are not necessarily preserved across seeds, reflecting the inherent permutation symmetry of unsupervised latent discovery.
+
+
 
 
 
@@ -1128,64 +1152,47 @@ We hypothesize that \methodname{}’s regularization on the steering output, pen
 \label{fig:modes_anymal}
 \end{figure}
 
-\subsection{Mode Stability Analysis}
-\label{appendix:mode stability}
 
-To assess the stability of the latent steering variable discovered by \methodname{}, we evaluate whether different training seeds induce consistent mappings between latent codes and environment modes in the \emph{ANYmal} task. We consider $3$ different seeds, all steering policies were trained under identical conditions and number of fine-tuning epochs, and for each checkpoint, we rolled out $1024$ episodes from randomized initial states. We predefined the sampled latent code $z$ for each episode (shared across the evaluations of the three seeds) and recorded the resulting environment-defined mode. 
-
-The confusion matrices in Figure~\ref{fig:confusion_matrices} show that all checkpoints exhibit highly consistent mode assignments across initial-state perturbations; however, the third checkpoint collapses two latent codes into the same mode, mirroring the behavior observed in our 2D Gaussian Mixture analysis, where small state perturbations cause our diversity objective to treat trajectories ending in the same mode as distinct, thereby compressing the latent space.   A qualitative visualization of the modes learned by the three checkpoints is shown in Figure~\ref{fig:modes_anymal}. We further report the success rate per mode in Table~\ref{tab:sr_modes}. 
-
-
-
-To quantify seed-level agreement, we compare the checkpoints using three metrics: (i) the Normalized Mutual Information (NMI), which measures the similarity of the mode distributions produced across seeds; (ii) the Adjusted Rand Index (ARI), which evaluates the alignment of the underlying mode-cluster structure; and (iii) a Z-Consistency score, defined as the fraction of latent codes whose dominant mode matches across seeds. As shown in Table~\ref{tab:z_stability_pairwise}, NMI and ARI remain high, indicating that all seeds recover consistent sets of behavioral modes, while the collapsed latent in the third checkpoint naturally leads to non-perfect scores. The Z-Consistency score is zero for the first checkpoint comparisons, confirming that although the learned modes are stable, the specific latent-code assignments are not necessarily preserved across seeds, reflecting the inherent permutation symmetry of unsupervised latent discovery.
-
-
-
-\renewcommand{\arraystretch}{1.2} % Adjust row spacing
-\setlength{\arrayrulewidth}{0.07pt} % Adjust line thickness
+% \renewcommand{\arraystretch}{1.0} % tighter rows for these tables
+% \setlength{\arrayrulewidth}{0.07pt} % Adjust line thickness
 
 \begin{table*}[t]
 
 \centering
-\begin{minipage}{0.4\linewidth}
+\begingroup
+% \scriptsize
+% \setlength{\tabcolsep}{2pt} % tighter columns (default ~6pt)
+\begin{minipage}{0.465\linewidth}
 \centering
 \caption{Success rate per mode.}
 \label{tab:sr_modes}
-\centering
-\resizebox{\linewidth}{!}{%
-\centering
-\begin{tabular}{cccc}
+\begin{tabular}{@{}cccc@{}}
 \toprule
-\rowcolor{lightgray} \textbf{Mode} & \textbf{C1} $(\uparrow)$ & \textbf{C2} $(\uparrow)$ & \textbf{C3} $(\uparrow)$ \\
+ \textbf{Mode} & \textbf{C1} $(\uparrow)$ & \textbf{C2} $(\uparrow)$ & \textbf{C3} $(\uparrow)$ \\
 \midrule
-0 & 1.00 & 1.00 & 1.00 \\
+\rowcolor{lightgray!50}0 & 1.00 & 1.00 & 1.00 \\
 1 & 0.97 & 0.98 & -- \\
-2 & 1.00 & 0.91 & 0.95 \\
+\rowcolor{lightgray!50}2 & 1.00 & 0.91 & 0.95 \\
 3 & 0.97 & 0.89 & 0.92 \\
 \bottomrule
 \end{tabular}
-}
 \end{minipage}
 \hfill
-\centering
-\begin{minipage}{0.55\linewidth}
+\begin{minipage}{0.465\linewidth}
 \centering
 \caption{Pairwise comparison metrics for latent Z stability across checkpoints. }
 \label{tab:z_stability_pairwise}
-\resizebox{\linewidth}{!}{%
-% \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
-\centering
-\begin{tabular}{lccc}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-\rowcolor{lightgray} \textbf{Pair} & \textbf{NMI} $(\uparrow)$ & \textbf{ARI} $(\uparrow)$ & \textbf{Z Consistency} $(\uparrow)$ \\
+ \textbf{Pair} & \textbf{NMI} $(\uparrow)$ & \textbf{ARI} $(\uparrow)$ & \textbf{Z Consistency} $(\uparrow)$ \\
 \midrule
-\texttt{C1 vs C2} & 1.00 & 1.00 & 0.00 \\
+\rowcolor{lightgray!50}\texttt{C1 vs C2} & 1.00 & 1.00 & 0.00 \\
 \texttt{C1 vs C3} & 0.87 & 0.74 & 0.00 \\
-\texttt{C2 vs C3} & 0.87 & 0.74 & 0.50 \\
+\rowcolor{lightgray!50}\texttt{C2 vs C3} & 0.87 & 0.74 & 0.50 \\
 \bottomrule
 \end{tabular}
-}
 \end{minipage}
+\endgroup
 
 
 \end{table*}
@@ -1212,12 +1219,12 @@ We evaluated the steering policy and compared its performance against the same p
 \centering
 \begin{tabular}{lcccc}
 \toprule
-\rowcolor{lightgray} \textbf{Method} & $\mathrm{SR}$$(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$& $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$\\
+\textbf{Method} & $\mathrm{SR}$$(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$& $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$\\
 \midrule
-\texttt{PRE} & $0.32 $ & $0.31  $ & $0.00 / 4$& $0.99 $  \\
+\rowcolor{lightgray!50}\texttt{PRE} & $0.32 $ & $0.31  $ & $0.00 / 4$& $0.99 $  \\
 \midrule
 \texttt{DSRL} & $1.00 $ & $0.25  $ & $1.00 / 4$& $0.00  $ \\
-\texttt{DSRL[\methodname{}]} & $0.96 $ & $0.96  $ & $4.00 / 4$& $0.99 $  \\
+\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & $0.96 $ & $0.96  $ & $4.00 / 4$& $0.99 $  \\
 \bottomrule
 \end{tabular}%
 }
@@ -1231,12 +1238,12 @@ We evaluated the steering policy and compared its performance against the same p
 % \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
 \begin{tabular}{lcccc}
 \toprule
-\rowcolor{lightgray} \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$& $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$ \\
+\textbf{Method} & $\mathrm{SR}$ $(\uparrow)$& $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$ \\
 \midrule
-\texttt{PRE} & $0.05 $ & $0.06  $ & $0.00 / 4$& $0.90 $  \\
+\rowcolor{lightgray!50}\texttt{PRE} & $0.05 $ & $0.06  $ & $0.00 / 4$& $0.90 $  \\
 \midrule
 \texttt{DSRL} & $0.98 $ & $0.24  $ & $1.00 / 4$& $0.00  $ \\
-\texttt{DSRL[\methodname{}]} & $0.69 $ & $0.69  $ & $2.00 / 4$& $0.99 $  \\
+\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & $0.69 $ & $0.69  $ & $2.00 / 4$& $0.99 $  \\
 \bottomrule
 \end{tabular}%
 }
@@ -1248,7 +1255,7 @@ We evaluated the steering policy and compared its performance against the same p
 
 Table~\ref{tab:kitchen_sequences} reports the distinct successful task sequences executed by each method in the Franka Kitchen environment. The pre-trained policy exhibits multiple valid one- and two-task sequences, while all baselines collapse to a single sequence per task count. In contrast, \methodname{} recovers multiple successful sequences across all levels, preserving most of the original multimodality but losing the sequence ``[microwave, bottom burner]''.
 
-\begin{table}[t]
+\begin{table}[h!]
 \caption{Unique successful action sequences discovered by each method, grouped by number of completed tasks.}
 \label{tab:kitchen_sequences}
 \resizebox{\linewidth}{!}{%
@@ -1259,6 +1266,7 @@ Table~\ref{tab:kitchen_sequences} reports the distinct successful task sequences
 \toprule
 \textbf{Method} & \textbf{\# Tasks} & \textbf{Unique Sequences} \\
 \midrule
+\tablerowcolors
 \multirow{2}{*}{\texttt{PRE} }
   & 1 & [microwave], [kettle] \\
   & 2 & [kettle, bottom burner], [microwave, bottom burner], [microwave, kettle] \\
@@ -1278,41 +1286,41 @@ Table~\ref{tab:kitchen_sequences} reports the distinct successful task sequences
 }
 \end{table}
 
-}
 
-\subsection{Qualitative visualization of the learned skills}
-\label{appendix:qualitative_skills}
 
-Figure~\ref{fig:learned_skills} shows qualitative examples of the trajectory sampled in each environment by the \texttt{DPPO} baseline, as well as the skills learned by the \texttt{DPPO[\methodname{}]} variant trained with our proposed mode discovery and regularization techniques. 
+% \subsection{Qualitative visualization of the learned skills}
+% \label{appendix:qualitative_skills}
 
-\begin{figure}[t!]
-  \centering
-  % --- top row ---
-  \begin{subfigure}[t]{0.485\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/tasks/reach_skills.pdf}
-    \caption{\emph{Reach}: (Left, green box) trajectories sampled from \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
-    \label{fig:top-left}
-  \end{subfigure}\hfill
-  \begin{subfigure}[t]{0.485\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/tasks/Lift_skills.pdf}
-    \caption{\emph{Lift}: (Left, green box) trajectories sampled form \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
-    \label{fig:top-right}
-  \end{subfigure}
+% Figure~\ref{fig:learned_skills} shows qualitative examples of the trajectory sampled in each environment by the \texttt{DPPO} baseline, as well as the skills learned by the \texttt{DPPO[\methodname{}]} variant trained with our proposed mode discovery and regularization techniques. 
 
-  % --- bottom row (wide) ---
-  \vspace{0.6em}
-  \begin{subfigure}[t]{0.99\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/tasks/Avoid_Skills.pdf}
-    \caption{\emph{Avoid}: (Left, purple box) trajectories sampled from \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
-    \label{fig:bottom-wide}
-  \end{subfigure}
+% \begin{figure}[t!]
+%   \centering
+%   % --- top row ---
+%   \begin{subfigure}[t]{0.485\linewidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/tasks/reach_skills.pdf}
+%     \caption{\emph{Reach}: (Left, green box) trajectories sampled from \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
+%     \label{fig:top-left}
+%   \end{subfigure}\hfill
+%   \begin{subfigure}[t]{0.485\linewidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/tasks/Lift_skills.pdf}
+%     \caption{\emph{Lift}: (Left, green box) trajectories sampled form \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
+%     \label{fig:top-right}
+%   \end{subfigure}
 
-  \caption{Visualization of trajectories (blue) from standard fine-tuning and \methodname{} fine-tuning across different tasks. Highlighted boxes (green, purple) show \texttt{DPPO}, which exhibits multimodal behavior only in the \emph{Reach} task. The remaining visualizations represent \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$}
-  \label{fig:learned_skills}
-\end{figure}
+%   % --- bottom row (wide) ---
+%   \vspace{0.6em}
+%   \begin{subfigure}[t]{0.99\linewidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/tasks/Avoid_Skills.pdf}
+%     \caption{\emph{Avoid}: (Left, purple box) trajectories sampled from \texttt{DPPO}. (Right) Modes learned by \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$.}
+%     \label{fig:bottom-wide}
+%   \end{subfigure}
+
+%   \caption{Visualization of trajectories (blue) from standard fine-tuning and \methodname{} fine-tuning across different tasks. Highlighted boxes (green, purple) show \texttt{DPPO}, which exhibits multimodal behavior only in the \emph{Reach} task. The remaining visualizations represent \texttt{DPPO[\methodname{}]}, where trajectories are sampled by varying $z \in \mathcal{Z}$}
+%   \label{fig:learned_skills}
+% \end{figure}
 
 
 
