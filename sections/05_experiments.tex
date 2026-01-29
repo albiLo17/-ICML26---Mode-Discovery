@@ -299,18 +299,18 @@ Table~\ref{tab:mi_disc} reports the estimated mutual information and inference-m
   \caption{Evaluation on the Gaussian-mixture environment under fine-tuning reward landscape \textbf{G1}.}
   \label{tab:toy_results_g1}
   \resizebox{\columnwidth}{!}{%
-  \begin{tabular}{lcccc}
+  \begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
   \toprule
    \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@80$ $(\uparrow)$ & $\mathcal{{H}}$ $(\uparrow)$ \\
   \midrule
-  \rowcolor{lightgray!50}\texttt{RES} & $0.98 \scriptscriptstyle\pm 0.02$ & $0.98 \scriptscriptstyle\pm 0.02$ & $4.00 / 4$  & $1.00 \scriptscriptstyle\pm 0.00$  \\
+  \rowcolor{lightgray!50}\texttt{RES} & $0.98 \scriptscriptstyle\pm 0.02$ & $0.98 \scriptscriptstyle\pm 0.02$ & \cellcolor{lightblue!20}$4.00 / 4$  & $1.00 \scriptscriptstyle\pm 0.00$  \\
   \texttt{DSRL} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.25 \scriptscriptstyle\pm 0.00$ & $1.00 / 4$& $0.00 \scriptscriptstyle\pm 0.00$  \\
-  \rowcolor{lightgray!50}\texttt{DPPO} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.58 \scriptscriptstyle\pm 0.12$ & $2.33 / 4$& $0.40 \scriptscriptstyle\pm 0.03$  \\
+  \rowcolor{lightgray!50}\texttt{DPPO} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.58 \scriptscriptstyle\pm 0.12$ & \cellcolor{lightblue!20}$2.33 / 4$& $0.40 \scriptscriptstyle\pm 0.03$  \\
   \texttt{DPPO[10]} & $0.66 \scriptscriptstyle\pm 0.32$ & $0.16 \scriptscriptstyle\pm 0.08$ & $0.33 / 4$& $0.00 \scriptscriptstyle\pm 0.00$  \\
   \midrule
-  \rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & \textbf{$1.00 \scriptscriptstyle\pm 0.00$} & \textbf{$1.00 \scriptscriptstyle\pm 0.00$} & \textbf{$4.00 / 4$} &\textbf{ $0.99 \scriptscriptstyle\pm 0.00$} \\
+  \rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & \textbf{$1.00 \scriptscriptstyle\pm 0.00$} & \textbf{$1.00 \scriptscriptstyle\pm 0.00$} & \cellcolor{lightblue!20}\textbf{$4.00 / 4$} &\textbf{ $0.99 \scriptscriptstyle\pm 0.00$} \\
   \texttt{DSRL[\methodname{}]} & $0.33 \scriptscriptstyle\pm 0.47$ & $0.33 \scriptscriptstyle\pm 0.47$ & $1.33 / 4$ & $0.46 \scriptscriptstyle\pm 0.41$  \\
-  \rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $1.00 \scriptscriptstyle\pm 0.00$ & $1.00 \scriptscriptstyle\pm 0.00$ & $4.00 / 4$ & $0.99 \scriptscriptstyle\pm 0.00$  \\
+  \rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $1.00 \scriptscriptstyle\pm 0.00$ & $1.00 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$4.00 / 4$ & $0.99 \scriptscriptstyle\pm 0.00$  \\
   \bottomrule
   \end{tabular}%
   }
@@ -335,18 +335,18 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
   \caption{Evaluation on the Gaussian-mixture environment under fine-tuning reward landscape \textbf{G2}.}
 \label{tab:toy_results_g2}
   \resizebox{\columnwidth}{!}{%
-  \begin{tabular}{lcccc}
+  \begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
   \toprule
   \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@80$ $(\uparrow)$ & $\mathcal{{H}}$ $(\uparrow)$ \\
   \midrule
-  \rowcolor{lightgray!50}\texttt{RES} & $0.92 \scriptscriptstyle\pm 0.12$ & $0.50 \scriptscriptstyle\pm 0.00$ & $2.00 / 4$& $0.59 \scriptscriptstyle\pm 0.13$ \\
+  \rowcolor{lightgray!50}\texttt{RES} & $0.92 \scriptscriptstyle\pm 0.12$ & $0.50 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$2.00 / 4$& $0.59 \scriptscriptstyle\pm 0.13$ \\
   \texttt{DSRL} & $0.33 \scriptscriptstyle\pm 0.47$ & $0.08 \scriptscriptstyle\pm 0.12$ & $0.33 / 4$& $0.00 \scriptscriptstyle\pm 0.00$ \\
-  \rowcolor{lightgray!50}\texttt{DPPO} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.42 \scriptscriptstyle\pm 0.12$ & $1.67 / 4$& $0.02 \scriptscriptstyle\pm 0.02$ \\
+  \rowcolor{lightgray!50}\texttt{DPPO} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.42 \scriptscriptstyle\pm 0.12$ & \cellcolor{lightblue!20}$1.67 / 4$& $0.02 \scriptscriptstyle\pm 0.02$ \\
   \texttt{DPPO[10]} & $0.32 \scriptscriptstyle\pm 0.22$ & $0.11 \scriptscriptstyle\pm 0.05$ & $0.00 / 4$& $0.60 \scriptscriptstyle\pm 0.22$ \\
   \midrule
-  \rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & \textbf{$1.00 \scriptscriptstyle\pm 0.00$} & \textbf{$1.00 \scriptscriptstyle\pm 0.00$} & \textbf{$4.00 / 4$ }& \textbf{$0.94 \scriptscriptstyle\pm 0.00$} \\
+  \rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & \textbf{$1.00 \scriptscriptstyle\pm 0.00$} & \textbf{$1.00 \scriptscriptstyle\pm 0.00$} & \cellcolor{lightblue!20}\textbf{$4.00 / 4$ }& \textbf{$0.94 \scriptscriptstyle\pm 0.00$} \\
   \texttt{DSRL[\methodname{}]} & $0.33 \scriptscriptstyle\pm 0.04$ & $0.08 \scriptscriptstyle\pm 0.12$ & $0.33 / 4$ & $0.84 \scriptscriptstyle\pm 0.14$ \\
-  \rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.75 \scriptscriptstyle\pm 0.00$ & $3.00 / 4$ & $0.74 \scriptscriptstyle\pm 0.00$ \\
+  \rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.75 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$3.00 / 4$ & $0.74 \scriptscriptstyle\pm 0.00$ \\
   \bottomrule
   \end{tabular}%
   }
@@ -368,7 +368,7 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 \resizebox{\linewidth}{!}{%
 % \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
 \centering
-\begin{tabular}{lcccc}
+\begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
 \toprule
  \textbf{Method} & $\mathrm{SR}$$(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$& $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$\\
 \midrule
@@ -376,27 +376,27 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 \midrule
 \texttt{PRE} & $0.32 \scriptscriptstyle\pm 0.01$ & $0.31 \scriptscriptstyle\pm 0.00$ & $0.00 / 2$& $0.99 \scriptscriptstyle\pm 0.00$  \\
 \midrule
-\rowcolor{lightgray!50}\texttt{RES} & $1.00 \scriptscriptstyle\pm 0.00$ & $1.00 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $0.98 \scriptscriptstyle\pm 0.01$  \\
+\rowcolor{lightgray!50}\texttt{RES} & $1.00 \scriptscriptstyle\pm 0.00$ & $1.00 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$2.00 / 2$& $0.98 \scriptscriptstyle\pm 0.01$  \\
 \texttt{DSRL} & $0.98 \scriptscriptstyle\pm 0.00$ & $0.98 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $0.97 \scriptscriptstyle\pm 0.00$ \\
-\rowcolor{lightgray!50}\texttt{DPPO} & $0.93 \scriptscriptstyle\pm 0.01$ & $0.94 \scriptscriptstyle\pm 0.02$ & $2.00 / 2$& $0.66 \scriptscriptstyle\pm 0.33$  \\
+\rowcolor{lightgray!50}\texttt{DPPO} & $0.93 \scriptscriptstyle\pm 0.01$ & $0.94 \scriptscriptstyle\pm 0.02$ & \cellcolor{lightblue!20}$2.00 / 2$& $0.66 \scriptscriptstyle\pm 0.33$  \\
 \texttt{DPPO[10]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $0.97 \scriptscriptstyle\pm 0.03$  \\
 \midrule
 \rowcolor{lightgray!50} \multicolumn{5}{c}{\emph{Lift}} \\
 \midrule
 \texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$\\
 \midrule
-\rowcolor{lightgray!50}\texttt{RES} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.50 \scriptscriptstyle\pm 0.00$ & $1.00 / 2$& $0.00 \scriptscriptstyle\pm 0.00$  \\
+\rowcolor{lightgray!50}\texttt{RES} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.50 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$1.00 / 2$& $0.00 \scriptscriptstyle\pm 0.00$  \\
 \texttt{DSRL} & $0.78 \scriptscriptstyle\pm 0.03$ & $0.78 \scriptscriptstyle\pm 0.03$ & $0.67 / 2$& $0.98 \scriptscriptstyle\pm 0.01$  \\
-\rowcolor{lightgray!50}\texttt{DPPO} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.57 \scriptscriptstyle\pm 0.10$ & $1.00 / 2$& $0.05 \scriptscriptstyle\pm 0.03$ \\
+\rowcolor{lightgray!50}\texttt{DPPO} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.57 \scriptscriptstyle\pm 0.10$ & \cellcolor{lightblue!20}$1.00 / 2$& $0.05 \scriptscriptstyle\pm 0.03$ \\
 \texttt{DPPO[10]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.56 \scriptscriptstyle\pm 0.08$ & $1.00 / 2$& $0.02 \scriptscriptstyle\pm 0.01$  \\
 \midrule
 \rowcolor{lightgray!50} \multicolumn{5}{c}{\emph{Avoid}} \\
 \midrule
 \texttt{PRE} & $0.94 \scriptscriptstyle\pm 0.04$ & $0.86 \scriptscriptstyle\pm 0.04$ & $20.00 / 24$& $0.63 \scriptscriptstyle\pm 0.00$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{RES} & $0.98 \scriptscriptstyle\pm 0.03$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.00 / 24$& $0.00 \scriptscriptstyle\pm 0.00$  \\
+\rowcolor{lightgray!50}\texttt{RES} & $0.98 \scriptscriptstyle\pm 0.03$ & $0.04 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$1.00 / 24$& $0.00 \scriptscriptstyle\pm 0.00$  \\
 \texttt{DSRL} & $1.00 \scriptscriptstyle\pm 0.01$ & $0.09 \scriptscriptstyle\pm 0.02$ & $2.00 / 24$& $0.01 \scriptscriptstyle\pm 0.00$ \\
-\rowcolor{lightgray!50}\texttt{DPPO} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.26 \scriptscriptstyle\pm 0.11$ & $6.33 / 24$& $0.13 \scriptscriptstyle\pm 0.15$ \\
+\rowcolor{lightgray!50}\texttt{DPPO} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.26 \scriptscriptstyle\pm 0.11$ & \cellcolor{lightblue!20}$6.33 / 24$& $0.13 \scriptscriptstyle\pm 0.15$ \\
 \texttt{DPPO[10]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.00 / 24$& $0.00 \scriptscriptstyle\pm 0.00$  \\
 \bottomrule
 \end{tabular}%
@@ -409,7 +409,7 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 \centering
 \resizebox{0.95\linewidth}{!}{%
 % \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
-\begin{tabular}{lcccc}
+\begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
 \toprule
  \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$& $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$ \\
 \midrule
@@ -417,27 +417,27 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 \midrule
 \texttt{PRE} & $0.32 \scriptscriptstyle\pm 0.01$ & $0.31 \scriptscriptstyle\pm 0.00$ & $0.00 / 2$& $0.99 \scriptscriptstyle\pm 0.00$  \\
 \midrule
-\rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
+\rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
 \texttt{DSRL[\methodname{}]} & $1.00 \scriptscriptstyle\pm 0.00$ & $1.00 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
-\rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $0.98 \scriptscriptstyle\pm 0.01$ & $0.98 \scriptscriptstyle\pm 0.01$ & $2.00 / 2$& $0.67 \scriptscriptstyle\pm 0.43$ \\
+\rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $0.98 \scriptscriptstyle\pm 0.01$ & $0.98 \scriptscriptstyle\pm 0.01$ & \cellcolor{lightblue!20}$2.00 / 2$& $0.67 \scriptscriptstyle\pm 0.43$ \\
 \texttt{DPPO[10]} & - & -  &  -  & -   \\
 \midrule
 \rowcolor{lightgray!50} \multicolumn{5}{c}{\emph{Lift}} \\
 \midrule
 \texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
+\rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
 \texttt{DSRL[\methodname{}]} & $0.88 \scriptscriptstyle\pm 0.07$ & $0.88 \scriptscriptstyle\pm 0.07$ & $1.67 / 2$& $0.99 \scriptscriptstyle\pm 0.01$ \\
-\rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.55 \scriptscriptstyle\pm 0.07$ & $1.00 / 2$& $0.06 \scriptscriptstyle\pm 0.04$ \\
+\rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.55 \scriptscriptstyle\pm 0.07$ & \cellcolor{lightblue!20}$1.00 / 2$& $0.06 \scriptscriptstyle\pm 0.04$ \\
 \texttt{DPPO[10]} & - & -  &  -  & -   \\
 \midrule
 \rowcolor{lightgray!50} \multicolumn{5}{c}{\emph{Avoid}} \\
 \midrule
 \texttt{PRE} & $0.94 \scriptscriptstyle\pm 0.04$ & $0.86 \scriptscriptstyle\pm 0.04$ & $20.00 / 24$& $0.63 \scriptscriptstyle\pm 0.00$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.30 \scriptscriptstyle\pm 0.02$ & $7.33 / 24$& $0.53 \scriptscriptstyle\pm 0.01$  \\
-\texttt{DSRL[\methodname{}]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.42 \scriptscriptstyle\pm 0.00$ & $10.00 / 24$& $0.58 \scriptscriptstyle\pm 0.00$  \\
-\rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $0.94 \scriptscriptstyle\pm 0.07$ & $0.43 \scriptscriptstyle\pm 0.05$ & $9.67 / 24$& $0.57 \scriptscriptstyle\pm 0.01$  \\
+\rowcolor{lightgray!50}\texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.30 \scriptscriptstyle\pm 0.02$ & \cellcolor{lightblue!20}$7.33 / 24$& $0.53 \scriptscriptstyle\pm 0.01$  \\
+\texttt{DSRL[\methodname{}]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.42 \scriptscriptstyle\pm 0.00$ & $10.0 / 24$& $0.58 \scriptscriptstyle\pm 0.00$  \\
+\rowcolor{lightgray!50}\texttt{DPPO[\methodname{}]} & $0.94 \scriptscriptstyle\pm 0.07$ & $0.43 \scriptscriptstyle\pm 0.05$ & \cellcolor{lightblue!20}$9.67 / 24$& $0.57 \scriptscriptstyle\pm 0.01$  \\
 \texttt{DPPO[10]} & - & -  &  -  & -   \\
 \bottomrule
 \end{tabular}%
@@ -456,18 +456,18 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 \resizebox{\linewidth}{!}{%
 % \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
 \centering
-\begin{tabular}{lcccc}
+\begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
 \toprule
  \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$ & $\mathcal{H}$ $(\uparrow)$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{PRE} & $0.41 \scriptscriptstyle\pm 0.01$ & $0.39 \scriptscriptstyle\pm 0.01$ & $0.00 / 4$ & $0.96 \scriptscriptstyle\pm 0.00$ \\
+\rowcolor{lightgray!50}\texttt{PRE} & $0.41 \scriptscriptstyle\pm 0.01$ & $0.39 \scriptscriptstyle\pm 0.01$ & \cellcolor{lightblue!20}$0.00 / 4$ & $0.96 \scriptscriptstyle\pm 0.00$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{RES} & $0.98 \scriptscriptstyle\pm 0.01$ & $0.90 \scriptscriptstyle\pm 0.11$ & $3.67 / 4$ & $0.90 \scriptscriptstyle\pm 0.09$ \\
+\rowcolor{lightgray!50}\texttt{RES} & $0.98 \scriptscriptstyle\pm 0.01$ & $0.90 \scriptscriptstyle\pm 0.11$ & \cellcolor{lightblue!20}$3.67 / 4$ & $0.90 \scriptscriptstyle\pm 0.09$ \\
 \texttt{DSRL} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.25 \scriptscriptstyle\pm 0.00$ & $1.00 / 4$ & $0.00 \scriptscriptstyle\pm 0.00$ \\
-\rowcolor{lightgray!50}\texttt{DPPO} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.32 \scriptscriptstyle\pm 0.10$ & $1.33 / 4$ & $0.09 \scriptscriptstyle\pm 0.13$ \\
+\rowcolor{lightgray!50}\texttt{DPPO} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.32 \scriptscriptstyle\pm 0.10$ & \cellcolor{lightblue!20}$1.33 / 4$ & $0.09 \scriptscriptstyle\pm 0.13$ \\
 \texttt{DPPO[10]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.42 \scriptscriptstyle\pm 0.12$ & $1.67 / 4$ & $0.15 \scriptscriptstyle\pm 0.20$\\
 \midrule
-\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]}  & $0.97 \scriptscriptstyle\pm 0.01$ & $0.89 \scriptscriptstyle\pm 0.12$ & $3.67 / 4$ & $0.91 \scriptscriptstyle\pm 0.12$ \\
+\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]}  & $0.97 \scriptscriptstyle\pm 0.01$ & $0.89 \scriptscriptstyle\pm 0.12$ & \cellcolor{lightblue!20}$3.67 / 4$ & $0.91 \scriptscriptstyle\pm 0.12$ \\
 \bottomrule
 \end{tabular}
 }
@@ -480,22 +480,22 @@ In contrast, the \texttt{[\methodname{}]} variants preserve diversity more consi
 \resizebox{\linewidth}{!}{%
 
 \centering
-\begin{tabular}{lcccc}
+\begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
 \toprule
   \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$ & $\mathcal{H}$ $(\uparrow)$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{PRE} & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 / 24$ & $0.33 \scriptscriptstyle\pm 0.07$ \\
+\rowcolor{lightgray!50}\texttt{PRE} & $0.00 \scriptscriptstyle\pm 0.00$ & $0.00 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$0.00 / 24$ & $0.33 \scriptscriptstyle\pm 0.07$ \\
 \midrule
 % \rowcolor{lightgray!50}\texttt{RES} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
 % \texttt{DSRL} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
 % \rowcolor{lightgray!50}\texttt{DPPO[10]} & 1.00 & 0.04 & $1.00 / 24$ & 0.00 \\
 % \texttt{DPPO} & 0.71 & 0.04 & $1.00 / 24$ & 0.19 \\
 % \midrule
-\rowcolor{lightgray!50}\texttt{RES} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.0 / 24$ & $0.00 \scriptscriptstyle\pm 0.00$ \\
-\texttt{DSRL} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.0 / 24$ & $0.01 \scriptscriptstyle\pm 0.02$ \\
-\rowcolor{lightgray!50}\texttt{DPPO} & $0.56 \scriptscriptstyle\pm 0.41$ & $0.03 \scriptscriptstyle\pm 0.02$ & $0.67 / 24$ & $0.08 \scriptscriptstyle\pm 0.08$ \\
-\texttt{DPPO[10]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.0 / 24$ & $0.00 \scriptscriptstyle\pm 0.00$ \\
-\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & 0.98 & 0.08 & $2.00 / 24$ & 0.23 \\
+\rowcolor{lightgray!50}\texttt{RES} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.04 \scriptscriptstyle\pm 0.00$ & \cellcolor{lightblue!20}$1.00 / 24$ & $0.00 \scriptscriptstyle\pm 0.00$ \\
+\texttt{DSRL} & $0.99 \scriptscriptstyle\pm 0.01$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.00 / 24$ & $0.01 \scriptscriptstyle\pm 0.02$ \\
+\rowcolor{lightgray!50}\texttt{DPPO} & $0.56 \scriptscriptstyle\pm 0.41$ & $0.03 \scriptscriptstyle\pm 0.02$ & \cellcolor{lightblue!20}$0.67 / 24$ & $0.08 \scriptscriptstyle\pm 0.08$ \\
+\texttt{DPPO[10]} & $1.00 \scriptscriptstyle\pm 0.00$ & $0.04 \scriptscriptstyle\pm 0.00$ & $1.00 / 24$ & $0.00 \scriptscriptstyle\pm 0.00$ \\
+\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & $0.82 \scriptscriptstyle\pm 0.10$ & $0.10 \scriptscriptstyle\pm 0.02$ & \cellcolor{lightblue!20}$2.33 / 24$ & $0.30 \scriptscriptstyle\pm 0.05$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -583,9 +583,9 @@ Additionally, ablations covering design choices such as curriculum learning and 
 
 \subsection{Robotic Locomotion and Sequential Manipulation}
 
-We further evaluate \methodname{} in more challenging settings: ANYmal locomotion, a high-dimensional extension of the 2D Gaussian setup, and the sequential, combinatorial Franka Kitchen task, both detailed in Appendix~\ref{appendix:manip_tasks}. In both cases, we fine-tune the steering policy and compare against the previously introduced baselines, using latent dimensionalities of $4$ and $64$, respectively. %a high-dimensional locomotion task and a sequential manipulation task with combinatorial structure. We evaluate on ANYmal Locomotion, which extends the 2D Gaussian setup, and on the Franka Kitchen environment, both described in detail in the Appendix~\ref{appendix:manip_tasks}. In both cases, we fine-tune the steering policy and compare against the baselines introduced earlier. The latent dimensionality is set to $4$ and $16$, respectively.
+We evaluate \methodname{} in more challenging settings: ANYmal locomotion, a high-dimensional extension of the 2D Gaussian setup, and the sequential, combinatorial Franka Kitchen task, both detailed in Appendix~\ref{appendix:manip_tasks}. We focus on  the \texttt{DSRL[\methodname{}]}  variant and compare against the previously introduced baselines, using latent dimensionalities of $4$ and $64$, respectively. %a high-dimensional locomotion task and a sequential manipulation task with combinatorial structure. We evaluate on ANYmal Locomotion, which extends the 2D Gaussian setup, and on the Franka Kitchen environment, both described in detail in the Appendix~\ref{appendix:manip_tasks}. In both cases, we fine-tune the steering policy and compare against the baselines introduced earlier. The latent dimensionality is set to $4$ and $16$, respectively.
 
 Table~\ref{tab:anymal_results} summarizes the locomotion results. Despite the increased dimensionality, the results closely mirror those of the 2D Gaussian Mixture experiments: \texttt{RES} is a strong baseline in this setting, and \methodname{} preserves all four modes of the pre-trained policy. Additional rollout visualizations, mode-stability analyses, and robustness evaluations under observation noise and dynamics perturbations are provided in Appendix~\ref{appendix:mode stability} and Appendix~\ref{sec:noise_dyn_perturbations}.
 
-Table~\ref{tab:franka_results} reports the results for Franka Kitchen, where success is defined as completing three subtasks in any order. We first observe that the original pre-trained policy exhibits limited mode coverage, as reflected by its relatively low entropy. All baselines collapse the multimodality present in the pre-trained policy. In contrast, \methodname{} maintains some of the original behavioral diversity while still fine-tuning the policy to high success. The slight entropy reduction reflects the loss of a single successful sequence, consistent with the sequences reported in Table~\ref{tab:kitchen_sequences}. Exploring different latent dimensionalities could further mitigate this loss and recover the missing mode. Overall, these results demonstrate that \methodname{} effectively preserves multimodal structure in both high-dimensional control tasks and sequential manipulation domains, where the baselines collapse to a single solution.
+Table~\ref{tab:franka_results} reports the results for Franka Kitchen, where success is defined as completing three subtasks in any order. We first observe that the original pre-trained policy exhibits limited mode coverage, as reflected by its relatively low entropy. All baselines successfully improve task success, but collapse the multimodality present in the pre-trained policy. In contrast, \methodname{} maintains the original behavioral diversity while still fine-tuning the policy to high success, but we observe the loss of one of the modalities for some seeds. The slight decrease in $\mathrm{SR}$ reflects the different success rate per sequences, but \methodname{} still achieves higher $\mathrm{SR}_{\mathrm{M}}$ than the baselines. The unique successful sequences  per method are reported in Table~\ref{tab:kitchen_sequences}. Overall, these results demonstrate that \methodname{} effectively preserves multimodal structure in both high-dimensional control tasks and sequential manipulation domains, where the baselines collapse to a single solution.
 

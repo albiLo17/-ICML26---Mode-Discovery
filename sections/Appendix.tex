@@ -841,23 +841,20 @@ We next examine the effect of the latent dimensionality $|\mathcal{Z}|$ on multi
 \centering
 \caption{\textbf{Ablation on the dimensionality of $\mathcal{Z}$.} }
 \resizebox{0.58\textwidth}{!}{%
-\begin{tabular}{lcccc}
+\begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
 \toprule
   & \multicolumn{4}{c}{\textbf{G2}} \\
  \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
 \midrule
 \rowcolor{lightgray!50} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=4$}} \\
-\tablerowcolors
 \texttt{RES[\methodname{}]} & $1.00 \pm 0.00$ & $0.75 \pm 0.00$ & $3.00 / 4$ & $0.74 \pm 0.00$ \\
 \texttt{DPPO[\methodname{}]}  & $1.00 \pm 0.00$ & $0.75 \pm 0.00$ & $3.00 / 4$ & $0.74 \pm 0.00$ \\
 \midrule
 \rowcolor{lightgray!50} \multicolumn{5}{c}{\textbf{ $|\mathcal{Z}|=8$}} \\
-\tablerowcolors
 \texttt{RES[\methodname{}]}  & $1.00 \pm 0.00$ & $1.00 \pm 0.00$ & $4.00 / 4$ & $0.92 \pm 0.00$ \\
 \texttt{DPPO[\methodname{}]} & $0.64 \pm 0.45$ & $0.63 \pm 0.45$ & $2.33 / 4$ & $0.99 \pm 0.00$ \\
 \midrule
 \rowcolor{lightgray!50} \multicolumn{5}{c}{\textbf{$|\mathcal{Z}|=16$}} \\
-\tablerowcolors
 \texttt{RES[\methodname{}]} & $1.00 \pm 0.00$ & $1.00 \pm 0.00$ & $4.00 / 4$ & $0.94 \pm 0.00$ \\
 \texttt{DPPO[\methodname{}]}  & $0.79 \pm 0.00$ & $0.82 \pm 0.00$ & $2.00 / 4$ & $0.94 \pm 0.00$ \\
 \bottomrule
@@ -1048,11 +1045,10 @@ Next, we analyze the impact of (i) pre-training with only the mode-discovery rew
   \caption{Ablation experiments on key design choices: (i) pre-training with only the mode-discovery reward, (ii) omitting fine-tuning of the inference model and steering policy when adapting the main policy with another fine-tuning technique, and (iii) removing the curriculum stage during the mode-discovery phase.}
   \label{tab:ablation}
   \resizebox{\linewidth}{!}{%
-  \begin{tabular}{lcccc}
+  \begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
     \toprule
     \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
     \midrule
-    \tablerowcolors
     \texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
     \midrule
     \texttt{RES[\methodname{}]} & $0.99 \scriptscriptstyle\pm 0.00$ & $0.99 \scriptscriptstyle\pm 0.00$ & $2.00 / 2$& $1.00 \scriptscriptstyle\pm 0.00$ \\
@@ -1069,11 +1065,10 @@ Next, we analyze the impact of (i) pre-training with only the mode-discovery rew
   \caption{Ablation experiment on removing the steering policy after fine-tuning with \methodname{}}
   \label{tab:remove_steering}
   \resizebox{\linewidth}{!}{%
-  \begin{tabular}{lcccc}
+  \begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
     \toprule
     \textbf{Method} &  $\mathrm{SR}$ &  $\mathrm{SR}_{\mathrm{M}}$ & $\mathrm{mc}@0.80$  & $\mathcal{H}$  \\
     \midrule
-    \tablerowcolors
     \texttt{PRE} & $0.14 \scriptscriptstyle\pm 0.01$ & $0.15 \scriptscriptstyle\pm 0.01$ & $0.00 / 2$& $0.97 \scriptscriptstyle\pm 0.01$ \\
     \midrule
     \rowcolor{lightgray!50} \multicolumn{5}{c}{\emph{With Steering Policy}} \\
@@ -1217,14 +1212,14 @@ We evaluated the steering policy and compared its performance against the same p
 \resizebox{\linewidth}{!}{%
 % \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
 \centering
-\begin{tabular}{lcccc}
+\begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
 \toprule
 \textbf{Method} & $\mathrm{SR}$$(\uparrow)$ & $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$& $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$\\
 \midrule
-\rowcolor{lightgray!50}\texttt{PRE} & $0.32 $ & $0.31  $ & $0.00 / 4$& $0.99 $  \\
+\rowcolor{lightgray!50}\texttt{PRE} & $0.32 $ & $0.31  $ & \cellcolor{lightblue!20}$0.00 / 4$& $0.99 $  \\
 \midrule
 \texttt{DSRL} & $1.00 $ & $0.25  $ & $1.00 / 4$& $0.00  $ \\
-\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & $0.96 $ & $0.96  $ & $4.00 / 4$& $0.99 $  \\
+\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & $0.96 $ & $0.96  $ & \cellcolor{lightblue!20}$4.00 / 4$& $0.99 $  \\
 \bottomrule
 \end{tabular}%
 }
@@ -1236,14 +1231,14 @@ We evaluated the steering policy and compared its performance against the same p
 \centering
 \resizebox{\linewidth}{!}{%
 % \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
-\begin{tabular}{lcccc}
+\begin{tabular}{lcc>{\columncolor{lightblue!20}}c c}
 \toprule
 \textbf{Method} & $\mathrm{SR}$ $(\uparrow)$& $\mathrm{SR}_{\mathrm{M}}$ $(\uparrow)$ & $\mathrm{mc}@0.80$ $(\uparrow)$& $\mathcal{H}$ $(\uparrow)$ \\
 \midrule
-\rowcolor{lightgray!50}\texttt{PRE} & $0.05 $ & $0.06  $ & $0.00 / 4$& $0.90 $  \\
+\rowcolor{lightgray!50}\texttt{PRE} & $0.05 $ & $0.06  $ & \cellcolor{lightblue!20}$0.00 / 4$& $0.90 $  \\
 \midrule
 \texttt{DSRL} & $0.98 $ & $0.24  $ & $1.00 / 4$& $0.00  $ \\
-\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & $0.69 $ & $0.69  $ & $2.00 / 4$& $0.99 $  \\
+\rowcolor{lightgray!50}\texttt{DSRL[\methodname{}]} & $0.69 $ & $0.69  $ & \cellcolor{lightblue!20}$2.00 / 4$& $0.99 $  \\
 \bottomrule
 \end{tabular}%
 }
@@ -1253,10 +1248,10 @@ We evaluated the steering policy and compared its performance against the same p
 
 \subsection{Successful Kitchen Tasks Sequences}
 
-Table~\ref{tab:kitchen_sequences} reports the distinct successful task sequences executed by each method in the Franka Kitchen environment. The pre-trained policy exhibits multiple valid one- and two-task sequences, while all baselines collapse to a single sequence per task count. In contrast, \methodname{} recovers multiple successful sequences across all levels, preserving most of the original multimodality but losing the sequence ``[microwave, bottom burner]''.
+Table~\ref{tab:kitchen_sequences} reports the distinct successful task sequences executed by each method in the Franka Kitchen environment. The pre-trained policy exhibits multiple valid one- and two-task sequences, while all baselines collapse to a single sequence per task count. In contrast, \methodname{} recovers multiple successful sequences across all levels, often preserving the original multimodality but losing for some seeds the sequence ``[microwave, bottom burner]''.
 
 \begin{table}[h!]
-\caption{Unique successful action sequences discovered by each method, grouped by number of completed tasks.}
+\caption{Unique successful action sequences discovered by each method, grouped by number of completed tasks. Underlined sequences are lost for some seeds.}
 \label{tab:kitchen_sequences}
 \resizebox{\linewidth}{!}{%
 % \setlength{\tabcolsep}{3.5pt} % <-- reduce horizontal space between columns
@@ -1279,8 +1274,8 @@ Table~\ref{tab:kitchen_sequences} reports the distinct successful task sequences
 \midrule
 \multirow{3}{*}{\texttt{DSRL[\methodname{}]}}
   & 1 & [microwave], [kettle] \\
-  & 2 & [microwave, kettle], [kettle, bottom burner] \\
-  & 3 & [microwave, kettle, bottom burner], [kettle, bottom burner, light switch] \\
+  & 2 & [kettle, bottom burner], \underline{[microwave, bottom burner]}, [microwave, kettle] \\
+  & 3 & [kettle, bottom burner, light switch], \underline{['microwave', 'bottom burner', 'light switch']}, [microwave, kettle, bottom burner], \\
 \bottomrule
 \end{tabular}
 }
